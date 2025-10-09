@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.config.base.swerve;
+package frc.robot.util.config.swerve;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -11,7 +11,7 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 
 import frc.robot.util.can.CANDeviceID;
 import frc.robot.util.config.NamedCANCoderConfiguration;
-import frc.robot.util.config.NamedTalonFXConfiguration;
+import frc.robot.util.config.talonFX.NamedTalonFXConfiguration;
 
 /** Implementation of the swerve module configuration when using 2 TalonFX motor controllers and one CANCoder */
 public class TalonFXSwerveModuleConfiguration extends SwerveModuleConfiguration<NamedTalonFXConfiguration, NamedTalonFXConfiguration, NamedCANCoderConfiguration> {

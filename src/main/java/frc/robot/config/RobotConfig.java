@@ -2,19 +2,16 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.config.base;
+package frc.robot.config;
 
 import java.util.List;
-
-import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 
-import frc.robot.config.Spectre;
+import frc.robot.config.robots.Spectre;
 import frc.robot.util.config.NamedCANCoderConfiguration;
-import frc.robot.util.config.NamedTalonFXConfiguration;
+import frc.robot.util.config.camera.CameraConfiguration;
+import frc.robot.util.config.talonFX.NamedTalonFXConfiguration;
 
 /**
  * Define the basis for what needs to be provided for the robot to be controlled to its fullest.

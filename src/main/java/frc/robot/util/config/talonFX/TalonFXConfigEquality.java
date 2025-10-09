@@ -1,4 +1,4 @@
-package frc.robot.util.config;
+package frc.robot.util.config.talonFX;
 
 import com.ctre.phoenix6.configs.*;
 import edu.wpi.first.math.MathUtil;
@@ -11,6 +11,11 @@ public class TalonFXConfigEquality {
     public static final boolean ENABLE_LOGGING_INEQ = true;
 
     public static final double TALON_CONFIG_EPSILON = 0.05;
+
+    public static boolean isEqual(NamedTalonFXConfiguration a, NamedTalonFXConfiguration b) {
+        return isEqual((TalonFXConfiguration)a, (TalonFXConfiguration)b)
+                && a.DeviceName.equals(b.DeviceName);
+    }
 
     public static boolean isEqual(TalonFXConfiguration a, TalonFXConfiguration b) {
         return isEqual(a.Slot0, b.Slot0)

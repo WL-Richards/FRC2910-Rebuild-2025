@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.config;
+package frc.robot.config.robots;
 
 import java.util.List;
 
@@ -22,16 +22,16 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import frc.robot.config.base.CameraConfiguration;
-import frc.robot.config.base.PortConfiguration;
-import frc.robot.config.base.RobotConfig;
-import frc.robot.config.base.wrappers.ConfigureSlot0Gains;
-import frc.robot.config.base.CameraConfiguration.Location;
-import frc.robot.config.base.swerve.SwerveModuleConfiguration;
-import frc.robot.config.base.swerve.TalonFXSwerveModuleConfiguration;
+import frc.robot.config.PortConfiguration;
+import frc.robot.config.RobotConfig;
 import frc.robot.util.can.CANDeviceID;
 import frc.robot.util.config.NamedCANCoderConfiguration;
-import frc.robot.util.config.NamedTalonFXConfiguration;
+import frc.robot.util.config.camera.CameraConfiguration;
+import frc.robot.util.config.camera.CameraConfiguration.Location;
+import frc.robot.util.config.swerve.SwerveModuleConfiguration;
+import frc.robot.util.config.swerve.TalonFXSwerveModuleConfiguration;
+import frc.robot.util.config.talonFX.NamedTalonFXConfiguration;
+import frc.robot.util.config.wrappers.ConfigureSlot0Gains;
 import frc.robot.util.mechanics.MultistageGearBox;
 
 /**

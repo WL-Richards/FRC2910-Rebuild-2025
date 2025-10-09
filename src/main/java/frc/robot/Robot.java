@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.RobotRuntimeConstants;
 import frc.robot.util.can.CANDeviceID;
 import frc.robot.util.can.CANStatusLogger;
-import frc.robot.util.motors.TalonFXFactory;
+import frc.robot.util.factories.motors.TalonFXFactory;
 
 public class Robot extends LoggedRobot {
   private final RobotContainer m_robotContainer;

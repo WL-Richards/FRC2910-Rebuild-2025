@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.util.motors;
+package frc.robot.util.factories.motors;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -16,7 +16,7 @@ import com.ctre.phoenix6.signals.ReverseLimitTypeValue;
 
 import frc.robot.util.can.CANDeviceID;
 import frc.robot.util.can.CANStatusLogger;
-import frc.robot.util.config.NamedTalonFXConfiguration;
+import frc.robot.util.config.talonFX.NamedTalonFXConfiguration;
 import frc.robot.util.phoenix6.Phoenix6Util;
 
 /** 
