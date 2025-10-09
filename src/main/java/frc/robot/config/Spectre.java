@@ -6,6 +6,7 @@ package frc.robot.config;
 
 import java.util.List;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.GyroTrimConfigs;
@@ -16,15 +17,22 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 
+import edu.wpi.first.hal.CANAPITypes.CANDeviceType;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import frc.robot.config.base.CameraConfiguration;
 import frc.robot.config.base.PortConfiguration;
 import frc.robot.config.base.RobotConfig;
 import frc.robot.config.base.wrappers.ConfigureSlot0Gains;
 import frc.robot.config.base.CameraConfiguration.Location;
+import frc.robot.config.base.swerve.SwerveModuleConfiguration;
+import frc.robot.config.base.swerve.TalonFXSwerveModuleConfiguration;
 import frc.robot.util.can.CANDeviceID;
+import frc.robot.util.config.NamedCANCoderConfiguration;
+import frc.robot.util.config.NamedTalonFXConfiguration;
+import frc.robot.util.mechanics.MultistageGearBox;
 
 /**
  * This code represents the configuration for 2910's 2025 spectre robot
@@ -33,25 +41,24 @@ public class Spectre extends RobotConfig {
 
     // --- Robot Configuration Settings
     private final PortConfiguration m_portConfiguration;
-
     private final List<CameraConfiguration> m_cameraConfigurations;
-
-    private final  List<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> m_moduleConstants;
-
-    private final  SwerveDrivetrainConstants m_swerveDriveConstants;
+    private final List<SwerveModuleConstants<NamedTalonFXConfiguration, NamedTalonFXConfiguration, NamedCANCoderConfiguration>> m_moduleConstants;
+    private final SwerveDrivetrainConstants m_swerveDriveConstants;
 
     // --- Physical Properties --- 
     // Radius of the modules wheel in meters
     private static final double kWheelBaseLengthM = Units.inchesToMeters(22.75);
     private static final double kWheelTrackWidthM = Units.inchesToMeters(20.75);
 
-    // --- Theoretical Properties ---
-    // Revolutions per second * PI * Wheel Radius(m) / drive gear ratio
-    private static final double kMaxRobotSpeedMeterPerSecond = (Swerve.kDriveMotorFreeSpeedRPM / 60.0) * Math.PI * Swerve.kWheelRadiusM / Swerve.kModuleDriveGearRatio;
-
     // ---  CAN Bus Config  --- 
     // (Note IDs can be the same for different device types (TalonFX, Pigeon2, etc), ie gyro and front left drive motor have the same ID)
     private static final String kCanivoreBusName = "CANivore";
+
+    // List of can buses that are present on this robot
+    private static final List<String> kCANBuses = List.of(
+        kCanivoreBusName
+    );
+
 
     // --- Misc. Config ---
     private static final String kRobotName = "Spectre";
@@ -67,43 +74,65 @@ public class Spectre extends RobotConfig {
 
         // Rotation that the gyro is mounted all degrees passed in must be converted to radians
         private static final Rotation3d kMountRotation = new Rotation3d(
-            Math.toRadians(0),      // Roll
-            Math.toRadians(0),      // Pitch
-            Math.toRadians(0)       // Yaw
+        Math.toRadians(0),      // Roll
+        Math.toRadians(0),      // Pitch
+        Math.toRadians(0)       // Yaw
         );
 
         // CAN Device ID associated with the gyro
-        private static final CANDeviceID kID = new CANDeviceID(1, kCanivoreBusName);
+        private static final CANDeviceID kID = new CANDeviceID(
+            1, 
+            "Pigeon2",
+            CANDeviceID.CANDeviceType.PIGEON2,
+            kCanivoreBusName
+        );
 
         // Configuration for the Pigeon2 that is to be used with the swerve drive
         private static final Pigeon2Configuration kConfiguration = new Pigeon2Configuration()
-            .withMountPose(
-                new MountPoseConfigs()
-                    .withMountPoseRoll(Math.toDegrees(kMountRotation.getX()))
-                    .withMountPosePitch(Math.toDegrees(kMountRotation.getY()))
-                    .withMountPoseYaw(Math.toDegrees(kMountRotation.getZ()))
-            )
-            .withGyroTrim(
-                new GyroTrimConfigs()
-                    .withGyroScalarZ(kGyroYawErrorDegrees)
-            )
-            ;
-
+        .withMountPose(
+            new MountPoseConfigs()
+                .withMountPoseRoll(Math.toDegrees(kMountRotation.getX()))
+                .withMountPosePitch(Math.toDegrees(kMountRotation.getY()))
+                .withMountPoseYaw(Math.toDegrees(kMountRotation.getZ()))
+        )
+        .withGyroTrim(
+            new GyroTrimConfigs()
+                .withGyroScalarZ(kGyroYawErrorDegrees)
+        );
     }
     
     // --- Swerve Modules Config ---
     private class Swerve {
+        // --- Physical Properties ---
         private static final double kDriveFrictionVoltage = 0.25; // The minimum voltage required for the drive motor to begin moving
         private static final double kSteerFrictionVoltage = 0.001; // The minimum voltage required for the steer motor to begin moving
 
         private static final double kDriveInertia = 0.001; // The rotational inertia in the drive system (kg * m^2) and represent rotational resistance to acceleration
         private static final double kSteerInertia = 0.00001; // The rotational inertia in the drive system (kg * m^2) and represent rotational resistance to acceleration
 
-        // Radius of the modules wheel in meters
         private static final double kWheelRadiusM = Units.inchesToMeters(1.95);
 
-        private static final double kDriveMotorFreeSpeedRPM  = 6000; // 6000 RPM is a Kraken X60
+        // --- Gearbox Configuration ---
+        private static final MultistageGearBox kDriveGearBox = 
+            new MultistageGearBox()
+                .addStage(12, 54)
+                .addStage(32, 25)
+                .addStage(15, 30);
 
+        private static final MultistageGearBox kSteerGearBox = 
+            new MultistageGearBox()
+                .addStage(12, 54)
+                .addStage(32, 25)
+                .addStage(15, 30);
+
+        // --- Encoder Configurations ---
+        // Offset from what the encoder thinks is 0 to the true zero of the module in ROTATIONS
+        private static final double kFrontLeftEncoderOffsetRotations = -0.30517578125 + 0.5;
+        private static final double kFrontRightEncoderOffsetRotations = -0.008544921875;
+        private static final double kBackLeftEncoderOffsetRotations = -0.341064453125 + 0.5;
+        private static final double kBackRightEncoderOffsetRotations = 0.100830078125 - 0.5;
+
+        // --- Motor Configurations ---
         // Motor Gains configured for the drive swerve motors
         private static final ConfigureSlot0Gains kDriveMotorGains = new ConfigureSlot0Gains(
             0.0, 
@@ -122,180 +151,204 @@ public class Spectre extends RobotConfig {
             0.0
         );
 
-        // Swerve module encoder offsets
-        // Offset from what the encoder thinks is 0 to the true zero of the module in ROTATIONS
-        private static final double kFrontLeftEncoderOffsetRotations = -0.30517578125 + 0.5;
-        private static final double kFrontRightEncoderOffsetRotations = -0.008544921875;
-        private static final double kBackLeftEncoderOffsetRotations = -0.341064453125 + 0.5;
-        private static final double kBackRightEncoderOffsetRotations = 0.100830078125 - 0.5;
-
-        // Motor Configurations
-
         // Drive Motor
         private static final double kDriveMotorSupplyCurrentLimit = 50.0; // The amount of current (amps) that this motor is allowed to pull from the battery, if exceeded voltage will be reduced to avoid brownouts
         private static final double kDriveMotorStatorCurrentLimit = 100.0;  // The amount of current (amps) that motor is allowed to draw up to
         private static final double kDriveMotorSlipCurrent = 120; // The amount of current (amps) that can be applied to the drive wheel before it slips (120 basically means it doesn't slip)
-        private static final TalonFXConfiguration kDriveMotorConfiguration = new TalonFXConfiguration()
-            .withCurrentLimits(
-                new CurrentLimitsConfigs()
-                    .withSupplyCurrentLimitEnable(true)
-                    .withStatorCurrentLimitEnable(true)
-                    .withSupplyCurrentLimit(kDriveMotorSupplyCurrentLimit)
-                    .withStatorCurrentLimit(kDriveMotorStatorCurrentLimit)
-            );
 
-        // Steer Motor
-        private static final double kSteerMotorSupplyCurrentLimit = 30.0; // amps
-        private static final double kSteerMotorStatorCurrentLimit = 90.0;  // amps
-        private static final TalonFXConfiguration kSteerMotorConfiguration = new TalonFXConfiguration()
-            .withCurrentLimits(
-                new CurrentLimitsConfigs()
-                    .withSupplyCurrentLimitEnable(true)
-                    .withStatorCurrentLimitEnable(true)
-                    .withSupplyCurrentLimit(kSteerMotorSupplyCurrentLimit)
-                    .withStatorCurrentLimit(kSteerMotorStatorCurrentLimit)
-            );
-
-        // Steer Encoder
-        private static final CANcoderConfiguration kSteerEncoderConfiguration = new CANcoderConfiguration();
-
-        // Gear Reductions 
-        // Stage 1
-        private static final double kModuleDriveMotorPinionTeeth = 12.0;     // Number of pinions on the motor output shaft
-        private static final double kModuleFirstGearTeeth = 54.0;            // Number of teeth on the gear the pinion is connected to
-
-        // Stage 2
-        private static final double kModuleStage2FirstGearTeeth = 32.0;      // Number of pinions on the motor output shaft
-        private static final double kModuleStage2SecondGearTeeth = 25.0;     // Number of teeth on the gear the pinion is connected to
-
-        // Stage 3 (output)
-        private static final double kModuleBevelPinionTeeth = 15.0;          // Number of pinions on the motor output shaft
-        private static final double kModuleBevelGearTeeth = 30.0;            // Number of teeth on the gear the pinion is connected to
-
-        // Overall drive gear ratio from motor to wheel
-        private static final double kModuleDriveGearRatio = 
-            (kModuleFirstGearTeeth / kModuleDriveMotorPinionTeeth) *
-            (kModuleStage2SecondGearTeeth / kModuleStage2FirstGearTeeth) * 
-            (kModuleBevelGearTeeth / kModuleBevelPinionTeeth);
-
-        // Overall steer great ratio from motor to steer output shaft 
-        private static final double kModuleSteerGearRatio = 301.0 / 9.0;     // Unfortunately the 2910 code doesn't have the steer gear ratio broken down
-
-        /**
-         * The coupled gear ratio between the CanCoder and the drive motor.
-         * Every 1 rotation of the steer motor results in coupled ratio of drive turns.
-         */
-        private static final double kModuleCouplingGearRatio = kModuleFirstGearTeeth / kModuleDriveMotorPinionTeeth;
-
-        // Front Left
-        private static final CANDeviceID kFrontLeftDriveMotor = new CANDeviceID(1, kCanivoreBusName);
-        private static final CANDeviceID kFrontLeftSteerMotor = new CANDeviceID(2, kCanivoreBusName);
-        private static final CANDeviceID kFrontLeftSteerEncoder = new CANDeviceID(1, kCanivoreBusName);
-
-        // Front Right
-        private static final CANDeviceID kFrontRightDriveMotor = new CANDeviceID(3, kCanivoreBusName);
-        private static final CANDeviceID kFrontRightSteerMotor = new CANDeviceID(4, kCanivoreBusName);
-        private static final CANDeviceID kFrontRightSteerEncoder = new CANDeviceID(2, kCanivoreBusName);
-
-        // Back Left
-        private static final CANDeviceID kBackLeftDriveMotor = new CANDeviceID(5, kCanivoreBusName);
-        private static final CANDeviceID kBackLeftSteerMotor = new CANDeviceID(6, kCanivoreBusName);
-        private static final CANDeviceID kBackLeftSteerEncoder = new CANDeviceID(3, kCanivoreBusName);
-
-        // Back Right
-        private static final CANDeviceID kBackRightDriveMotor = new CANDeviceID(7, kCanivoreBusName);
-        private static final CANDeviceID kBackRightSteerMotor = new CANDeviceID(8, kCanivoreBusName);
-        private static final CANDeviceID kBackRightSteerEncoder = new CANDeviceID(4, kCanivoreBusName);
-
-        /**
-         * Class used to categories different constants within the config
-         */
+        // --- Module Configurations ---
         private class Modules {
+            // Front Left
+            private static final CANDeviceID kFrontLeftDriveMotor =  new CANDeviceID(
+                1, 
+                "FrontLeftSwerveDriveMotor", 
+                CANDeviceID.CANDeviceType.TALON_FX, 
+                kCanivoreBusName
+            );
 
-            // Front Left Module
-            private static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> kFrontLeftSwerveModuleConstants = Swerve.Modules.build(
-                Swerve.kFrontLeftDriveMotor, 
-                Swerve.kFrontLeftSteerMotor, 
-                Swerve.kFrontLeftSteerEncoder, 
-                kWheelBaseLengthM / 2, 
-                kWheelTrackWidthM / 2
+            private static final CANDeviceID kFrontLeftSteerMotor = new CANDeviceID(
+            2, 
+                "FrontLeftSwerveSteerMotor", 
+                CANDeviceID.CANDeviceType.TALON_FX, 
+                kCanivoreBusName
             );
             
-            // Front Right Module
-            private static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> kFrontRightSwerveModuleConstants = Swerve.Modules.build(
-                Swerve.kFrontRightDriveMotor, 
-                Swerve.kFrontRightSteerMotor, 
-                Swerve.kFrontRightSteerEncoder, 
-                kWheelBaseLengthM / 2, 
-                -kWheelTrackWidthM / 2
+            private static final CANDeviceID kFrontLeftSteerEncoder = new CANDeviceID(
+            1, 
+                "FrontLeftSwerveSteerEncoder", 
+                CANDeviceID.CANDeviceType.CANCODER, 
+                kCanivoreBusName
             );
 
-            // Back Left Swerve Module
-            private static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> kBackLeftSwerveModuleConstants = Swerve.Modules.build(
-                Swerve.kBackLeftDriveMotor, 
-                Swerve.kBackLeftSteerMotor, 
-                Swerve.kBackLeftSteerEncoder, 
-                -kWheelBaseLengthM / 2, 
-                kWheelTrackWidthM / 2
-            );
-
-            // Back Right Swerve Module
-            private static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> kBackRightSwerveModuleConstants = Swerve.Modules.build(
-                Swerve.kBackRightDriveMotor, 
-                Swerve.kBackRightSteerMotor, 
-                Swerve.kBackRightSteerEncoder, 
-                -kWheelBaseLengthM / 2, 
-                -kWheelTrackWidthM / 2
-            );
-
-            /**
-             * Build a single swerve module with the required information
-             * @param driveMotorID CANDeviceID used to store this swerve modules drive motor ID
-             * @param steerMotorID CANDeviceID used to store this swerve modules steer motor ID
-             * @param steerEncoderID CANDeviceID used to store this swerve modules steer encoder ID
-             * @param xLocationMeters Offset in meters along the X (wheel length) relative to the center of the robot as to where this swerve module is located
-             * @param yLocationMeters Offset in meters along the Y (wheel base) relative to the center of the robot as to where this swerve module is located
-             * @return New swerve module constants object constructed with the desired data
-             */
-            private static SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> build(
-                CANDeviceID driveMotorID,CANDeviceID steerMotorID,
-                CANDeviceID steerEncoderID,
-                double xLocationMeters,
-                double yLocationMeters
-            ){
-                return new SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
-                .withDriveMotorId(driveMotorID.getDeviceID())
-                .withSteerMotorId(steerMotorID.getDeviceID())
-                .withEncoderId(steerEncoderID.getDeviceID())
-                .withDriveMotorGearRatio(Swerve.kModuleDriveGearRatio)
-                .withSteerMotorGearRatio(Swerve.kModuleSteerGearRatio)
-                .withCouplingGearRatio(Swerve.kModuleCouplingGearRatio)
-                .withDriveMotorInverted(false)
-                .withSteerMotorInverted(false)
-                .withEncoderInverted(false)
-                .withEncoderOffset(Swerve.kFrontRightEncoderOffsetRotations)
-                .withLocationX(xLocationMeters)
-                .withLocationY(yLocationMeters)
-                .withDriveMotorClosedLoopOutput(SwerveModuleConstants.ClosedLoopOutputType.Voltage)
-                .withSteerMotorClosedLoopOutput(SwerveModuleConstants.ClosedLoopOutputType.Voltage)
-                .withDriveMotorGains(Swerve.kDriveMotorGains)
-                .withSteerMotorGains(Swerve.kSteerMotorGains)
-                .withDriveMotorType(SwerveModuleConstants.DriveMotorArrangement.TalonFX_Integrated)
-                .withSteerMotorType(SwerveModuleConstants.SteerMotorArrangement.TalonFX_Integrated)
-                .withDriveMotorInitialConfigs(Swerve.kDriveMotorConfiguration)
-                .withSteerMotorInitialConfigs(Swerve.kSteerMotorConfiguration)
-                .withEncoderInitialConfigs(Swerve.kSteerEncoderConfiguration)
-                .withDriveFrictionVoltage(Swerve.kDriveFrictionVoltage)
-                .withSteerFrictionVoltage(Swerve.kSteerFrictionVoltage)
+            private static SwerveModuleConfiguration<NamedTalonFXConfiguration, NamedTalonFXConfiguration, NamedCANCoderConfiguration> kFrontLeftModule = 
+            new TalonFXSwerveModuleConfiguration(
+                    "FrontLeftSwerveModule", 
+                    kFrontLeftDriveMotor, 
+                    kFrontLeftSteerEncoder, 
+                    kFrontLeftSteerEncoder
+                )
+                .withDriveFrictionVoltage(kDriveFrictionVoltage)
+                .withSteerFrictionVoltage(kSteerFrictionVoltage)
                 .withDriveInertia(kDriveInertia)
                 .withSteerInertia(kSteerInertia)
-                .withSlipCurrent(kDriveMotorSlipCurrent)
-                .withFeedbackSource(SwerveModuleConstants.SteerFeedbackType.FusedCANcoder)
-                .withSpeedAt12Volts(kMaxRobotSpeedMeterPerSecond)
-                .withWheelRadius(kWheelRadiusM);
-            }
+                .withDriveMotorGains(kDriveMotorGains)
+                .withSteerMotorGains(kSteerMotorGains)
+                .withEncoderOffsetRotations(kFrontLeftEncoderOffsetRotations)
+                .withDriveMotorSupplyCurrentLimit(kDriveMotorSupplyCurrentLimit)
+                .withDriveMotorStatorCurrentLimit(kDriveMotorStatorCurrentLimit)
+                .withDriveMotorSlipCurrent(kDriveMotorSlipCurrent)
+                .withDriveGearBox(kDriveGearBox)
+                .withSteerGearBox(kSteerGearBox)
+                .withDriveMotor(kFrontLeftDriveMotor)
+                .withDriveMotorType(DCMotor.getKrakenX60(1))
+                .withSteerMotor(kFrontLeftSteerMotor)
+                .withSteerEncoder(kFrontLeftSteerEncoder)
+                .withLocationOffset(kWheelBaseLengthM / 2, kWheelTrackWidthM / 2)
+                .withWheelRadiusM(kWheelRadiusM);
+
+            // Front Right
+            private static final CANDeviceID kFrontRightDriveMotor =  new CANDeviceID(
+                3, 
+                "FrontRightSwerveDriveMotor", 
+                CANDeviceID.CANDeviceType.TALON_FX, 
+                kCanivoreBusName
+            );
+
+            private static final CANDeviceID kFrontRightSteerMotor = new CANDeviceID(
+            4, 
+                "FrontRightSwerveSteerMotor", 
+                CANDeviceID.CANDeviceType.TALON_FX, 
+                kCanivoreBusName
+            );
+
+            private static final CANDeviceID kFrontRightSteerEncoder = new CANDeviceID(
+            2, 
+                "FrontRightSwerveSteerEncoder", 
+                CANDeviceID.CANDeviceType.CANCODER, 
+                kCanivoreBusName
+            );
+
+            private static SwerveModuleConfiguration<NamedTalonFXConfiguration, NamedTalonFXConfiguration, NamedCANCoderConfiguration> kFrontRightModule = 
+            new TalonFXSwerveModuleConfiguration(
+                "FrontRightSwerveModule", 
+                kFrontRightDriveMotor, 
+                kFrontRightSteerMotor, 
+                kFrontRightSteerEncoder
+                )
+                .withDriveFrictionVoltage(kDriveFrictionVoltage)
+                .withSteerFrictionVoltage(kSteerFrictionVoltage)
+                .withDriveInertia(kDriveInertia)
+                .withSteerInertia(kSteerInertia)
+                .withDriveMotorGains(0.0, 0.0, 0.0, 0.1238, 0.0)
+                .withSteerMotorGains(100.0, 0.0, 0.0, 0.0, 0.0)
+                .withEncoderOffsetRotations(kFrontRightEncoderOffsetRotations)
+                .withDriveMotorSupplyCurrentLimit(kDriveMotorSupplyCurrentLimit)
+                .withDriveMotorStatorCurrentLimit(kDriveMotorStatorCurrentLimit)
+                .withDriveMotorSlipCurrent(kDriveMotorSlipCurrent)
+                .withDriveGearBox(kDriveGearBox)
+                .withSteerGearBox(kSteerGearBox)
+                .withDriveMotor(kFrontRightDriveMotor)
+                .withDriveMotorType(DCMotor.getKrakenX60(1))
+                .withSteerMotor(kFrontRightSteerMotor)
+                .withSteerEncoder(kFrontRightSteerEncoder)
+                .withLocationOffset(kWheelBaseLengthM / 2, -kWheelTrackWidthM / 2)
+                .withWheelRadiusM(kWheelRadiusM);
+
+            // Back Left
+            private static final CANDeviceID kBackLeftDriveMotor = new CANDeviceID(
+                5, 
+                "BackLeftSwerveDriveMotor", 
+                CANDeviceID.CANDeviceType.TALON_FX, 
+                kCanivoreBusName
+            );
+            private static final CANDeviceID kBackLeftSteerMotor = new CANDeviceID(
+            6, 
+                "BackLeftSwerveSteerMotor", 
+                CANDeviceID.CANDeviceType.TALON_FX, 
+                kCanivoreBusName
+            );
+            private static final CANDeviceID kBackLeftSteerEncoder = new CANDeviceID(
+            3, 
+                "BackLeftSwerveSteerEncoder", 
+                CANDeviceID.CANDeviceType.CANCODER, 
+                kCanivoreBusName
+            );
+            
+
+            private static SwerveModuleConfiguration<NamedTalonFXConfiguration, NamedTalonFXConfiguration, NamedCANCoderConfiguration> kBackLeftModule = 
+            new TalonFXSwerveModuleConfiguration(
+                "BackLeftSwerveModule", 
+                kBackLeftDriveMotor, 
+                kBackLeftSteerMotor, 
+                kBackLeftSteerEncoder
+                )
+                .withDriveFrictionVoltage(kDriveFrictionVoltage)
+                .withSteerFrictionVoltage(kSteerFrictionVoltage)
+                .withDriveInertia(kDriveInertia)
+                .withSteerInertia(kSteerInertia)
+                .withDriveMotorGains(0.0, 0.0, 0.0, 0.1238, 0.0)
+                .withSteerMotorGains(100.0, 0.0, 0.0, 0.0, 0.0)
+                .withEncoderOffsetRotations(kBackLeftEncoderOffsetRotations)
+                .withDriveMotorSupplyCurrentLimit(kDriveMotorSupplyCurrentLimit)
+                .withDriveMotorStatorCurrentLimit(kDriveMotorStatorCurrentLimit)
+                .withDriveMotorSlipCurrent(kDriveMotorSlipCurrent)
+                .withDriveGearBox(kDriveGearBox)
+                .withSteerGearBox(kSteerGearBox)
+                .withDriveMotor(kBackLeftDriveMotor)
+                .withDriveMotorType(DCMotor.getKrakenX60(1))
+                .withSteerMotor(kBackLeftSteerMotor)
+                .withSteerEncoder(kBackLeftSteerEncoder)
+                .withLocationOffset(-kWheelBaseLengthM / 2, kWheelTrackWidthM / 2)
+                .withWheelRadiusM(kWheelRadiusM);
+
+            // Back Right Swerve Module Configuration
+            private static final CANDeviceID kBackRightDriveMotor = new CANDeviceID(
+                7, 
+                "BackRightSwerveDriveMotor", 
+                CANDeviceID.CANDeviceType.TALON_FX, 
+                kCanivoreBusName
+            );
+
+            private static final CANDeviceID kBackRightSteerMotor = new CANDeviceID(
+                8, 
+                "BackRightSwerveSteerMotor",  
+                CANDeviceID.CANDeviceType.TALON_FX, 
+                kCanivoreBusName
+            );
+
+            private static final CANDeviceID kBackRightSteerEncoder = new CANDeviceID(
+                8, 
+                "BackRightSwerveSteerEncoder",  
+                CANDeviceID.CANDeviceType.CANCODER, 
+                kCanivoreBusName
+            );
+
+            private static SwerveModuleConfiguration<NamedTalonFXConfiguration, NamedTalonFXConfiguration, NamedCANCoderConfiguration> kBackRightModule = 
+                new TalonFXSwerveModuleConfiguration(
+                    "BackRightSwerveModule", 
+                    kBackRightDriveMotor, 
+                    kBackRightSteerMotor, 
+                    kBackRightSteerEncoder
+                    )
+                    .withDriveFrictionVoltage(kDriveFrictionVoltage)
+                    .withSteerFrictionVoltage(kSteerFrictionVoltage)
+                    .withDriveInertia(kDriveInertia)
+                    .withSteerInertia(kSteerInertia)
+                    .withDriveMotorGains(0.0, 0.0, 0.0, 0.1238, 0.0)
+                    .withSteerMotorGains(100.0, 0.0, 0.0, 0.0, 0.0)
+                    .withEncoderOffsetRotations(kBackRightEncoderOffsetRotations)
+                    .withDriveMotorSupplyCurrentLimit(kDriveMotorSupplyCurrentLimit)
+                    .withDriveMotorStatorCurrentLimit(kDriveMotorStatorCurrentLimit)
+                    .withDriveMotorSlipCurrent(kDriveMotorSlipCurrent)
+                    .withDriveGearBox(kDriveGearBox)
+                    .withSteerGearBox(kSteerGearBox)
+                    .withDriveMotor(kBackRightDriveMotor)
+                    .withDriveMotorType(DCMotor.getKrakenX60(1))
+                    .withSteerMotor(kBackRightSteerMotor)
+                    .withSteerEncoder(kBackRightSteerEncoder)
+                    .withLocationOffset(-kWheelBaseLengthM / 2, kWheelTrackWidthM / 2)
+                    .withWheelRadiusM(kWheelRadiusM);
         }
-        
     }
     
     // --- Camera Config ---
@@ -414,12 +467,12 @@ public class Spectre extends RobotConfig {
      * Constructs and returns a list of swerve modules constants (each element = one module (in LF, RF, BL, BR order)) utilized on this robot config
      * @return List of swerve module constants
      */
-    private List<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> buildSwerveModuleConstants(){
+    private List<SwerveModuleConstants<NamedTalonFXConfiguration, NamedTalonFXConfiguration, NamedCANCoderConfiguration>> buildSwerveModuleConstants(){
         return List.of(
-            Swerve.Modules.kFrontLeftSwerveModuleConstants,
-            Swerve.Modules.kFrontRightSwerveModuleConstants,
-            Swerve.Modules.kBackLeftSwerveModuleConstants,
-            Swerve.Modules.kBackRightSwerveModuleConstants
+            Swerve.Modules.kFrontLeftModule.getModuleConstants(),
+            Swerve.Modules.kFrontRightModule.getModuleConstants(),
+            Swerve.Modules.kBackLeftModule.getModuleConstants(),
+            Swerve.Modules.kBackRightModule.getModuleConstants()
         );
     }
 
@@ -441,7 +494,7 @@ public class Spectre extends RobotConfig {
     }
 
     @Override
-    public List<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> getModuleConstants() {
+    public List<SwerveModuleConstants<NamedTalonFXConfiguration, NamedTalonFXConfiguration, NamedCANCoderConfiguration>> getModuleConstants() {
         return m_moduleConstants;
     }
 
@@ -458,5 +511,10 @@ public class Spectre extends RobotConfig {
     @Override
     public List<CameraConfiguration> getCameraConfigurations() {
         return m_cameraConfigurations;
+    }
+
+    @Override
+    public List<String> getCANBusNames() {
+        return kCANBuses;
     }
 }

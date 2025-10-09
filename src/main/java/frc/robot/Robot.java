@@ -6,18 +6,37 @@ package frc.robot;
 
 import org.littletonrobotics.junction.LoggedRobot;
 
+import com.ctre.phoenix6.hardware.TalonFX;
+
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.constants.RobotRuntimeConstants;
+import frc.robot.util.can.CANDeviceID;
+import frc.robot.util.can.CANStatusLogger;
+import frc.robot.util.motors.TalonFXFactory;
 
 public class Robot extends LoggedRobot {
   private final RobotContainer m_robotContainer;
 
   public Robot() {
+    // SHOULD ALWAYS BE CALLED FIRST TO NOT MISS ANY LOGS
+    // Setup logging to the proper location, and log the metadata for the bot
     m_robotContainer = new RobotContainer();
+    m_robotContainer.setupLogger();
+    TalonFX testTalonFX = TalonFXFactory.createDefault(
+      new CANDeviceID(
+        0, 
+        "TestTalonDevice", 
+        CANDeviceID.CANDeviceType.TALON_FX, 
+        CANStatusLogger.get(0).getBusName()
+      )
+    );
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+
+    m_robotContainer.updateLogger();
   }
 
   @Override
@@ -35,7 +54,11 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+
+    // Only update CAN status logging when disabled to save on performance
+    CANStatusLogger.updateAllLogs();
+  }
 
   @Override
   public void disabledExit() {}

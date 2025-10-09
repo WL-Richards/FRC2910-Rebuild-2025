@@ -4,16 +4,26 @@
 
 package frc.robot;
 
+
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.util.interfaces.logging.Loggerable;
 
-public class RobotContainer {
-  
+public class RobotContainer implements Loggerable {
 
   public RobotContainer() {
     configureBindings();
   }
 
   private void configureBindings() {}
-  
+
+  @Override
+  public void updateLogger() {
+    // Update the robot state log
+    RobotState.get().updateLog();
+  }
+
 }

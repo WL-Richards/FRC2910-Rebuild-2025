@@ -6,12 +6,15 @@ package frc.robot.config.base;
 
 import java.util.List;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 
 import frc.robot.config.Spectre;
+import frc.robot.util.config.NamedCANCoderConfiguration;
+import frc.robot.util.config.NamedTalonFXConfiguration;
 
 /**
  * Define the basis for what needs to be provided for the robot to be controlled to its fullest.
@@ -36,7 +39,7 @@ public abstract class RobotConfig {
      * Pure abstract method, retrieves the phoenix 6 swerve drive constants for each module utilized in the swerve drive
      * @return Constants utilized by each swerve drive module
      */
-    public abstract List<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> getModuleConstants();
+    public abstract List<SwerveModuleConstants<NamedTalonFXConfiguration, NamedTalonFXConfiguration, NamedCANCoderConfiguration>> getModuleConstants();
 
     /**
      * Pure abstract method, retrieves how all motors and sensors are mapped to their respective CAN IDs and RIO ports
@@ -49,6 +52,12 @@ public abstract class RobotConfig {
      * @return Current configuration of sensor and motor ports and IDs
      */
     public abstract List<CameraConfiguration> getCameraConfigurations();
+
+    /**
+     * Pure abstract method, retrieves the list of named CAN buses that are present on this bot
+     * @return Current list of CAN buses used on this robot
+     */
+    public abstract List<String> getCANBusNames();
 
     /**
      * retrieve the correct robot constants based on the determined robot identification

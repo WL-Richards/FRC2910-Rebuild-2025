@@ -18,7 +18,6 @@ public enum RobotID {
 
     /* Define mappings of robot types to the MAC address they are associated with */
     private static final Map<String, RobotID> RobotToMAC = Map.of(
-        null, RobotID.SPECTRE,                              // Default to the main robot if MAC was unable to be retrieved
         "blah:blah:blah:blah:blah:blah", RobotID.SPECTRE
     );
 
@@ -27,6 +26,12 @@ public enum RobotID {
      */
     public static RobotID getIdentification(){
         String macAddress = NetworkUtils.MAC.getMACAddress();
-        return RobotToMAC.get(macAddress);
+        if (macAddress == null){
+            return RobotID.SPECTRE;
+        }
+        RobotID id = RobotToMAC.get(macAddress);
+
+        // Default to the main robot if MAC was unable to be retrieved
+        return  (id != null) ? id : RobotID.SPECTRE;
     }
 }

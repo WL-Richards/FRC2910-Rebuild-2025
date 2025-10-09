@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 
 /**
  * Helper class to configure the gains for the drive and steer motors.
+ * Yoinked: https://github.com/FRCTeam2910/2025CompetitionRobot-Public/blob/main/src/main/java/org/frc2910/robot/config/ConfigureSlot0Gains.java
  */
 public class ConfigureSlot0Gains extends Slot0Configs {
     public ConfigureSlot0Gains(double kP, double kI, double kD, double kV, double kS) {

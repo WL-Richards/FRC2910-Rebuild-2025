@@ -11,4 +11,12 @@ package frc.robot.constants;
  */
 public final class RobotStateConstants {
 
+    /**
+     * All constants related to robot state kinematics should reside within this class
+     */
+    public class Kinematics {
+        
+        // Length of time in seconds that the robot pose should be tracked
+        public static final double kRobotPoseWindowLengthSeconds = 1.0;
+    }
 }
