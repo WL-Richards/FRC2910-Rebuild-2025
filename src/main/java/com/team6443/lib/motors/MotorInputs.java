@@ -4,7 +4,9 @@
 
 package com.team6443.lib.motors;
 
+import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import com.team6443.lib.logging.interfaces.Loggable;
 
@@ -12,7 +14,7 @@ import com.team6443.lib.logging.interfaces.Loggable;
  * Defines generic inputs to be passed to a motor
  */
 
-public class MotorInputs implements Loggable{
+public class MotorInputs implements LoggableInputs{
 
     public double velocityUnitsPerSecond = 0.0;
     public double unitPosition = 0.0;
@@ -21,15 +23,24 @@ public class MotorInputs implements Loggable{
     public double currentSupplyAmps = 0.0;
     public double rawRotorPosition = 0.0;
 
-    // --- Loggable interface ---
     @Override
-    public void updateLog(String prefix) {
-       Logger.recordOutput(prefix + "Inputs/VelocityUnitsPerSecond", velocityUnitsPerSecond);
-       Logger.recordOutput(prefix + "Inputs/UnitPosition", unitPosition);
-       Logger.recordOutput(prefix + "Inputs/AppliedVolts", appliedVolts);
-       Logger.recordOutput(prefix + "Inputs/CurrentStatorAmps", currentStatorAmps);
-       Logger.recordOutput(prefix + "Inputs/CurrentSupplyAmps", currentSupplyAmps);
-       Logger.recordOutput(prefix + "Inputs/RawRotorPosition", rawRotorPosition);
+    public void toLog(LogTable table) {
+        table.put("VelocityUnitsPerSecond", velocityUnitsPerSecond);
+        table.put("UnitPosition", unitPosition);
+        table.put("AppliedVolts", appliedVolts);
+        table.put("CurrentStatorAmps", currentStatorAmps);
+        table.put("CurrentSupplyAmps", currentSupplyAmps);
+        table.put("RawRotorPosition", rawRotorPosition);
+    }
+
+    @Override
+    public void fromLog(LogTable table) {
+        velocityUnitsPerSecond = table.get("VelocityUnitsPerSecond", velocityUnitsPerSecond);
+        unitPosition = table.get("UnitPosition", unitPosition);
+        appliedVolts = table.get("AppliedVolts", appliedVolts);
+        currentStatorAmps = table.get("CurrentStatorAmps", currentStatorAmps);
+        currentSupplyAmps = table.get("CurrentSupplyAmps", currentSupplyAmps);
+        rawRotorPosition = table.get("RawRotorPosition", rawRotorPosition);
     }
 
 }

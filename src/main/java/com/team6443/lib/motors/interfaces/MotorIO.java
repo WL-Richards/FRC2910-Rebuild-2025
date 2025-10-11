@@ -130,7 +130,7 @@ public interface MotorIO {
      * @param dutyCycle Value between -1 and 1 to represent full reverse and full forward respectively
      * @return true on success false on failure
      */
-    public boolean setOpenLoopDutyCylce(double dutyCycle);
+    public boolean setOpenLoopDutyCycle(double dutyCycle);
 
     /**
      * Set the state for how the motor behaves when no input is applied
@@ -141,10 +141,17 @@ public interface MotorIO {
 
     /**
      * Drive the motor to some position using standard PID / FF
-     * @param posSetpoint The position with which the motor should be driven to (these units are relative to whatever config is used on this motor)
+     * @param position The position with which the motor should be driven to (these units are relative to whatever config is used on this motor)
      * @return true on success false on failure
      */
-    public boolean setPIDPositionSetpoint(double posSetpoint);
+    public boolean setPIDPositionSetpoint(double position, int slot);
+
+     /**
+     * Drive the motor to at some velocity using standard PID / FF
+     * @param posSetpoint The velocity with which the motor should be driven to (these units are relative to whatever config is used on this motor)
+     * @return true on success false on failure
+     */
+    public boolean setPIDVelocitySetpoint(double velocity, int slot);
 
     // ------ Smart Motor Output: Position Control ------
 
@@ -152,11 +159,11 @@ public interface MotorIO {
     /**
      * Define a position set point for the motor to drive to with feedback (the smart part)
      * Examples of smart position set points would include motion magic (CTRE) or smart motion (REV)
-     * @param posSetpoint The position with which the motor should be driven to (these units are relative to whatever config is used on this motor)
+     * @param position The position with which the motor should be driven to (these units are relative to whatever config is used on this motor)
      * @param slot The slot in the gains bank to use to drive the position
      * @return true on success false on failure
      */
-    public boolean setSmartPositionSetpoint(double posSetpoint, int slot);
+    public boolean setSmartPositionSetpoint(double position, int slot);
 
 
     /**
@@ -167,21 +174,30 @@ public interface MotorIO {
      * @param posSetpoint The position with which the motor should be driven to (these units are relative to whatever config is used on this motor)
      * @return true on success false on failure
      */
-    public default boolean setSmartPositionSetpoint(double posSetpoint){
-        return setSmartPositionSetpoint(posSetpoint, 0);
+    public default boolean setSmartPositionSetpoint(double position){
+        return setSmartPositionSetpoint(position, 0);
     };
 
     // --- Dynamic Profiling Control ---
     /**
      * Define a position set point for the motor to drive to with feedback (the smart part) and allows for realtime updating of profiling gains 
      * This feature may only exist on CTRE Talon devices (unsure)
-     * @param posSetpoint The position with which the motor should be driven to (these units are relative to whatever config is used on this motor)
+     * @param position The position with which the motor should be driven to (these units are relative to whatever config is used on this motor)
      * @param velocity Velocity at which we wish to drive the motor at
      * @param acceleration Acceleration at which we wish to drive the motor
      * @param jerk The rate at which we can accelerate
+     * @param feedforward The feedforward gains for the motor in volts
+     * @param slot Gain slot to use on the device to drive the motion profile
      * @return true on success false on failure
      */
-    public boolean setDynamicSmartPositionSetpoint(double posSetpoint, double velocity, double acceleration, double jerk, int slot);
+    public boolean setDynamicSmartPositionSetpoint(
+        double position, 
+        double velocity, 
+        double acceleration, 
+        double jerk,
+        double feedforward,
+        int slot
+    );
 
     /**
      * Define a position set point for the motor to drive to with feedback (the smart part) and allows for realtime updating of profiling gains 
@@ -190,10 +206,18 @@ public interface MotorIO {
      * @param velocity Velocity at which we wish to drive the motor at
      * @param acceleration Acceleration at which we wish to drive the motor
      * @param jerk The rate at which we can accelerate
+     * @param feedforward Feedforward to apply in volts to the motor
      * @return true on success false on failure
      */
-    public default boolean setDynamicSmartPositionSetpoint(double posSetpoint, double velocity, double acceleration, double jerk){
-        return setDynamicSmartPositionSetpoint(posSetpoint, velocity, acceleration, jerk, 0);
+    public default boolean setDynamicSmartPositionSetpoint(
+        double position, 
+        double velocity, 
+        double acceleration, 
+        double jerk,
+        double feedforward
+    )
+    {
+        return setDynamicSmartPositionSetpoint(position, velocity, acceleration, jerk, feedforward, 0);
     };
 
     // ------ Smart Motor Output: Smart Velocity Control ------

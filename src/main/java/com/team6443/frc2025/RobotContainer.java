@@ -3,15 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package com.team6443.frc2025;
-
-
-import org.littletonrobotics.junction.Logger;
-
 import com.team6443.lib.logging.interfaces.Loggerable;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 
 public class RobotContainer implements Loggerable {
 

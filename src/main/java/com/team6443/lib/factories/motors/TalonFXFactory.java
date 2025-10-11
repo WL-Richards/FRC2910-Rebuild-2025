@@ -4,6 +4,12 @@
 
 package com.team6443.lib.factories.motors;
 
+import com.ctre.phoenix6.configs.AudioConfigs;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.HardwareLimitSwitchConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -15,6 +21,7 @@ import com.ctre.phoenix6.signals.ReverseLimitSourceValue;
 import com.ctre.phoenix6.signals.ReverseLimitTypeValue;
 import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.can.CANStatusLogger;
+import com.team6443.lib.config.motors.TalonFXServoMotorConfiguration;
 import com.team6443.lib.motors.TalonFXIO;
 import com.team6443.lib.phoenix6.CTREUtil;
 
@@ -31,8 +38,11 @@ public class TalonFXFactory {
      * @param device CANDeviceID that the TalonFX is object is being created from
      * @return The newly created Talon FX
      */
-    public static TalonFXIO createDefault(CANDeviceID device){
-        return createWithConfig(device, getDefaultConfig());
+    public static TalonFX createDefault(CANDeviceID device){
+        return createWithConfig(
+            device, 
+            getDefaultConfig()
+        );
     }
 
     /**
@@ -40,37 +50,63 @@ public class TalonFXFactory {
      * @return Default TalonFX config
      */
     public static TalonFXConfiguration getDefaultConfig() {
-        TalonFXConfiguration config = new TalonFXConfiguration();
+        TalonFXConfiguration config = new TalonFXConfiguration()
+            // Configure motor output parameters
+            .withMotorOutput(
+                new MotorOutputConfigs()
+                    .withNeutralMode(NEUTRAL_MODE)
+                    .withInverted(INVERT_VALUE)
+                    .withDutyCycleNeutralDeadband(NEUTRAL_DEADBAND)
+                    .withPeakForwardDutyCycle(1.0)
+                    .withPeakReverseDutyCycle(-1.0)
+            )
 
-        config.MotorOutput.NeutralMode = NEUTRAL_MODE;
-        config.MotorOutput.Inverted = INVERT_VALUE;
-        config.MotorOutput.DutyCycleNeutralDeadband = NEUTRAL_DEADBAND;
-        config.MotorOutput.PeakForwardDutyCycle = 1.0;
-        config.MotorOutput.PeakReverseDutyCycle = -1.0;
+            // Configure current limits
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimitEnable(false)
+                    .withStatorCurrentLimitEnable(false)
+            )
 
-        config.CurrentLimits.SupplyCurrentLimitEnable = false;
-        config.CurrentLimits.StatorCurrentLimitEnable = false;
+            // Configure software limit switches
+            .withSoftwareLimitSwitch(
+                new SoftwareLimitSwitchConfigs()
+                    .withForwardSoftLimitEnable(false)
+                    .withForwardSoftLimitThreshold(0.0)
+                    .withReverseSoftLimitEnable(false)
+                    .withReverseSoftLimitThreshold(0.0)
+            )
 
-        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0;
-        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
+            // Configure hardware limit switches
+            .withHardwareLimitSwitch(
+                new HardwareLimitSwitchConfigs()
+                    // Forward hardware limit switch
+                    .withForwardLimitEnable(false)
+                    .withForwardLimitAutosetPositionEnable(false)
+                    .withForwardLimitSource(ForwardLimitSourceValue.LimitSwitchPin)
+                    .withForwardLimitType(ForwardLimitTypeValue.NormallyOpen)
 
-        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        config.Feedback.FeedbackRotorOffset = 0;
-        config.Feedback.SensorToMechanismRatio = 1;
+                    // Reverse hardware limit switch
+                    .withReverseLimitEnable(false)
+                    .withReverseLimitAutosetPositionEnable(false)
+                    .withReverseLimitSource(ReverseLimitSourceValue.LimitSwitchPin)
+                    .withReverseLimitType(ReverseLimitTypeValue.NormallyOpen)
+            )
 
-        config.HardwareLimitSwitch.ForwardLimitEnable = false;
-        config.HardwareLimitSwitch.ForwardLimitAutosetPositionEnable = false;
-        config.HardwareLimitSwitch.ForwardLimitSource = ForwardLimitSourceValue.LimitSwitchPin;
-        config.HardwareLimitSwitch.ForwardLimitType = ForwardLimitTypeValue.NormallyOpen;
-        config.HardwareLimitSwitch.ReverseLimitEnable = false;
-        config.HardwareLimitSwitch.ReverseLimitAutosetPositionEnable = false;
-        config.HardwareLimitSwitch.ReverseLimitSource = ReverseLimitSourceValue.LimitSwitchPin;
-        config.HardwareLimitSwitch.ReverseLimitType = ReverseLimitTypeValue.NormallyOpen;
-
-        config.Audio.BeepOnBoot = true;
-
+            // Setup feedback sources
+            .withFeedback(
+                new FeedbackConfigs()
+                    .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
+                    .withFeedbackRotorOffset(0.0)
+                    .withSensorToMechanismRatio(1.0)
+            )
+            
+            // Setup audio
+            .withAudio(
+                new AudioConfigs()
+                    .withBeepOnBoot(true)
+            );
+        
         return config;
     }
 
@@ -78,14 +114,14 @@ public class TalonFXFactory {
      * Create a new TalonFX with the talon FX configuration supplied
      * @param device CANDevice the represents the Talon being created
      * @param talonConfig The config that should be applied to the talon after its created
-     * @return
+     * @return The newly created Talon instance
      */
-    private static TalonFXIO createWithConfig(CANDeviceID device, TalonFXConfiguration talonConfig){
-        TalonFXIO talon = create(device);
+    public static TalonFX createWithConfig(CANDeviceID device, TalonFXConfiguration talonConfig){
+        TalonFX talon = create(device);
         CTREUtil.Configuration.Motors.applyConfiguration(talon, talonConfig);
 
         // Set update rate of our CANDeviceID status signal to update at 100 hz
-        device.setStatusSignal(talon.getTalon().getSupplyVoltage(), 100);
+        device.setStatusSignal(talon.getSupplyVoltage(), 100);
 
         // Automatically register the Talon with the CAN status logger upon creation 
         CANStatusLogger.get(device.getBus()).registerCANDevice(device);
@@ -97,9 +133,9 @@ public class TalonFXFactory {
      * @param device CAN device that represents this talon
      * @return The newly created TalonFXIO
      */
-    private static TalonFXIO create(CANDeviceID device) {
-        TalonFXIO talon = new TalonFXIO(device);
-        talon.getTalon().clearStickyFaults();
+    private static TalonFX create(CANDeviceID device) {
+        TalonFX talon = new TalonFX(device.getDeviceID(), device.getBus());
+        talon.clearStickyFaults();
         return talon;
     }
 }

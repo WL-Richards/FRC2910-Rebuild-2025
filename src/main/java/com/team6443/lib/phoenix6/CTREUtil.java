@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -13,7 +14,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.team6443.lib.can.interfaces.CANable;
+import com.team6443.lib.config.motors.TalonFXServoMotorConfiguration;
 import com.team6443.lib.motors.TalonFXIO;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -22,13 +23,13 @@ import edu.wpi.first.wpilibj.DriverStation;
  * Class for handling CTRE device interactions this includes:
  * Reading errors, applying configurations
  * 
+ * All methods should retry until max retry is met or the instruction suceeds
+ * 
  * Amalgamation of 
  * Team 254: CTREUtil.java (https://github.com/Team254/FRC-2025-Public/blob/main/src/main/java/com/team254/lib/util/CTREUtil.java)
  * Team 2910: Phoenix6Util.java (https://github.com/FRCTeam2910/2025CompetitionRobot-Public/blob/main/src/main/java/org/frc2910/robot/util/phoenix6/Phoenix6Util.java)
  */
 public final class CTREUtil {
-
-    
 
     public static final int DEFUALT_MAX_RETRIES = 10;
     /**
@@ -57,6 +58,21 @@ public final class CTREUtil {
         }
 
         return statusCode;
+    }
+
+    /**
+     * Set the update frequncy for an array of signals, retrying until successful or the max retries is exceeded
+     * @param frequncyHz Frequncy in Hz at which to update the signals
+     * @param signals Array of BaseStatusSignal's that we are wanting to set the update rate for
+     * @param deviceID CAN device ID of the device that these signals belong to
+     * @return The status code we recieved last (on success it will be StatusCode.OK)
+     */
+    public static StatusCode setUpdateFrequencyForAll(double frequncyHz, BaseStatusSignal[] signals, int deviceID){
+        return tryUntilOk(
+            () -> BaseStatusSignal.setUpdateFrequencyForAll(frequncyHz, signals), 
+            deviceID, 
+            DEFUALT_MAX_RETRIES
+        );
     }
 
     /**
@@ -104,17 +120,19 @@ public final class CTREUtil {
                 }
             }
 
-
             // ------ TalonFXIO ------
 
             // --- Configuration ---
+            public static StatusCode applyConfiguration(TalonFXIO motor, TalonFXServoMotorConfiguration config) {
+                return applyConfiguration(motor.getTalon(), config);
+            }
+
             public static StatusCode applyConfiguration(TalonFXIO motor, TalonFXConfiguration config) {
                 return applyConfiguration(motor.getTalon(), config);
             }
 
             public static StatusCode applyConfigurationNonBlocking(TalonFXIO motor, VoltageConfigs config) {
                 return applyConfigurationNonBlocking(motor.getTalon(), config);
-
             }
 
             public static StatusCode applyConfiguration(TalonFXIO motor, HardwareLimitSwitchConfigs config) {
@@ -190,7 +208,23 @@ public final class CTREUtil {
                     DEFUALT_MAX_RETRIES
                 );
             }
+
+            public static StatusCode applyConfiguration(TalonFX motor, TalonFXServoMotorConfiguration config) {
+                return applyConfiguration(motor, config.config);
+            }
  
+            /**
+             * Optimize the bus utilization for this motor by disabling all signals that have not been marked as needed 
+             * @param motor The TalonFX we are optimizing
+             * @return The result of the optimization of the bus
+             */
+            public static StatusCode optimizeBusUtilization(TalonFX motor){
+                return tryUntilOk(
+                    () -> motor.optimizeBusUtilization(),
+                    motor.getDeviceID(), 
+                    DEFUALT_MAX_RETRIES
+                );
+            }
             // --- Error Checking ---
             /**
              * If faults are present on the motor append them to the list that is returned
