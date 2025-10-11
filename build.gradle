@@ -1,8 +1,19 @@
+// Utilize the buildscript to pull my version of the gversion plugin from my github
+buildscript {
+    repositories { maven { url 'https://jitpack.io' } }
+    dependencies {
+        classpath "com.github.WL-Richards:gversion-plugin:ab25b3095f"
+    }
+}
+
+
 plugins {
     id "java"
-    id "com.peterabeles.gversion" version "1.10"
     id "edu.wpi.first.GradleRIO" version "2025.3.2"
 }
+apply plugin: "com.peterabeles.gversion"   // Use my dev version that has the git email in it
+
+
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
