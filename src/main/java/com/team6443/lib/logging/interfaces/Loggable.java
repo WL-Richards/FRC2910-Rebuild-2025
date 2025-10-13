@@ -13,8 +13,7 @@ public interface Loggable {
      * Default calls the updateLog funtion with no prefix
      */
     public default void updateLog(){
-        updateLog("");
-    }
+        updateLog("");    }
 
     /**
      * Called to log the data from this element

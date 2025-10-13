@@ -60,8 +60,6 @@ public class Spectre extends RobotConfig {
 
     // --- Misc. Config ---
     private static final String kRobotName = "Spectre";
-
-    private static final String kDriveSubsystemName = "DriveSubsystem";
     
     // --- Gyro Config ---
     private class Gyro {

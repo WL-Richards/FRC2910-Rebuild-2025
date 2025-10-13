@@ -4,8 +4,6 @@
 
 package com.team6443.lib.mechanics;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,11 +88,9 @@ public class MultistageGearBox{
      * Each stage represents a pair of meshed gears (driving and driven) that
      * contribute to the total gear reduction or increase of the gearbox.
      * The overall gearbox ratio is the product of all individual stage ratios.
-     * 
-     * <p>
+     *
      * For example, a two-stage gearbox with a 12→36 and 15→45 gear pair 
      * would yield a total reduction of (36/12) × (45/15) = 9:1.
-     * </p>
      * 
      * Each time a stage is added, the total ratio is automatically recomputed.
      *

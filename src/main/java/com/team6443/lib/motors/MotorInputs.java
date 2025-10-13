@@ -5,10 +5,7 @@
 package com.team6443.lib.motors;
 
 import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
-
-import com.team6443.lib.logging.interfaces.Loggable;
 
 /** 
  * Defines generic inputs to be passed to a motor

@@ -21,8 +21,6 @@ import com.ctre.phoenix6.signals.ReverseLimitSourceValue;
 import com.ctre.phoenix6.signals.ReverseLimitTypeValue;
 import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.can.CANStatusLogger;
-import com.team6443.lib.config.motors.TalonFXServoMotorConfiguration;
-import com.team6443.lib.motors.TalonFXIO;
 import com.team6443.lib.phoenix6.CTREUtil;
 
 /** 

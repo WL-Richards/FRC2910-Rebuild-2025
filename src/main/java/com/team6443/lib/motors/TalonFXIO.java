@@ -3,15 +3,10 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package com.team6443.lib.motors;
-
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
@@ -24,16 +19,15 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.StripTypeValue;
 import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.can.interfaces.CANable;
 import com.team6443.lib.config.motors.TalonFXServoMotorConfiguration;
 import com.team6443.lib.factories.motors.TalonFXFactory;
-import com.team6443.lib.logging.interfaces.Loggable;
 import com.team6443.lib.motors.interfaces.MotorIO;
 import com.team6443.lib.phoenix6.CTREUtil;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -151,6 +145,14 @@ public class TalonFXIO implements MotorIO, CANable{
     }
 
     /**
+     * Get the name of this given motor
+     */
+    @Override
+    public String getName(){
+        return getCANDeviceName();
+    }
+
+    /**
      * Convert the current rotor rotations to the real-world units specified scaled by the unitToRotorRotationRation defined in the config
      * @param rotorRotations Rotor rotation value we want to convert into the in-use units
      * @return The rotations converted into some units as defined in the config
@@ -239,6 +241,18 @@ public class TalonFXIO implements MotorIO, CANable{
         this.servoMotorConfig.config.SoftwareLimitSwitch.ForwardSoftLimitEnable = forwardLimitEnabled;
         this.servoMotorConfig.config.SoftwareLimitSwitch.ReverseSoftLimitEnable = reverseLimitEnabled;
         return CTREUtil.Configuration.Motors.applyConfiguration(talon, servoMotorConfig) == StatusCode.OK;
+    }
+
+    /**
+     * Get the current enable state of the software limits
+     * @return A pair of booleans that store the current state of the software limits in both forward and reverse directions
+     */
+    @Override
+    public Pair<Boolean, Boolean> getEnableSoftwareLimits() {
+        return new Pair<Boolean,Boolean>(
+            this.servoMotorConfig.config.SoftwareLimitSwitch.ForwardSoftLimitEnable, 
+            this.servoMotorConfig.config.SoftwareLimitSwitch.ReverseSoftLimitEnable
+        );
     }
 
     /**
@@ -452,4 +466,5 @@ public class TalonFXIO implements MotorIO, CANable{
                 .withSlot(slot)
         ) == StatusCode.OK;
     }
+
 }

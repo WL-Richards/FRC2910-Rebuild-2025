@@ -13,7 +13,6 @@ import com.team6443.lib.logging.interfaces.Loggable;
 import com.team6443.lib.math.ConcurrentTimeInterpolatableBuffer;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.Timer;
 
 /**
  * Robot state class that retains all information that is used to determine the robots current state.

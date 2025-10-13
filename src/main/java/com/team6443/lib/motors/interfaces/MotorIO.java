@@ -9,6 +9,8 @@ import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.motors.MotorInputs;
 
+import edu.wpi.first.math.Pair;
+
 /** 
  * Base motor interface gives us a common method for interfacing with motors
  */
@@ -31,6 +33,12 @@ public interface MotorIO {
         SAME
     }
 
+    /**
+     * Get then name of the motor to use
+     * @return Get the name given to this motor
+     */
+    public String getName();
+    
     // ------ Basic Motor Config  ------
     /**
      * Enable or disabled forward and backwards software limits
@@ -38,7 +46,16 @@ public interface MotorIO {
      * @param reversLimitEnabled Should we enable (true) or disable (false) the reverse direction software limits
      * @return true on success false on failure
      */
-    public boolean setEnableSoftwareLimits(boolean forwardLimitEnabled, boolean reversLimitEnabled);
+    public boolean setEnableSoftwareLimits(boolean forwardLimitEnabled, boolean reverseLimitEnabled);
+    
+
+
+    /**
+     * Get the current enable state of both forward and reverse software limits
+     * 
+     * @return A pair of booleans, this first is the forwardLimitEnabled state and the second is the reverseLimitEnabled state
+     */
+    public Pair<Boolean, Boolean> getEnableSoftwareLimits();
 
     /**
      * Enable or disabled forward and backwards hardware limits

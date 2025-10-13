@@ -6,12 +6,7 @@ package com.team6443.frc2025;
 
 import org.littletonrobotics.junction.LoggedRobot;
 
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.team6443.frc2025.constants.RobotRuntimeConstants;
-import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.can.CANStatusLogger;
-import com.team6443.lib.factories.motors.TalonFXFactory;
-
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends LoggedRobot {
