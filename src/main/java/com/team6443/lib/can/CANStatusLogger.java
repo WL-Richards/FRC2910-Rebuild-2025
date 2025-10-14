@@ -142,9 +142,10 @@ public class CANStatusLogger implements Loggable {
         // Log CAN device statuses
         for (CANDeviceID device : devices) {
             String deviceName = device.getDeviceName();
+            String subsystemName = device.getSubsystemName();
             boolean isConnected = device.isConnected();
 
-            Logger.recordOutput(logLocationPrefix + deviceName, isConnected);
+            Logger.recordOutput(logLocationPrefix + subsystemName + "/" + deviceName, isConnected);
         }
        
     }

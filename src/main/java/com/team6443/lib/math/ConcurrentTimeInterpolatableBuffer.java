@@ -22,14 +22,14 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * @param <T> The type stored in this buffer.
  */
 public final class ConcurrentTimeInterpolatableBuffer<T> {
-    private final double m_historySize;
-    private final Interpolator<T> m_interpolatingFunc;
-    private final ConcurrentNavigableMap<Double, T> m_pastSnapshots = new ConcurrentSkipListMap<>();
+    private final double historySize;
+    private final Interpolator<T> interpolatingFunc;
+    private final ConcurrentNavigableMap<Double, T> pastSnapshots = new ConcurrentSkipListMap<>();
 
     private ConcurrentTimeInterpolatableBuffer(
             Interpolator<T> interpolateFunction, double historySizeSeconds) {
-        this.m_historySize = historySizeSeconds;
-        this.m_interpolatingFunc = interpolateFunction;
+        this.historySize = historySizeSeconds;
+        this.interpolatingFunc = interpolateFunction;
     }
 
     /**
@@ -76,7 +76,7 @@ public final class ConcurrentTimeInterpolatableBuffer<T> {
      * @param sample The sample object.
      */
     public void addSample(double timeSeconds, T sample) {
-        m_pastSnapshots.put(timeSeconds, sample);
+        pastSnapshots.put(timeSeconds, sample);
         cleanUp(timeSeconds);
     }
 
@@ -86,12 +86,12 @@ public final class ConcurrentTimeInterpolatableBuffer<T> {
      * @param time The current timestamp.
      */
     private void cleanUp(double time) {
-        m_pastSnapshots.headMap(time - m_historySize, false).clear();
+        pastSnapshots.headMap(time - historySize, false).clear();
     }
 
     /** Clear all old samples. */
     public void clear() {
-        m_pastSnapshots.clear();
+        pastSnapshots.clear();
     }
 
     /**
@@ -101,18 +101,18 @@ public final class ConcurrentTimeInterpolatableBuffer<T> {
      * @return The interpolated value at that timestamp or an empty Optional.
      */
     public Optional<T> getSample(double timeSeconds) {
-        if (m_pastSnapshots.isEmpty()) {
+        if (pastSnapshots.isEmpty()) {
             return Optional.empty();
         }
 
         // Special case for when the requested time is the same as a sample
-        var nowEntry = m_pastSnapshots.get(timeSeconds);
+        var nowEntry = pastSnapshots.get(timeSeconds);
         if (nowEntry != null) {
             return Optional.of(nowEntry);
         }
 
-        var bottomBound = m_pastSnapshots.floorEntry(timeSeconds);
-        var topBound = m_pastSnapshots.ceilingEntry(timeSeconds);
+        var bottomBound = pastSnapshots.floorEntry(timeSeconds);
+        var topBound = pastSnapshots.ceilingEntry(timeSeconds);
 
         // Return null if neither sample exists, and the opposite bound if the other is null
         if (topBound == null && bottomBound == null) {
@@ -127,7 +127,7 @@ public final class ConcurrentTimeInterpolatableBuffer<T> {
             // between the current time and bottom bound) and (the difference between top and bottom
             // bounds).
             return Optional.of(
-                    m_interpolatingFunc.interpolate(
+                    interpolatingFunc.interpolate(
                             bottomBound.getValue(),
                             topBound.getValue(),
                             (timeSeconds - bottomBound.getKey())
@@ -136,7 +136,7 @@ public final class ConcurrentTimeInterpolatableBuffer<T> {
     }
 
     public Entry<Double, T> getLatest() {
-        return m_pastSnapshots.lastEntry();
+        return pastSnapshots.lastEntry();
     }
 
     /**
@@ -146,6 +146,6 @@ public final class ConcurrentTimeInterpolatableBuffer<T> {
      * @return The internal sample buffer.
      */
     public ConcurrentNavigableMap<Double, T> getInternalBuffer() {
-        return m_pastSnapshots;
+        return pastSnapshots;
     }
 }

@@ -2,11 +2,12 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package com.team6443.lib.motors;
+package com.team6443.lib.motors.hardware;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
@@ -21,8 +22,9 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.can.interfaces.CANable;
-import com.team6443.lib.config.motors.TalonFXServoMotorConfiguration;
+import com.team6443.lib.config.motors.ServoMotorConfiguration;
 import com.team6443.lib.factories.motors.TalonFXFactory;
+import com.team6443.lib.motors.MotorInputs;
 import com.team6443.lib.motors.interfaces.MotorIO;
 import com.team6443.lib.phoenix6.CTREUtil;
 
@@ -33,14 +35,12 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 
-
 /** 
  * Generic implementation for the Talon FX
 */
 public class TalonFXIO implements MotorIO, CANable{
     private final TalonFX talon;
-    private final CANDeviceID deviceID;
-    private final TalonFXServoMotorConfiguration servoMotorConfig;
+    private final ServoMotorConfiguration<TalonFXConfiguration> config;
 
     // Object to drive output using a duty cycle control 
     private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0.0);
@@ -100,12 +100,11 @@ public class TalonFXIO implements MotorIO, CANable{
      * @param device The CAN device that represents this motor
      * @param servoMotorConfig The configuration used to determine how the motor should be driven outside the context of just the motor
      */
-    public TalonFXIO(CANDeviceID device, TalonFXServoMotorConfiguration servoMotorConfig){
-        this.deviceID = device;
-        this.servoMotorConfig = servoMotorConfig;
+    public TalonFXIO(CANDeviceID device, ServoMotorConfiguration<TalonFXConfiguration> servoMotorConfig){
+        this.config = servoMotorConfig;
 
         // Create talon 
-        talon = TalonFXFactory.createWithConfig(device, servoMotorConfig.config);
+        talon = TalonFXFactory.createRawWithConfig(device, servoMotorConfig.getMotorConfig());
 
         // Set signal sources
         positionSignal = talon.getPosition();
@@ -157,8 +156,8 @@ public class TalonFXIO implements MotorIO, CANable{
      * @param rotorRotations Rotor rotation value we want to convert into the in-use units
      * @return The rotations converted into some units as defined in the config
      */
-    private double rotorRotationsToUnits(double rotorRotations){
-        return rotorRotations * this.servoMotorConfig.unitToRotorRotationRatio;
+    private double getRotorRotationsToUnits(double rotorRotations){
+        return this.config.getRotorRotationsToUnits(rotorRotations);
     }
 
     /**
@@ -166,8 +165,8 @@ public class TalonFXIO implements MotorIO, CANable{
      * @param units Units we want to convert to rotor rotations
      * @return The resulting rotor rotations 
      */
-    public double unitsToRotorRotations(double units){
-        return units / this.servoMotorConfig.unitToRotorRotationRatio;
+    public double getUnitsToRotorRotations(double units){
+        return this.config.getUnitsToRotorRotations(units);
     }
 
     /**
@@ -176,8 +175,8 @@ public class TalonFXIO implements MotorIO, CANable{
      * @return Clamped rotor rotation
      */
     private double clampPosition(double units){
-        return rotorRotationsToUnits(
-            MathUtil.clamp(units, this.servoMotorConfig.kMinPositionUnits, this.servoMotorConfig.kMaxPositionUnits)
+        return getRotorRotationsToUnits(
+            MathUtil.clamp(units, this.config.kMinPositionUnits, this.config.kMaxPositionUnits)
         );
     }
 
@@ -190,8 +189,8 @@ public class TalonFXIO implements MotorIO, CANable{
     public boolean updateInputs(MotorInputs inputs) {
         StatusCode refreshStatus = BaseStatusSignal.refreshAll(signals);
 
-        inputs.unitPosition = rotorRotationsToUnits(positionSignal.getValueAsDouble());
-        inputs.velocityUnitsPerSecond = rotorRotationsToUnits(velocitySignal.getValueAsDouble());
+        inputs.unitPosition = getRotorRotationsToUnits(positionSignal.getValueAsDouble());
+        inputs.velocityUnitsPerSecond = getRotorRotationsToUnits(velocitySignal.getValueAsDouble());
         inputs.appliedVolts = voltageSignal.getValueAsDouble();
         inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
         inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();
@@ -205,7 +204,7 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public CANDeviceID getCANDevice() {
-        return this.deviceID;
+        return this.config.CANDevice;
     }
 
     // ------- Motor Configuration -------
@@ -219,15 +218,15 @@ public class TalonFXIO implements MotorIO, CANable{
         // Update the motor configuration
         switch(mode){
             case BRAKE:
-                this.servoMotorConfig.config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+                this.config.getMotorConfig().MotorOutput.NeutralMode = NeutralModeValue.Brake;
                 break;
             case COAST:
-                this.servoMotorConfig.config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+                this.config.getMotorConfig().MotorOutput.NeutralMode = NeutralModeValue.Coast;
                 break;
         }
 
         // Apply the updated configuration
-        return CTREUtil.Configuration.Motors.applyConfiguration(talon, servoMotorConfig) == StatusCode.OK;
+        return CTREUtil.Configuration.Motors.applyConfiguration(talon, config) == StatusCode.OK;
     }
 
     /**
@@ -238,9 +237,9 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public boolean setEnableSoftwareLimits(boolean forwardLimitEnabled, boolean reverseLimitEnabled) {
-        this.servoMotorConfig.config.SoftwareLimitSwitch.ForwardSoftLimitEnable = forwardLimitEnabled;
-        this.servoMotorConfig.config.SoftwareLimitSwitch.ReverseSoftLimitEnable = reverseLimitEnabled;
-        return CTREUtil.Configuration.Motors.applyConfiguration(talon, servoMotorConfig) == StatusCode.OK;
+        this.config.getMotorConfig().SoftwareLimitSwitch.ForwardSoftLimitEnable = forwardLimitEnabled;
+        this.config.getMotorConfig().SoftwareLimitSwitch.ReverseSoftLimitEnable = reverseLimitEnabled;
+        return CTREUtil.Configuration.Motors.applyConfiguration(talon, config) == StatusCode.OK;
     }
 
     /**
@@ -250,8 +249,8 @@ public class TalonFXIO implements MotorIO, CANable{
     @Override
     public Pair<Boolean, Boolean> getEnableSoftwareLimits() {
         return new Pair<Boolean,Boolean>(
-            this.servoMotorConfig.config.SoftwareLimitSwitch.ForwardSoftLimitEnable, 
-            this.servoMotorConfig.config.SoftwareLimitSwitch.ReverseSoftLimitEnable
+            this.config.getMotorConfig().SoftwareLimitSwitch.ForwardSoftLimitEnable, 
+            this.config.getMotorConfig().SoftwareLimitSwitch.ReverseSoftLimitEnable
         );
     }
 
@@ -263,9 +262,9 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public boolean setEnableHardwareLimits(boolean forwardLimitEnabled, boolean reverseLimitEnabled) {
-        this.servoMotorConfig.config.HardwareLimitSwitch.ForwardLimitEnable = forwardLimitEnabled;
-        this.servoMotorConfig.config.HardwareLimitSwitch.ReverseLimitEnable = reverseLimitEnabled;
-        return CTREUtil.Configuration.Motors.applyConfiguration(talon, servoMotorConfig) == StatusCode.OK;
+        this.config.getMotorConfig().HardwareLimitSwitch.ForwardLimitEnable = forwardLimitEnabled;
+        this.config.getMotorConfig().HardwareLimitSwitch.ReverseLimitEnable = reverseLimitEnabled;
+        return CTREUtil.Configuration.Motors.applyConfiguration(talon, config) == StatusCode.OK;
     }
 
     /**
@@ -276,11 +275,11 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public boolean setZeroOnHardwareLimit(boolean forwardLimitEnabled, boolean reverseLimitEnabled) {
-        this.servoMotorConfig.config.HardwareLimitSwitch.ForwardLimitAutosetPositionEnable = forwardLimitEnabled;
-        this.servoMotorConfig.config.HardwareLimitSwitch.ReverseLimitAutosetPositionEnable = reverseLimitEnabled;
-        this.servoMotorConfig.config.HardwareLimitSwitch.ForwardLimitEnable = forwardLimitEnabled;
-        this.servoMotorConfig.config.HardwareLimitSwitch.ReverseLimitEnable = reverseLimitEnabled;
-        return CTREUtil.Configuration.Motors.applyConfiguration(talon, servoMotorConfig) == StatusCode.OK;
+        this.config.getMotorConfig().HardwareLimitSwitch.ForwardLimitAutosetPositionEnable = forwardLimitEnabled;
+        this.config.getMotorConfig().HardwareLimitSwitch.ReverseLimitAutosetPositionEnable = reverseLimitEnabled;
+        this.config.getMotorConfig().HardwareLimitSwitch.ForwardLimitEnable = forwardLimitEnabled;
+        this.config.getMotorConfig().HardwareLimitSwitch.ReverseLimitEnable = reverseLimitEnabled;
+        return CTREUtil.Configuration.Motors.applyConfiguration(talon, config) == StatusCode.OK;
     }
     
     /**
@@ -290,8 +289,8 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public void setSmartMotorConfig(MotionMagicConfigs config) {
-       this.servoMotorConfig.config.MotionMagic = config;
-       CTREUtil.Configuration.Motors.applyConfiguration(talon, servoMotorConfig);
+       this.config.getMotorConfig().MotionMagic = config;
+       CTREUtil.Configuration.Motors.applyConfiguration(talon, config);
     }
 
     /**
@@ -301,7 +300,7 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public void setVoltageConfig(VoltageConfigs config) {
-        servoMotorConfig.config.Voltage = config;
+        this.config.getMotorConfig().Voltage = config;
         CTREUtil.Configuration.Motors.applyConfigurationNonBlocking(talon, config);
     }
 
@@ -312,7 +311,7 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public boolean setCurrentEncoderPosition(double position) {
-        return talon.setPosition(unitsToRotorRotations(position)) == StatusCode.OK;
+        return talon.setPosition(getUnitsToRotorRotations(position)) == StatusCode.OK;
     }
 
    
@@ -461,7 +460,7 @@ public class TalonFXIO implements MotorIO, CANable{
         return talon.setControl(
             motionMagicVelocityControl
                 .withVelocity(
-                    unitsToRotorRotations(velocity)
+                    getUnitsToRotorRotations(velocity)
                 )
                 .withSlot(slot)
         ) == StatusCode.OK;

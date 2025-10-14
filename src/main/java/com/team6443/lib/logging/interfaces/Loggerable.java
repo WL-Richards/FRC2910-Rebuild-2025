@@ -47,11 +47,6 @@ public interface Loggerable {
     };
 
     /**
-     * Abstract method used to update the logging
-     */
-    public abstract void updateLogger();
-
-    /**
      * Update the metadata in the logger with some build information by default
      * 
      * This leverages gversion to generate a constants file on build 

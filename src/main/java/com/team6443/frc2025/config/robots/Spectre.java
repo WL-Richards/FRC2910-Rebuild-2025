@@ -6,27 +6,26 @@ package com.team6443.frc2025.config.robots;
 
 import java.util.List;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.GyroTrimConfigs;
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import com.team6443.frc2025.config.PortConfiguration;
 import com.team6443.frc2025.config.RobotConfig;
 import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.CameraConfiguration.Location;
+import com.team6443.lib.config.motors.ServoMotorCANCoderConfiguration;
 import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
 import com.team6443.lib.config.swerve.TalonFXSwerveModuleConfiguration;
 import com.team6443.lib.config.wrappers.ConfigureSlot0Gains;
+import com.team6443.lib.factories.motors.TalonFXFactory;
 import com.team6443.lib.mechanics.MultistageGearBox;
 
-import edu.wpi.first.hal.CANAPITypes.CANDeviceType;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -38,11 +37,15 @@ import edu.wpi.first.math.util.Units;
 public class Spectre extends RobotConfig {
 
     // --- Robot Configuration Settings
-    private final PortConfiguration m_portConfiguration;
-    private final List<CameraConfiguration> m_cameraConfigurations;
-    private final List<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> m_moduleConstants;
-    private final SwerveDrivetrainConstants m_swerveDriveConstants;
+    private final List<CameraConfiguration> cameraConfigurations;
+    private final List<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> moduleConstants;
+    private final SwerveDrivetrainConstants swerveDriveConstants;
 
+    private final ServoMotorCANCoderConfiguration<TalonFXConfiguration> testSubsystemConfig;
+    static {
+       
+    }
+    
     // --- Physical Properties --- 
     // Radius of the modules wheel in meters
     private static final double kWheelBaseLengthM = Units.inchesToMeters(22.75);
@@ -60,6 +63,9 @@ public class Spectre extends RobotConfig {
 
     // --- Misc. Config ---
     private static final String kRobotName = "Spectre";
+
+    private static final String kDriveSubsystemName = "DriveSubsystem";
+    private static final String kTestSubsystemName = "TestSubsystem";
     
     // --- Gyro Config ---
     private class Gyro {
@@ -81,6 +87,7 @@ public class Spectre extends RobotConfig {
         private static final CANDeviceID kID = new CANDeviceID(
             1, 
             "Pigeon2",
+            kDriveSubsystemName,
             CANDeviceID.CANDeviceType.PIGEON2,
             kCanivoreBusName
         );
@@ -160,6 +167,7 @@ public class Spectre extends RobotConfig {
             private static final CANDeviceID kFrontLeftDriveMotor =  new CANDeviceID(
                 1, 
                 "FrontLeftSwerveDriveMotor", 
+                kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
                 kCanivoreBusName
             );
@@ -167,6 +175,7 @@ public class Spectre extends RobotConfig {
             private static final CANDeviceID kFrontLeftSteerMotor = new CANDeviceID(
             2, 
                 "FrontLeftSwerveSteerMotor", 
+                kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
                 kCanivoreBusName
             );
@@ -174,6 +183,7 @@ public class Spectre extends RobotConfig {
             private static final CANDeviceID kFrontLeftSteerEncoder = new CANDeviceID(
             1, 
                 "FrontLeftSwerveSteerEncoder", 
+                kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.CANCODER, 
                 kCanivoreBusName
             );
@@ -208,6 +218,7 @@ public class Spectre extends RobotConfig {
             private static final CANDeviceID kFrontRightDriveMotor =  new CANDeviceID(
                 3, 
                 "FrontRightSwerveDriveMotor", 
+                kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
                 kCanivoreBusName
             );
@@ -215,6 +226,7 @@ public class Spectre extends RobotConfig {
             private static final CANDeviceID kFrontRightSteerMotor = new CANDeviceID(
             4, 
                 "FrontRightSwerveSteerMotor", 
+                kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
                 kCanivoreBusName
             );
@@ -222,6 +234,7 @@ public class Spectre extends RobotConfig {
             private static final CANDeviceID kFrontRightSteerEncoder = new CANDeviceID(
             2, 
                 "FrontRightSwerveSteerEncoder", 
+                kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.CANCODER, 
                 kCanivoreBusName
             );
@@ -256,18 +269,21 @@ public class Spectre extends RobotConfig {
             private static final CANDeviceID kBackLeftDriveMotor = new CANDeviceID(
                 5, 
                 "BackLeftSwerveDriveMotor", 
+                kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
                 kCanivoreBusName
             );
             private static final CANDeviceID kBackLeftSteerMotor = new CANDeviceID(
             6, 
                 "BackLeftSwerveSteerMotor", 
+                kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
                 kCanivoreBusName
             );
             private static final CANDeviceID kBackLeftSteerEncoder = new CANDeviceID(
             3, 
                 "BackLeftSwerveSteerEncoder", 
+                kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.CANCODER, 
                 kCanivoreBusName
             );
@@ -303,6 +319,7 @@ public class Spectre extends RobotConfig {
             private static final CANDeviceID kBackRightDriveMotor = new CANDeviceID(
                 7, 
                 "BackRightSwerveDriveMotor", 
+                kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
                 kCanivoreBusName
             );
@@ -310,6 +327,7 @@ public class Spectre extends RobotConfig {
             private static final CANDeviceID kBackRightSteerMotor = new CANDeviceID(
                 8, 
                 "BackRightSwerveSteerMotor",  
+                kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
                 kCanivoreBusName
             );
@@ -317,6 +335,7 @@ public class Spectre extends RobotConfig {
             private static final CANDeviceID kBackRightSteerEncoder = new CANDeviceID(
                 8, 
                 "BackRightSwerveSteerEncoder",  
+                kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.CANCODER, 
                 kCanivoreBusName
             );
@@ -425,26 +444,16 @@ public class Spectre extends RobotConfig {
      * Constructor for this robot configuration sets up variables that are used in the RobotConfig's override functions
      */
     public Spectre(){
-        // Configure the ports for this bot
-        m_portConfiguration = buildPortConfiguration();
-
         // Configure the cameras on this bot
-        m_cameraConfigurations = buildCameraConfigurations();
+        cameraConfigurations = buildCameraConfigurations();
 
         // Construct our swerve module representations
-        m_moduleConstants = buildSwerveModuleConstants();
+        moduleConstants = buildSwerveModuleConstants();
 
         // Construct our constants for the overall swerve drive
-        m_swerveDriveConstants = buildSwerveDriveConstants();
-    }
+        swerveDriveConstants = buildSwerveDriveConstants();
 
-    /**
-     * Setup the port configuration for this bot
-     * @return A configured PortConfiguration for this bot
-     */
-    private PortConfiguration buildPortConfiguration(){
-        return new PortConfiguration()
-            .withCANBusName(kCanivoreBusName);
+        testSubsystemConfig = buildTestSubsystemConfiguration();
     }
 
     /**
@@ -485,21 +494,62 @@ public class Spectre extends RobotConfig {
             .withPigeon2Configs(Gyro.kConfiguration);
     }
 
+    /**
+     * Build and return a set of swerve drive constants for this class
+     * @return
+     */
+    private ServoMotorCANCoderConfiguration<TalonFXConfiguration> buildTestSubsystemConfiguration(){
+        ServoMotorCANCoderConfiguration<TalonFXConfiguration> config = new ServoMotorCANCoderConfiguration<TalonFXConfiguration>(
+            TalonFXFactory.getDefaultConfig()
+        );
+
+        config.ConfigurationName = "TestSubsystem";
+        config.CANDevice = new CANDeviceID(
+            14, 
+            "Flywheel",  
+            kTestSubsystemName,
+            CANDeviceID.CANDeviceType.TALON_FX, 
+            kCanivoreBusName
+        );
+
+        config.momentOfInertia = 0.02330333;
+        config.unitToRotorRotationRatio = Units.rotationsToRadians(1);
+
+        config.motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        config.canCoderConfig.CANDevice = new CANDeviceID(
+            19, 
+            "Flywheel",  
+            kTestSubsystemName,
+            CANDeviceID.CANDeviceType.CANCODER, 
+            kCanivoreBusName
+        );
+
+        config.canCoderConfig.config.MagnetSensor.MagnetOffset = 0.;
+        config.CANCoderRotationToUnitRatio = Units.rotationsToRadians(1);
+
+        config.motorConfig.Feedback.FeedbackRemoteSensorID = config.canCoderConfig.CANDevice.getDeviceID();
+        config.motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        config.motorConfig.Feedback.SensorToMechanismRatio = 1 / 1.0;
+
+        config.motorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
+        config.motorConfig.CurrentLimits.SupplyCurrentLimitEnable = false;
+        config.CANCoderGearRatioSim = 1.0;
+        config.CANCoderUnitToRotorRotationRatioSim = 1.0;
+
+        return config;
+    }
+
     // --- RobotConfig override functions ---
     @Override
     public SwerveDrivetrainConstants getSwerveDriveConstants() {
-        return m_swerveDriveConstants;
+        return swerveDriveConstants;
     }
 
     @Override
     public List<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> getModuleConstants() {
-        return m_moduleConstants;
+        return moduleConstants;
     }
 
-    @Override
-    public PortConfiguration getPortConfiguration() {
-        return m_portConfiguration;
-    }
 
     @Override
     public String getRobotName() {
@@ -508,11 +558,16 @@ public class Spectre extends RobotConfig {
 
     @Override
     public List<CameraConfiguration> getCameraConfigurations() {
-        return m_cameraConfigurations;
+        return cameraConfigurations;
     }
 
     @Override
     public List<String> getCANBusNames() {
         return kCANBuses;
+    }
+
+    @Override
+    public ServoMotorCANCoderConfiguration<TalonFXConfiguration> getTestSubsystemConfiguration() {
+        return testSubsystemConfig;
     }
 }

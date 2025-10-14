@@ -10,20 +10,18 @@ import com.team6443.lib.can.CANStatusLogger;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends LoggedRobot {
-  private final RobotContainer m_robotContainer;
+  private final RobotContainer robotContainer;
 
   public Robot() {
     // SHOULD ALWAYS BE CALLED FIRST TO NOT MISS ANY LOGS
     // Setup logging to the proper location, and log the metadata for the bot
-    m_robotContainer = new RobotContainer();
-    m_robotContainer.setupLogger();
+    robotContainer = new RobotContainer();
+    robotContainer.setupLogger();
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-
-    m_robotContainer.updateLogger();
   }
 
   @Override

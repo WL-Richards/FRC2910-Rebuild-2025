@@ -38,6 +38,7 @@ public class CANDeviceID {
     private final int canID;
     private final String busName;
     private final CANDeviceType deviceType;
+    private final String subsystemName;
 
     // Set when this CAN device is in use by a CTRE device
     private StatusSignal<?> ctreStatusSignal = null;
@@ -46,12 +47,14 @@ public class CANDeviceID {
      * Create a new CAN Device that is used to represent any number of CAN devices on the network
      * @param canID ID of this CAN device
      * @param deviceName Name of this CAN device
+     * @param subsystemName Name of the subsystem that this CAN device is a part of
      * @param deviceType Type of CAN device that this object is
      * @param busName The bus this device exists on
      */
     public CANDeviceID(
             int canID, 
             String deviceName,
+            String subsystemName,
             CANDeviceType deviceType, 
             String busName
         ){
@@ -59,15 +62,17 @@ public class CANDeviceID {
         this.canID = canID;
         this.busName = busName;
         this.deviceType = deviceType;
+        this.subsystemName = subsystemName;
     }
 
     // Use the default bus name "rio".
     public CANDeviceID(
         int canID, 
         String deviceName, 
+        String subsystemName,
         CANDeviceType deviceType
     ) {
-        this(canID, deviceName, deviceType, "rio");
+        this(canID, deviceName, subsystemName, deviceType, "rio");
     }
 
     public int getDeviceID() {
@@ -129,6 +134,14 @@ public class CANDeviceID {
      */
     public String getDeviceName(){
         return deviceName + "_" + deviceType.toString() +  "_" + canID;
+    }
+
+    /**
+     * Get the name of the parent subsystem of which this CAN device is a part of
+     * @return Name of top level subsystem
+     */
+    public String getSubsystemName(){
+        return subsystemName;
     }
 
     @Override

@@ -21,6 +21,8 @@ import com.ctre.phoenix6.signals.ReverseLimitSourceValue;
 import com.ctre.phoenix6.signals.ReverseLimitTypeValue;
 import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.can.CANStatusLogger;
+import com.team6443.lib.config.motors.ServoMotorConfiguration;
+import com.team6443.lib.motors.hardware.TalonFXIO;
 import com.team6443.lib.phoenix6.CTREUtil;
 
 /** 
@@ -31,13 +33,43 @@ public class TalonFXFactory {
     public static final InvertedValue INVERT_VALUE = InvertedValue.CounterClockwise_Positive;
     public static final double NEUTRAL_DEADBAND = 0.04;
  
+    // ------ TalonFXIO Factory Functions ------
+
+    /**
+     * Create a new TalonFXIO
+     * @param config ServoMotorConfiguration for this TalonFXIO
+     * @return The newly created TalonFXIO
+     */
+    public static TalonFXIO createIO(ServoMotorConfiguration<TalonFXConfiguration> config) {
+        return new TalonFXIO(config.CANDevice, config);
+    }
+
+    // ------ Raw TalonFX Factory Functions ------
+    /**
+     * Create a new TalonFX with the talon FX configuration supplied
+     * @param device CANDevice the represents the Talon being created
+     * @param config The config that should be applied to the talon after its created
+     * @return The newly created Talon instance
+     */
+    public static TalonFX createRawWithConfig(CANDeviceID device, TalonFXConfiguration config){
+        TalonFX talon = createRaw(device);
+        CTREUtil.Configuration.Motors.applyConfiguration(talon, config);
+
+        // Set update rate of our CANDeviceID status signal to update at 100 hz
+        device.setStatusSignal(talon.getSupplyVoltage(), 100);
+
+        // Automatically register the Talon with the CAN status logger upon creation 
+        CANStatusLogger.get(device.getBus()).registerCANDevice(device);
+        return talon;
+    }
+
     /**
      * Create a new TalonFX with the default configuration described below and link it with the given CANDeviceID
      * @param device CANDeviceID that the TalonFX is object is being created from
      * @return The newly created Talon FX
      */
-    public static TalonFX createDefault(CANDeviceID device){
-        return createWithConfig(
+    public static TalonFX createRawDefault(CANDeviceID device){
+        return createRawWithConfig(
             device, 
             getDefaultConfig()
         );
@@ -108,32 +140,17 @@ public class TalonFXFactory {
         return config;
     }
 
-    /**
-     * Create a new TalonFX with the talon FX configuration supplied
-     * @param device CANDevice the represents the Talon being created
-     * @param talonConfig The config that should be applied to the talon after its created
-     * @return The newly created Talon instance
-     */
-    public static TalonFX createWithConfig(CANDeviceID device, TalonFXConfiguration talonConfig){
-        TalonFX talon = create(device);
-        CTREUtil.Configuration.Motors.applyConfiguration(talon, talonConfig);
-
-        // Set update rate of our CANDeviceID status signal to update at 100 hz
-        device.setStatusSignal(talon.getSupplyVoltage(), 100);
-
-        // Automatically register the Talon with the CAN status logger upon creation 
-        CANStatusLogger.get(device.getBus()).registerCANDevice(device);
-        return talon;
-    }
-
+    
     /**
      * Create a new TalonFXIO
      * @param device CAN device that represents this talon
      * @return The newly created TalonFXIO
      */
-    private static TalonFX create(CANDeviceID device) {
+    private static TalonFX createRaw(CANDeviceID device) {
         TalonFX talon = new TalonFX(device.getDeviceID(), device.getBus());
         talon.clearStickyFaults();
         return talon;
     }
+
+   
 }

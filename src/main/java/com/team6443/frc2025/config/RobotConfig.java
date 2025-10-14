@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.team6443.frc2025.config.robots.Spectre;
 import com.team6443.lib.config.camera.CameraConfiguration;
+import com.team6443.lib.config.motors.ServoMotorCANCoderConfiguration;
 
 /**
  * Define the basis for what needs to be provided for the robot to be controlled to its fullest.
@@ -39,10 +40,10 @@ public abstract class RobotConfig {
     public abstract List<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> getModuleConstants();
 
     /**
-     * Pure abstract method, retrieves how all motors and sensors are mapped to their respective CAN IDs and RIO ports
-     * @return Current configuration of sensor and motor ports and IDs
+     * Get the configuration for the Test subsystem on this bot
+     * @return The test subsystem configuration
      */
-    public abstract PortConfiguration getPortConfiguration();
+    public abstract ServoMotorCANCoderConfiguration<TalonFXConfiguration> getTestSubsystemConfiguration();
 
     /**
      * Pure abstract method, retrieves how all the cameras on the bot are configured

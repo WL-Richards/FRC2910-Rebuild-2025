@@ -21,15 +21,14 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
 /**
  * Subsystem used to drive any MotorIO motor with commands
  */
-public class ServoMotorSubsystem<
+public abstract class ServoMotorSubsystem<
       I extends MotorInputs, 
       M extends MotorIO, 
-      C extends ServoMotorConfiguration
+      C extends ServoMotorConfiguration<?>
     > 
 extends SubsystemBase {
 
@@ -40,13 +39,13 @@ extends SubsystemBase {
   protected I motorInputs;
 
   // What servo motor configuration is being used
-  protected C motorConfiguration;
+  protected C config;
 
   // The current position in servo motor configuration units of where this motor should be 
   protected double currentPositionSetpoint = 0;
 
   // Prefix that this motor should ues for logs 
-  protected final String logPrefix;
+  protected String logPrefix;
 
   /**
    * Create new servo motor subsystem with the desired motor and motor config
@@ -60,7 +59,7 @@ extends SubsystemBase {
     C motorConfiguration
   ){
     super(motorConfiguration.ConfigurationName);
-    this.motorConfiguration = motorConfiguration;
+    this.config = motorConfiguration;
     this.motorInputs = motorInputs;
     this.motor = motor;
     this.logPrefix = motorConfiguration.ConfigurationName + "/" + motor.getName();

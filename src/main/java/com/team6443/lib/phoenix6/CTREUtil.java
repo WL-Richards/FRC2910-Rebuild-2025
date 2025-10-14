@@ -14,8 +14,8 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.team6443.lib.config.motors.TalonFXServoMotorConfiguration;
-import com.team6443.lib.motors.TalonFXIO;
+import com.team6443.lib.config.motors.ServoMotorConfiguration;
+import com.team6443.lib.motors.hardware.TalonFXIO;
 
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -123,7 +123,7 @@ public final class CTREUtil {
             // ------ TalonFXIO ------
 
             // --- Configuration ---
-            public static StatusCode applyConfiguration(TalonFXIO motor, TalonFXServoMotorConfiguration config) {
+            public static StatusCode applyConfiguration(TalonFXIO motor, ServoMotorConfiguration<TalonFXConfiguration> config) {
                 return applyConfiguration(motor.getTalon(), config);
             }
 
@@ -209,8 +209,8 @@ public final class CTREUtil {
                 );
             }
 
-            public static StatusCode applyConfiguration(TalonFX motor, TalonFXServoMotorConfiguration config) {
-                return applyConfiguration(motor, config.config);
+            public static StatusCode applyConfiguration(TalonFX motor, ServoMotorConfiguration<TalonFXConfiguration> config) {
+                return applyConfiguration(motor, config.getMotorConfig());
             }
  
             /**
