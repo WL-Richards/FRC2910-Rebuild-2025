@@ -9,13 +9,19 @@ import com.team6443.frc2025.subsystems.TestSubsystem;
 import com.team6443.lib.config.motors.ServoMotorCANCoderConfiguration;
 import com.team6443.lib.logging.interfaces.Loggerable;
 
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+
 public class RobotContainer implements Loggerable {
 
   protected final TestSubsystem subsystem = SubsystemFactory.createTestSubsystem();
+
+  protected final CommandXboxController primary = new CommandXboxController(0);
   
   public RobotContainer() {
     configureBindings();
   }
 
-  private void configureBindings() {}
+  private void configureBindings() {
+    primary.axisMagnitudeGreaterThan(0, 0).whileTrue(subsystem.dutyCycleCommand(() -> primary.getRawAxis(0)));
+  }
 }

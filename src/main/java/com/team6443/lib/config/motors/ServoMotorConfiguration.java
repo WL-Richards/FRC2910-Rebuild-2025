@@ -4,10 +4,7 @@
 
 package com.team6443.lib.config.motors;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.team6443.lib.can.CANDeviceID;
-import com.team6443.lib.motors.interfaces.MotorIO;
-import com.team6443.lib.motors.interfaces.MotorIO.NeutralMode;
 
 /** 
  * Configuration for treating a motor as effectively a servo

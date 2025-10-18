@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.LoggedRobot;
 import com.team6443.lib.can.CANStatusLogger;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
+
 public class Robot extends LoggedRobot {
   private final RobotContainer robotContainer;
 
@@ -22,17 +23,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-  }
-
-  @Override
-  public void simulationInit() {
-      super.simulationInit();
-  }
-
-  @Override
-  public void simulationPeriodic() {
-      // TODO Auto-generated method stub
-      super.simulationInit();
   }
 
   @Override
@@ -58,10 +48,12 @@ public class Robot extends LoggedRobot {
   public void autonomousExit() {}
 
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+  }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() { 
+  }
 
   @Override
   public void teleopExit() {}

@@ -35,6 +35,9 @@ public class ServoMotorCANCoderSubsystem<
 
   // Has the "motors" position been offset yet to use the CANcoders position instead of the internal motor position so that we always know where the motor is on initialization
   protected boolean hasSetOffset = false;
+
+  // Prefix that this motor should ues for logs 
+  private String logPrefix;
   
   /** Creates a new ServoMotorSubsystemCanCoder. */
   public ServoMotorCANCoderSubsystem(
@@ -47,7 +50,7 @@ public class ServoMotorCANCoderSubsystem<
     super(motorInputs, motor, motorConfiguration);
     this.canCoderInputs = canCoderInputs;
     this.canCoder = canCoder;
-    this.logPrefix = motorConfiguration.ConfigurationName + "/" + canCoder.getName();
+    this.logPrefix = "RobotState/Subsystems/" + motorConfiguration.ConfigurationName + "/" + canCoder.getName();
   }
 
   @Override
@@ -56,7 +59,7 @@ public class ServoMotorCANCoderSubsystem<
 
     // Update the state of the CAN coder
     canCoder.updateInputs(canCoderInputs);
-    Logger.processInputs(logPrefix + "/Inputs",  canCoderInputs);
+    Logger.processInputs("RealOutputs/" + logPrefix + "/Inputs",  canCoderInputs);
 
     // If this encoder is not fused, has a valid location and the offset hasn't already been set we want to update the motors position to the same value
     if(!this.config.isFusedCANCoder && !this.hasSetOffset && !Double.isNaN(canCoderInputs.absolutePositionRotations)){

@@ -45,7 +45,7 @@ extends SubsystemBase {
   protected double currentPositionSetpoint = 0;
 
   // Prefix that this motor should ues for logs 
-  protected String logPrefix;
+  private String logPrefix;
 
   /**
    * Create new servo motor subsystem with the desired motor and motor config
@@ -62,7 +62,13 @@ extends SubsystemBase {
     this.config = motorConfiguration;
     this.motorInputs = motorInputs;
     this.motor = motor;
-    this.logPrefix = motorConfiguration.ConfigurationName + "/" + motor.getName();
+    this.logPrefix = "RobotState/Subsystems/" + motorConfiguration.ConfigurationName + "/" + motor.getName();
+
+    setDefaultCommand(
+      dutyCycleCommand(() -> 0.0)
+        .withName("DefaultNeutral")
+        .ignoringDisable(true)  // Do this even when disabled
+    );
   }
 
   @Override
@@ -77,10 +83,9 @@ extends SubsystemBase {
   private void updateLogs(){
     // Log the inputs for this motor
     Logger.processInputs(
-      logPrefix + "/Inputs", 
+      "RealOutputs/" + logPrefix + "/Inputs", 
       motorInputs
     );
-
     // Record the current command being executed on this motor
     Logger.recordOutput(
       logPrefix + "/CurrentCommand", 
@@ -219,7 +224,12 @@ extends SubsystemBase {
   ){
     currentPositionSetpoint = position;
     Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Position", position);
-    Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Slot", position);
+    Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Velocity", velocity);
+    Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Acceleration", acceleration);
+
+    Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Jerk", jerk);
+    Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Feedforward", feedforward);
+    Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Slot", slot);
     motor.setDynamicSmartPositionSetpoint(position, velocity, acceleration, jerk, feedforward, slot);
   }
 
@@ -252,7 +262,7 @@ extends SubsystemBase {
     return new InstantCommand(
       () -> setSmartMotionConfigImpl(config)
     )
-    .withName(getName() + "_SetSmartMotionConfig");
+    .withName("SetSmartMotionConfig");
   }
 
   // ------  Control Modifiers ------
@@ -286,7 +296,7 @@ extends SubsystemBase {
           prevLimits.reverseLimitsEnabled
         );
       }
-    ).withName(getName() + "_WithoutSoftwareLimitsTemp");
+    ).withName("WithoutSoftwareLimitsTemp");
   }
 
   /**
@@ -298,7 +308,7 @@ extends SubsystemBase {
     return new ParallelDeadlineGroup(
       commandToRun,
       withoutSoftwareLimitsTemporailyCommand()
-    ).withName(getName() + "Running_" + commandToRun.getName() + "_WithoutSoftwareLimitsTemp");
+    ).withName("Running_" + commandToRun.getName() + "_WithoutSoftwareLimitsTemp");
     
   }
   // ------ Duty Cycle Commands ------
@@ -313,7 +323,7 @@ extends SubsystemBase {
       () -> { setOpenLoopDutyCycleImpl(dutyCycle.getAsDouble()); },
       () -> { setOpenLoopDutyCycleImpl(0.0); }
     )
-    .withName(getName() + "_DutyCycleControl");
+    .withName("DutyCycleControl");
   } 
 
   /**
@@ -326,7 +336,7 @@ extends SubsystemBase {
       () -> { setOpenLoopDutyCycleImpl(dutyCycle.getAsDouble()); },
       () -> {}
     )
-    .withName(getName() + "_DutyCycleControl");
+    .withName("DutyCycleControl");
   } 
 
   // ------ Voltage Commands ------
@@ -341,7 +351,7 @@ extends SubsystemBase {
       () -> { setVoltageImpl(voltage.getAsDouble()); },
       () -> { setVoltageImpl(0.0); }
     )
-    .withName(getName() + "_VoltageControl");
+    .withName("VoltageControl");
   }
   
   // --- Torque Control Commands ---
@@ -350,7 +360,7 @@ extends SubsystemBase {
     return runEnd(
       () -> { setTorqueCurrentImpl(current.getAsDouble()); }, 
       () -> { setTorqueCurrentImpl(0.0); }
-    ).withName(getName() + "_TorqueCurrent");
+    ).withName("TorqueCurrent");
   }
 
   // ------ Velocity Control Commands ------
@@ -360,7 +370,7 @@ extends SubsystemBase {
       () -> { setPIDVelocitySetpointImpl(velocity.getAsDouble()); }, 
       () -> {}
     )
-    .withName(getName() + "_PIDVelocityControl");
+    .withName("PIDVelocityControl");
   }
   
   public Command smartVelocitySetpointCommand(DoubleSupplier velocity, int slot){
@@ -368,7 +378,7 @@ extends SubsystemBase {
       () -> { setSmartVelocitySetpointImpl(velocity.getAsDouble(), slot); }, 
       () -> {}
     )
-    .withName(getName() + "_SmartVelocityControl");
+    .withName("SmartVelocityControl");
   }
 
   public Command smartVelocitySetpointCommand(DoubleSupplier velocity){
@@ -388,7 +398,7 @@ extends SubsystemBase {
     return new InstantCommand( 
       () -> {setNeutralModeImpl(MotorIO.NeutralMode.COAST); }
     )
-    .withName(getName() + "_SetCoast");
+    .withName("SetCoast");
   }
 
   /**
@@ -399,7 +409,7 @@ extends SubsystemBase {
     return new InstantCommand( 
       () -> {setNeutralModeImpl(MotorIO.NeutralMode.BRAKE); }
     )
-    .withName(getName() + "_SetBrake");
+    .withName("SetBrake");
   }
 
   // ------ Position Control Commands ------
@@ -410,21 +420,21 @@ extends SubsystemBase {
       () -> { setPIDPositionSetpointImpl(position.getAsDouble(), slot); }, 
       () -> {}
     )
-    .withName(getName() + "_PIDPositionControl");
+    .withName("PIDPositionControl");
   }
 
   public Command positionSetpointUntilOnTargetCommand(DoubleSupplier position, DoubleSupplier acceptableError, int slot){
     return positionSetpointCommand(position, slot)
       .until(
         () -> MathUtil.isNear(position.getAsDouble(), motorInputs.unitPosition, acceptableError.getAsDouble()))
-      .withName(getName() + "_PIDPositionControlUntilOnTarget");
+      .withName("PIDPositionControlUntilOnTarget");
   }
 
   public Command positionSetpointUntilOnTargetCommand(DoubleSupplier position, DoubleSupplier acceptableError){
     return positionSetpointCommand(position, 0)
       .until(
         () -> MathUtil.isNear(position.getAsDouble(), motorInputs.unitPosition, acceptableError.getAsDouble()))
-      .withName(getName() + "_PIDPositionControlUntilOnTarget");
+      .withName("PIDPositionControlUntilOnTarget");
   }
 
   // --- Smart Control Commands ---
@@ -434,7 +444,7 @@ extends SubsystemBase {
       () -> { setSmartPositionSetpointImpl(position.getAsDouble(), slot); }, 
       () -> {}
     )
-    .withName(getName() + "_SmartPositionControl");
+    .withName("SmartPositionControl");
   }
 
   public Command smartPositionSetpointCommand(DoubleSupplier position){
@@ -446,7 +456,7 @@ extends SubsystemBase {
       .until(
         () -> MathUtil.isNear(position.getAsDouble(), motorInputs.unitPosition, acceptableError.getAsDouble())
       )
-      .withName(getName() + "_SmartPositionControlUntilOnTarget");
+      .withName("SmartPositionControlUntilOnTarget");
   } 
 
   public Command smartPositionSetpointUntilOnTargetCommand(DoubleSupplier position, DoubleSupplier acceptableError){
@@ -459,7 +469,7 @@ extends SubsystemBase {
     return runEnd(
       () -> { setDynamicSmartPositionSetpointImpl(position.getAsDouble(), config.get(), slot); },
       () -> {}
-      ).withName(getName() + "_DynamicSmartPositionControl");
+      ).withName("DynamicSmartPositionControl");
   }
 
   public Command dynamicSmartPositionSetpointCommand(DoubleSupplier position, Supplier<MotionMagicConfigs> config){
@@ -476,7 +486,7 @@ extends SubsystemBase {
       .until(
         () -> MathUtil.isNear(position.getAsDouble(), motorInputs.unitPosition, acceptableError.getAsDouble())
       )
-      .withName(getName() + "_DynamicSmartPositionControlUntilOnTarget");
+      .withName("DynamicSmartPositionControlUntilOnTarget");
   }
 
   public Command dynamicSmartPositionSetpointUntilOnTargetCommand(
