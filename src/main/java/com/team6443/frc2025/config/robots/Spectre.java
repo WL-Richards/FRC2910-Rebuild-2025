@@ -499,9 +499,9 @@ public class Spectre extends RobotConfig {
      * @return
      */
     private ServoMotorCANCoderConfiguration<TalonFXConfiguration> buildTestSubsystemConfiguration(){
-        ServoMotorCANCoderConfiguration<TalonFXConfiguration> config = new ServoMotorCANCoderConfiguration<TalonFXConfiguration>(
-            TalonFXFactory.getDefaultConfig()
-        );
+        ServoMotorCANCoderConfiguration<TalonFXConfiguration> config = new ServoMotorCANCoderConfiguration<TalonFXConfiguration>()
+                                                                                .withConfig(new TalonFXConfiguration());
+
 
         config.ConfigurationName = "TestSubsystem";
         config.CANDevice = new CANDeviceID(

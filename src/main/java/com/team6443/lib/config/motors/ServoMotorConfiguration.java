@@ -16,7 +16,7 @@ import com.team6443.lib.can.CANDeviceID;
 public class ServoMotorConfiguration<T> {
 
     // The actual configuration being used internally by the motor
-    public T motorConfig;
+    public T motorConfig = null;
 
     // The name of the configuration in use
     public String ConfigurationName = "UNNAMED";
@@ -35,10 +35,6 @@ public class ServoMotorConfiguration<T> {
 
     // Moment of Inertia (KgMetersSquared) (how resistant a motor's rotor is to changs in its rotational speed)
     public double momentOfInertia = 0.5;
-
-    public ServoMotorConfiguration(T config) {
-        this.motorConfig = config;
-    }
 
     /**
      * Convert the current rotor rotations to the real-world units specified scaled by the unitToRotorRotationRation defined in the config

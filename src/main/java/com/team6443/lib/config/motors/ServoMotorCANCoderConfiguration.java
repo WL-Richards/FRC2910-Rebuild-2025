@@ -45,7 +45,8 @@ public class ServoMotorCANCoderConfiguration<C> extends ServoMotorConfiguration<
         return units / this.unitToRotorRotationRatio;
     }
 
-    public ServoMotorCANCoderConfiguration(C config){
-        super(config);
+    public ServoMotorCANCoderConfiguration<C> withConfig(C config){
+        super.withConfig(config);
+        return this;
     }
 }

@@ -110,6 +110,14 @@ extends SubsystemBase {
     return motorInputs.velocityUnitsPerSecond;
   }
 
+  protected void setEncoderPosition(double position){
+    motor.setCurrentEncoderPosition(position);
+  }
+
+  protected void zeroEncoderPosition(){
+    motor.zeroEncoderPosition();
+  }
+
   // ---------  Motor Desired State ---------
 
   /**
