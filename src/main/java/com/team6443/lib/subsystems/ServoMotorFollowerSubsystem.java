@@ -4,6 +4,8 @@
 
 package com.team6443.lib.subsystems;
 
+import java.util.List;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
@@ -62,7 +64,7 @@ import com.team6443.lib.motors.interfaces.MotorIO;
  * @param <M>  The type of {@link MotorIO} implementation controlling the motor hardware.
  * @param <C>  The type of {@link ServoMotorFollowerConfiguration} defining motor relationships.
  */
-public class ServoMotorFollowerSubsystem<
+public abstract class ServoMotorFollowerSubsystem<
                 MI extends MotorInputs,
                 M extends MotorIO,
                 C extends ServoMotorFollowerConfiguration<?>
@@ -71,16 +73,12 @@ public class ServoMotorFollowerSubsystem<
     /** Configuration object defining leader and follower setup. */
     protected C leaderConfig;
 
-    /** List of configurations for each follower motor. */
-    protected C.FollowerConfiguration<?>[] followerConfigurations;
-
     /** Input/state containers for each follower motor. */
     protected MI[] followerMotorInputs;
 
     /** Hardware interface objects for each follower motor. */
     protected M[] followerMotors;
 
-    /** Prefix used for organizing this subsystem’s log entries. */
     private String logPrefix;
 
     /**
@@ -104,11 +102,10 @@ public class ServoMotorFollowerSubsystem<
         super(leaderMotorInputs, leaderMotor, config);
 
         // Setup logging information
-        this.logPrefix = "RobotState/Subsystems/" + config.ConfigurationName;
+        this.logPrefix = "Subsystems/" + config.ConfigurationName;
 
         // Setup configs
         this.leaderConfig = config;
-        this.followerConfigurations = this.leaderConfig.followingMotors;
 
         // Setup follower motors + inputs
         this.followerMotorInputs = followerMotorInputs;
@@ -119,9 +116,9 @@ public class ServoMotorFollowerSubsystem<
                 "Length of follower inputs/io not equal";
 
         // Configure each follower to follow the leader according to their configuration
-        for (int i = 0; i < followerConfigurations.length; i++) {
+        for (int i = 0; i <  config.followerConfigurations.size(); i++) {
             MotorIO motor = followerMotors[i];
-            motor.follow(leaderConfig.CANDevice, followerConfigurations[i].followDirection);
+            motor.follow(leaderConfig.CANDevice, config.followerConfigurations.get(i).followDirection);
         }
     }
 
@@ -134,10 +131,10 @@ public class ServoMotorFollowerSubsystem<
     @Override
     public void periodic() {
         super.periodic();
-        for (int i = 0; i < followerConfigurations.length; i++) {
+        for (int i = 0; i <  config.followerConfigurations.size(); i++) {
             MotorIO motor = followerMotors[i];
             motor.updateInputs(followerMotorInputs[i]);
-            Logger.processInputs("RealOutputs/" + logPrefix + "/Inputs/" + motor.getName(), followerMotorInputs[i]);
+            Logger.processInputs(logPrefix + "/" + motor.getName(), followerMotorInputs[i]);
         }
     }
 
@@ -176,7 +173,7 @@ public class ServoMotorFollowerSubsystem<
         for (MI followerInput : followerMotorInputs) {
             averagePosition += followerInput.unitPosition;
         }
-        return averagePosition / (followerConfigurations.length + 1);
+        return averagePosition / (config.followerConfigurations.size() + 1);
     }
 
     /**
@@ -190,6 +187,19 @@ public class ServoMotorFollowerSubsystem<
         for (MI followerInput : followerMotorInputs) {
             averageVelocity += followerInput.velocityUnitsPerSecond;
         }
-        return averageVelocity / (followerConfigurations.length + 1);
+        return averageVelocity / (config.followerConfigurations.size() + 1);
+    }
+
+    /**
+     * Helper function to generate a same sized list to motors of motor inputs
+     * @param motors List of motors the inputs are being generated for
+     * @return Array of motor inputs that were generated to match
+     */
+    protected static MotorInputs[] generateDefaultFollowerInputs(MotorIO[] motors){
+        MotorInputs[] inputs = new MotorInputs[motors.length];
+        for(int i = 0; i < motors.length; i++){
+            inputs[i] = new MotorInputs();
+        }
+        return inputs;
     }
 }

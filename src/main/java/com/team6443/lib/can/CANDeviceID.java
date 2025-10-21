@@ -42,6 +42,9 @@ public class CANDeviceID {
 
     // Set when this CAN device is in use by a CTRE device
     private StatusSignal<?> ctreStatusSignal = null;
+
+    // If we are following another CAN device this will be set
+    private CANDeviceID masterDevice = null;
     
     /**
      * Create a new CAN Device that is used to represent any number of CAN devices on the network
@@ -85,6 +88,13 @@ public class CANDeviceID {
 
     public CANDeviceType getDeviceType() {
         return deviceType;
+    }
+
+    public CANDeviceID getMasterDevice(){
+        return this.masterDevice;
+    }
+    public void setMasterCANDevice(CANDeviceID master){
+        this.masterDevice = master;
     }
 
     /**

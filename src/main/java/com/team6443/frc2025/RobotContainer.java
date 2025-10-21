@@ -6,6 +6,7 @@ package com.team6443.frc2025;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.team6443.frc2025.subsystems.SubsystemFactory;
 import com.team6443.frc2025.subsystems.TestSubsystem;
+import com.team6443.frc2025.subsystems.elevator.ElevatorSubsystem;
 import com.team6443.lib.config.motors.ServoMotorCANCoderConfiguration;
 import com.team6443.lib.logging.interfaces.Loggerable;
 
@@ -13,15 +14,14 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class RobotContainer implements Loggerable {
 
-  protected final TestSubsystem subsystem = SubsystemFactory.createTestSubsystem();
-
-  protected final CommandXboxController primary = new CommandXboxController(0);
-  
+  private ElevatorSubsystem elevatorSubsystem = SubsystemFactory.createElevatorSubsystem(); 
+  private CommandXboxController primary = new CommandXboxController(0);
   public RobotContainer() {
     configureBindings();
   }
 
   private void configureBindings() {
-    primary.axisMagnitudeGreaterThan(0, 0).whileTrue(subsystem.dutyCycleCommand(() -> primary.getRawAxis(0)));
+    primary.axisGreaterThan(0, 0).onTrue(elevatorSubsystem.smartPositionSetpointCommand(() -> 0.5));
+    primary.axisLessThan(0, 0.001).onTrue(elevatorSubsystem.smartPositionSetpointCommand(() -> 0));
   }
 }

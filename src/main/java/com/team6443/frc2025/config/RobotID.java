@@ -12,13 +12,13 @@ import com.team6443.lib.network.NetworkUtils;
  * Enum (basically a class here) to facilitate the identification and proper configuration selection between different robots
  */
 public enum RobotID {
-    SPECTRE,
+    NAUTILUS,
     ;   
     // ---After this point we can define class properties in the enum ---
 
     /* Define mappings of robot types to the MAC address they are associated with */
     private static final Map<String, RobotID> RobotToMAC = Map.of(
-        "blah:blah:blah:blah:blah:blah", RobotID.SPECTRE
+        "blah:blah:blah:blah:blah:blah", RobotID.NAUTILUS
     );
 
     /**
@@ -27,11 +27,11 @@ public enum RobotID {
     public static RobotID getIdentification(){
         String macAddress = NetworkUtils.MAC.getMACAddress();
         if (macAddress == null){
-            return RobotID.SPECTRE;
+            return RobotID.NAUTILUS;
         }
         RobotID id = RobotToMAC.get(macAddress);
 
         // Default to the main robot if MAC was unable to be retrieved
-        return  (id != null) ? id : RobotID.SPECTRE;
+        return  (id != null) ? id : RobotID.NAUTILUS;
     }
 }

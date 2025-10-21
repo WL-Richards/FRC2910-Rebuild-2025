@@ -6,9 +6,12 @@ package com.team6443.lib.config.swerve;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.team6443.lib.can.CANDeviceID;
+import com.team6443.lib.motors.interfaces.MotorIO.NeutralMode;
 
 /** Implementation of the swerve module configuration when using 2 TalonFX motor controllers and one CANCoder */
 public class TalonFXSwerveModuleConfiguration extends SwerveModuleConfiguration<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> {
@@ -28,9 +31,9 @@ public class TalonFXSwerveModuleConfiguration extends SwerveModuleConfiguration<
                 .withDriveMotorGearRatio(kDriveGearBox.getTotalRatio())
                 .withSteerMotorGearRatio(kSteerGearBox.getTotalRatio())
                 .withCouplingGearRatio(couplingGearRatio)
-                .withDriveMotorInverted(false)
-                .withSteerMotorInverted(false)
-                .withEncoderInverted(false)
+                .withDriveMotorInverted(kDriveMotorInverted)
+                .withSteerMotorInverted(kSteerMotorInverted)
+                .withEncoderInverted(kSteerEncoderInverted)
                 .withEncoderOffset(kSteerEncoderOffsetRotations)
                 .withLocationX(kLocationOffset.getX())
                 .withLocationY(kLocationOffset.getY())
@@ -65,6 +68,12 @@ public class TalonFXSwerveModuleConfiguration extends SwerveModuleConfiguration<
                     .withStatorCurrentLimitEnable(true)
                     .withSupplyCurrentLimit(kDriveMotorSupplyCurrentLimit)
                     .withStatorCurrentLimit(kDriveMotorStatorCurrentLimit)
+            )
+            .withMotorOutput(
+                new MotorOutputConfigs().withNeutralMode(kDriveNeutralMode == NeutralMode.BRAKE 
+                                                            ? NeutralModeValue.Brake 
+                                                            : NeutralModeValue.Coast
+                                                        )
             );
        }
        return kDriveMotorConfiguration;
@@ -80,7 +89,13 @@ public class TalonFXSwerveModuleConfiguration extends SwerveModuleConfiguration<
                     .withStatorCurrentLimitEnable(true)
                     .withSupplyCurrentLimit(kSteerMotorSupplyCurrentLimit)
                     .withStatorCurrentLimit(kSteerMotorStatorCurrentLimit)
-            );
+                )
+                .withMotorOutput(
+                    new MotorOutputConfigs().withNeutralMode(kSteerNeutralMode == NeutralMode.BRAKE 
+                                                                ? NeutralModeValue.Brake 
+                                                                : NeutralModeValue.Coast
+                                                            )
+                );
         }
         return kSteerMotorConfiguration;
     }

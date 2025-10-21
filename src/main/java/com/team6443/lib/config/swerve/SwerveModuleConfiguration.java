@@ -9,6 +9,7 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.config.wrappers.ConfigureSlot0Gains;
 import com.team6443.lib.mechanics.MultistageGearBox;
+import com.team6443.lib.motors.interfaces.MotorIO.NeutralMode;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -52,14 +53,20 @@ public abstract class SwerveModuleConfiguration<DC extends ParentConfiguration, 
     protected double kDriveMotorStatorCurrentLimit = 0;  // The amount of current (amps) that motor is allowed to draw up to
     protected double kDriveMotorSlipCurrent = 0; // The amount of current (amps) that can be applied to the drive wheel before it slips (120 basically means it doesn't slip)
     protected DC kDriveMotorConfiguration = null;
+    protected NeutralMode kDriveNeutralMode = NeutralMode.BRAKE;
+    protected boolean kDriveMotorInverted = false;
 
     // Steer Motor
     protected double kSteerMotorSupplyCurrentLimit = 0; // amps
     protected double kSteerMotorStatorCurrentLimit = 0;  // amps
     protected SC kSteerMotorConfiguration = null;
+    protected boolean kSteerMotorInverted = false;
+    protected NeutralMode kSteerNeutralMode = NeutralMode.BRAKE;
+
 
     // Steer Encoder
     protected SE kSteerEncoderConfiguration = null;
+    protected boolean kSteerEncoderInverted = false;
 
     // Gearing
     // Gearbox between the drive motor and drive wheel of this swerve module
@@ -149,9 +156,11 @@ public abstract class SwerveModuleConfiguration<DC extends ParentConfiguration, 
         double kI,
         double kD,
         double kV,
-        double kS
+        double kS,
+        double kG,
+        double kA
     ){
-        this.kDriveMotorGains = new ConfigureSlot0Gains(kP, kI, kD, kV, kS);
+        this.kDriveMotorGains = new ConfigureSlot0Gains(kP, kI, kD, kV, kS, kG, kA);
         return this;
     }
 
@@ -187,13 +196,16 @@ public abstract class SwerveModuleConfiguration<DC extends ParentConfiguration, 
      * @param kV Velocity feedforward gain — compensates for expected velocity demand
      * @param kS Static friction feedforward gain — compensates for motor stiction (voltage needed to start motion)
      */
-    public SwerveModuleConfiguration<DC, SC, SE> withSteerMotorGains(double kP,
+    public SwerveModuleConfiguration<DC, SC, SE> withSteerMotorGains(
+        double kP,
         double kI,
         double kD,
         double kV,
-        double kS
+        double kS,
+        double kG,
+        double kA
     ){
-        this.kSteerMotorGains = new ConfigureSlot0Gains(kP, kI, kD, kV, kS);
+        this.kSteerMotorGains = new ConfigureSlot0Gains(kP, kI, kD, kV, kS, kG, kA);
         return this;
     }
 
@@ -366,6 +378,61 @@ public abstract class SwerveModuleConfiguration<DC extends ParentConfiguration, 
         return this;
     }
 
+
+    /**
+     * Sets whether the drive motor for this swerve module should be inverted.
+     *
+     * <p>This controls the direction of positive output for the drive motor.
+     * Setting this to {@code true} will invert the drive motor's direction so that
+     * positive commands cause it to spin in the opposite direction.
+     *
+     * @param inverted {@code true} to invert the drive motor, {@code false} to use normal direction
+     * @return This {@link SwerveModuleConfiguration} instance for method chaining
+     */
+    public SwerveModuleConfiguration<DC, SC, SE> withDriveMotorInverted(boolean inverted) {
+        this.kDriveMotorInverted = inverted;
+        return this;
+    }
+
+    /**
+     * Sets whether the steer (azimuth) motor for this swerve module should be inverted.
+     *
+     * <p>This affects the direction the steering motor rotates when commanding
+     * positive rotation. Setting this to {@code true} reverses that direction.
+     *
+     * @param inverted {@code true} to invert the steer motor, {@code false} to use normal direction
+     * @return This {@link SwerveModuleConfiguration} instance for method chaining
+     */
+    public SwerveModuleConfiguration<DC, SC, SE> withSteerMotorInverted(boolean inverted) {
+        this.kSteerMotorInverted = inverted;
+        return this;
+    }
+
+    /**
+     * Sets whether the steer encoder (azimuth sensor) for this swerve module should be inverted.
+     *
+     * <p>This controls the sign convention for the steer encoder readings. Setting this
+     * to {@code true} reverses the encoder’s reported angle direction, which can be
+     * useful when the physical encoder orientation differs between modules.
+     *
+     * @param inverted {@code true} to invert the steer encoder reading, {@code false} for normal orientation
+     * @return This {@link SwerveModuleConfiguration} instance for method chaining
+     */
+    public SwerveModuleConfiguration<DC, SC, SE> withSteerEncoderInverted(boolean inverted) {
+        this.kSteerEncoderInverted = inverted;
+        return this;
+    }
+
+    public SwerveModuleConfiguration<DC, SC, SE> withDriveNeutralMode(NeutralMode mode) {
+        this.kDriveNeutralMode = mode;
+        return this;
+    }
+
+    public SwerveModuleConfiguration<DC, SC, SE> withSteerNeutralMode(NeutralMode mode) {
+        this.kSteerNeutralMode = mode;
+        return this;
+    }
+
     /**
      * Retrieve the theoretical maximum linear speed of this swerve module in meters per second.
      * 
@@ -389,6 +456,7 @@ public abstract class SwerveModuleConfiguration<DC extends ParentConfiguration, 
         }
         return  kMaxRobotSpeedMeterPerSecond;
     }
+    
 
     /**
      * Retrieve the complete set of constants configured for this swerve module.

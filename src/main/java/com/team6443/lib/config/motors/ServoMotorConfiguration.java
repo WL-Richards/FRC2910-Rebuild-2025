@@ -5,6 +5,7 @@
 package com.team6443.lib.config.motors;
 
 import com.team6443.lib.can.CANDeviceID;
+import com.team6443.lib.motors.interfaces.MotorIO.NeutralMode;
 
 /** 
  * Configuration for treating a motor as effectively a servo
@@ -35,6 +36,9 @@ public class ServoMotorConfiguration<T> {
 
     // Moment of Inertia (KgMetersSquared) (how resistant a motor's rotor is to changs in its rotational speed)
     public double momentOfInertia = 0.5;
+
+    // The neutral mode of the motor
+    public NeutralMode kNeutralMode = NeutralMode.BRAKE;
 
     /**
      * Convert the current rotor rotations to the real-world units specified scaled by the unitToRotorRotationRation defined in the config

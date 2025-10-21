@@ -4,6 +4,8 @@
 
 package com.team6443.lib.config.motors;
 
+import java.util.List;
+
 import com.team6443.lib.motors.interfaces.MotorIO.FollowDirection;
 
 /**
@@ -36,7 +38,11 @@ public class ServoMotorFollowerConfiguration<C> extends ServoMotorConfiguration<
          * Configuration of the follower motor, containing its setup details
          * such as motor ID, PID constants, and other parameters.
          */
-        public C motorConfig = null;
+        public ServoMotorConfiguration<C> config = null;
+
+        public FollowerConfiguration(ServoMotorConfiguration<C> config){
+            this.config = config;
+        }
 
         /**
          * Sets the configuration for this follower motor.
@@ -44,8 +50,8 @@ public class ServoMotorFollowerConfiguration<C> extends ServoMotorConfiguration<
          * @param config The {@link ServoMotorConfiguration} object containing the follower's settings.
          * @return This {@link FollowerConfiguration} instance, for chaining.
          */
-        public FollowerConfiguration<C> withConfig(C config) {
-            this.motorConfig = config;
+        public FollowerConfiguration<C> withConfig(ServoMotorConfiguration<C> config) {
+            this.config = config;
             return this;
         }
 
@@ -65,16 +71,23 @@ public class ServoMotorFollowerConfiguration<C> extends ServoMotorConfiguration<
     /**
      * The list of follower motors that should follow the leader motor.
      */
-    public FollowerConfiguration<C>[] followingMotors = null;
+    public List<FollowerConfiguration<C>> followerConfigurations;
+
+    public ServoMotorFollowerConfiguration(C config){
+        super.withConfig(config);
+    }
+
+    public ServoMotorFollowerConfiguration(){}
 
     /**
-     * Sets the follower motor configurations for this servo motor.
+     * Sets the follower motor configurations for the follower servo motors.
      *
      * @param motors An array of {@link FollowerConfiguration} objects defining each follower motor.
      * @return This {@link ServoMotorFollowerConfiguration} instance, for chaining.
      */
-    public ServoMotorFollowerConfiguration<C> withFollowingMotors(FollowerConfiguration<C>[] motors) {
-        this.followingMotors = motors;
+    public ServoMotorFollowerConfiguration<C> withFollowerConfigs(List<FollowerConfiguration<C>> configs) {
+        this.followerConfigurations = configs;
         return this;
     }
+    
 }

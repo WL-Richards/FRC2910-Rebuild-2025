@@ -77,7 +77,7 @@ public class CANStatusLogger implements Loggable {
         this.canBus = new CANBus(busName);
 
         // We are logging can status to CANStatus/<bus name>/*
-        logLocationPrefix = "RobotState/CANStatus/" + busName + "/";
+        logLocationPrefix = "CANStatus/" + busName + "/";
     }
 
     public String getBusName(){
@@ -146,6 +146,11 @@ public class CANStatusLogger implements Loggable {
             boolean isConnected = device.isConnected();
 
             Logger.recordOutput(logLocationPrefix + subsystemName + "/" + deviceName, isConnected);
+            // There is a master device set so we want to log that
+            if (device.getMasterDevice() != null){
+                Logger.recordOutput(logLocationPrefix + subsystemName + "/" + deviceName + "/Following", device.getMasterDevice().getDeviceName());
+
+            }
         }
        
     }

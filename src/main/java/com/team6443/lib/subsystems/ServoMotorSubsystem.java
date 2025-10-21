@@ -62,7 +62,7 @@ extends SubsystemBase {
     this.config = motorConfiguration;
     this.motorInputs = motorInputs;
     this.motor = motor;
-    this.logPrefix = "RobotState/Subsystems/" + motorConfiguration.ConfigurationName + "/" + motor.getName();
+    this.logPrefix = "Subsystems/" + motorConfiguration.ConfigurationName;
 
     setDefaultCommand(
       dutyCycleCommand(() -> 0.0)
@@ -83,7 +83,7 @@ extends SubsystemBase {
   private void updateLogs(){
     // Log the inputs for this motor
     Logger.processInputs(
-      "RealOutputs/" + logPrefix + "/Inputs", 
+      logPrefix, 
       motorInputs
     );
     // Record the current command being executed on this motor
@@ -194,7 +194,7 @@ extends SubsystemBase {
   protected void setSmartPositionSetpointImpl(double position, int slot){
       currentPositionSetpoint = position;
       Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Position", position);
-      Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Slot", position);
+      Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Slot", slot);
       motor.setSmartPositionSetpoint(position, slot);
   }
 

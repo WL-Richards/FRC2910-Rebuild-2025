@@ -12,6 +12,7 @@ import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -19,12 +20,15 @@ import com.team6443.frc2025.config.RobotConfig;
 import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.CameraConfiguration.Location;
-import com.team6443.lib.config.motors.ServoMotorCANCoderConfiguration;
+import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
+import com.team6443.lib.config.motors.factories.TalonFXConfigurationFactory;
 import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
 import com.team6443.lib.config.swerve.TalonFXSwerveModuleConfiguration;
 import com.team6443.lib.config.wrappers.ConfigureSlot0Gains;
-import com.team6443.lib.factories.motors.TalonFXFactory;
 import com.team6443.lib.mechanics.MultistageGearBox;
+import com.team6443.lib.motors.interfaces.MotorIO.FollowDirection;
+import com.team6443.lib.motors.interfaces.MotorIO.NeutralMode;
+import com.team6443.lib.subsystems.simulation.SimulatedElevator.SimulatedElevatorConfiguration;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -32,24 +36,22 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
 /**
- * This code represents the configuration for 2910's 2025 spectre robot
+ * This code represents the configuration for 6443's 2025 robot "Nautilus" 
  */
-public class Spectre extends RobotConfig {
+public class Nautilus extends RobotConfig {
 
     // --- Robot Configuration Settings
     private final List<CameraConfiguration> cameraConfigurations;
     private final List<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> moduleConstants;
     private final SwerveDrivetrainConstants swerveDriveConstants;
 
-    private final ServoMotorCANCoderConfiguration<TalonFXConfiguration> testSubsystemConfig;
-    static {
-       
-    }
+    private final ServoMotorFollowerConfiguration<TalonFXConfiguration> elevatorSubsystemConfig;
+    private final SimulatedElevatorConfiguration simulatedElevatorConfiguration;
     
     // --- Physical Properties --- 
     // Radius of the modules wheel in meters
     private static final double kWheelBaseLengthM = Units.inchesToMeters(22.75);
-    private static final double kWheelTrackWidthM = Units.inchesToMeters(20.75);
+    private static final double kWheelTrackWidthM = Units.inchesToMeters(22.75);
 
     // ---  CAN Bus Config  --- 
     // (Note IDs can be the same for different device types (TalonFX, Pigeon2, etc), ie gyro and front left drive motor have the same ID)
@@ -62,10 +64,10 @@ public class Spectre extends RobotConfig {
 
 
     // --- Misc. Config ---
-    private static final String kRobotName = "Spectre";
+    private static final String kRobotName = "Nautilus";
 
     private static final String kDriveSubsystemName = "DriveSubsystem";
-    private static final String kTestSubsystemName = "TestSubsystem";
+    private static final String kElevatorSubsystemName = "ElevatorSubsystem";
     
     // --- Gyro Config ---
     private class Gyro {
@@ -74,7 +76,7 @@ public class Spectre extends RobotConfig {
          * 
          * To determine face robot in a direction that we know what the angle should be, GyroYawErrorDegrees = (gyro reading - true reading)
          */
-        private static final double kGyroYawErrorDegrees = -0.34;
+        private static final double kGyroYawErrorDegrees = 0.0;
 
         // Rotation that the gyro is mounted all degrees passed in must be converted to radians
         private static final Rotation3d kMountRotation = new Rotation3d(
@@ -115,57 +117,62 @@ public class Spectre extends RobotConfig {
         private static final double kDriveInertia = 0.001; // The rotational inertia in the drive system (kg * m^2) and represent rotational resistance to acceleration
         private static final double kSteerInertia = 0.00001; // The rotational inertia in the drive system (kg * m^2) and represent rotational resistance to acceleration
 
-        private static final double kWheelRadiusM = Units.inchesToMeters(1.95);
+        private static final double kWheelRadiusM = Units.inchesToMeters(1.9375);
+
+        private static final NeutralMode kDriveNeutralMode = NeutralMode.BRAKE;
+        private static final NeutralMode kSteerNeutralMode = NeutralMode.BRAKE;
 
         // --- Gearbox Configuration ---
         private static final MultistageGearBox kDriveGearBox = 
             new MultistageGearBox()
-                .addStage(12, 54)
-                .addStage(32, 25)
-                .addStage(15, 30);
+                .addStage(16, 50)
+                .addStage(28, 16)
+                .addStage(15, 45);
 
         private static final MultistageGearBox kSteerGearBox = 
             new MultistageGearBox()
-                .addStage(12, 54)
-                .addStage(32, 25)
-                .addStage(15, 30);
+                .addStage(7, 150);
 
         // --- Encoder Configurations ---
         // Offset from what the encoder thinks is 0 to the true zero of the module in ROTATIONS
-        private static final double kFrontLeftEncoderOffsetRotations = -0.30517578125 + 0.5;
-        private static final double kFrontRightEncoderOffsetRotations = -0.008544921875;
-        private static final double kBackLeftEncoderOffsetRotations = -0.341064453125 + 0.5;
+        private static final double kFrontLeftEncoderOffsetRotations = -0.7915340865489908;
+        private static final double kFrontRightEncoderOffsetRotations = -(-0.23316507975861744 + Math.PI);
+        private static final double kBackLeftEncoderOffsetRotations = 0.09050486648525283;
         private static final double kBackRightEncoderOffsetRotations = 0.100830078125 - 0.5;
 
         // --- Motor Configurations ---
         // Motor Gains configured for the drive swerve motors
         private static final ConfigureSlot0Gains kDriveMotorGains = new ConfigureSlot0Gains(
+            2.0, 
             0.0, 
-            0.0, 
-            0.0, 
-            0.1238, 
-            0.0
+            0.005, 
+            0, // No gravity
+            0.37914,
+            2.0608994822,
+            0.013797
         );
 
         // Motor Gains configured for the steer swerve motors
         private static final ConfigureSlot0Gains kSteerMotorGains = new ConfigureSlot0Gains(
-            100.0,
+            75,
             0.0,
             0.0,
-            0.0,
+            0.0,    // No gravity
+            0.16677,
+            2.5678,
             0.0
         );
 
         // Drive Motor
         private static final double kDriveMotorSupplyCurrentLimit = 50.0; // The amount of current (amps) that this motor is allowed to pull from the battery, if exceeded voltage will be reduced to avoid brownouts
-        private static final double kDriveMotorStatorCurrentLimit = 100.0;  // The amount of current (amps) that motor is allowed to draw up to
+        private static final double kDriveMotorStatorCurrentLimit = 80.0;  // The amount of current (amps) that motor is allowed to draw up to
         private static final double kDriveMotorSlipCurrent = 120; // The amount of current (amps) that can be applied to the drive wheel before it slips (120 basically means it doesn't slip)
-
+        
         // --- Module Configurations ---
         private class Modules {
-            // Front Left
+            // ----------- Front Left -----------
             private static final CANDeviceID kFrontLeftDriveMotor =  new CANDeviceID(
-                1, 
+                7, 
                 "FrontLeftSwerveDriveMotor", 
                 kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
@@ -173,7 +180,7 @@ public class Spectre extends RobotConfig {
             );
 
             private static final CANDeviceID kFrontLeftSteerMotor = new CANDeviceID(
-            2, 
+            8, 
                 "FrontLeftSwerveSteerMotor", 
                 kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
@@ -181,7 +188,7 @@ public class Spectre extends RobotConfig {
             );
             
             private static final CANDeviceID kFrontLeftSteerEncoder = new CANDeviceID(
-            1, 
+            26, 
                 "FrontLeftSwerveSteerEncoder", 
                 kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.CANCODER, 
@@ -197,10 +204,14 @@ public class Spectre extends RobotConfig {
                 )
                 .withDriveFrictionVoltage(kDriveFrictionVoltage)
                 .withSteerFrictionVoltage(kSteerFrictionVoltage)
+                .withDriveMotorInverted(true)
+                .withSteerMotorInverted(true)
                 .withDriveInertia(kDriveInertia)
                 .withSteerInertia(kSteerInertia)
                 .withDriveMotorGains(kDriveMotorGains)
                 .withSteerMotorGains(kSteerMotorGains)
+                .withDriveNeutralMode(kDriveNeutralMode)
+                .withSteerNeutralMode(kSteerNeutralMode)
                 .withEncoderOffsetRotations(kFrontLeftEncoderOffsetRotations)
                 .withDriveMotorSupplyCurrentLimit(kDriveMotorSupplyCurrentLimit)
                 .withDriveMotorStatorCurrentLimit(kDriveMotorStatorCurrentLimit)
@@ -214,9 +225,9 @@ public class Spectre extends RobotConfig {
                 .withLocationOffset(kWheelBaseLengthM / 2, kWheelTrackWidthM / 2)
                 .withWheelRadiusM(kWheelRadiusM);
 
-            // Front Right
+            // ----------- Front Right -----------
             private static final CANDeviceID kFrontRightDriveMotor =  new CANDeviceID(
-                3, 
+                5, 
                 "FrontRightSwerveDriveMotor", 
                 kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
@@ -224,7 +235,7 @@ public class Spectre extends RobotConfig {
             );
 
             private static final CANDeviceID kFrontRightSteerMotor = new CANDeviceID(
-            4, 
+            6, 
                 "FrontRightSwerveSteerMotor", 
                 kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
@@ -232,7 +243,7 @@ public class Spectre extends RobotConfig {
             );
 
             private static final CANDeviceID kFrontRightSteerEncoder = new CANDeviceID(
-            2, 
+            24, 
                 "FrontRightSwerveSteerEncoder", 
                 kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.CANCODER, 
@@ -248,10 +259,14 @@ public class Spectre extends RobotConfig {
                 )
                 .withDriveFrictionVoltage(kDriveFrictionVoltage)
                 .withSteerFrictionVoltage(kSteerFrictionVoltage)
+                .withDriveMotorInverted(true)
+                .withSteerMotorInverted(true)
                 .withDriveInertia(kDriveInertia)
                 .withSteerInertia(kSteerInertia)
-                .withDriveMotorGains(0.0, 0.0, 0.0, 0.1238, 0.0)
-                .withSteerMotorGains(100.0, 0.0, 0.0, 0.0, 0.0)
+                .withDriveMotorGains(kDriveMotorGains)
+                .withSteerMotorGains(kSteerMotorGains)
+                .withDriveNeutralMode(kDriveNeutralMode)
+                .withSteerNeutralMode(kSteerNeutralMode)
                 .withEncoderOffsetRotations(kFrontRightEncoderOffsetRotations)
                 .withDriveMotorSupplyCurrentLimit(kDriveMotorSupplyCurrentLimit)
                 .withDriveMotorStatorCurrentLimit(kDriveMotorStatorCurrentLimit)
@@ -265,23 +280,23 @@ public class Spectre extends RobotConfig {
                 .withLocationOffset(kWheelBaseLengthM / 2, -kWheelTrackWidthM / 2)
                 .withWheelRadiusM(kWheelRadiusM);
 
-            // Back Left
+            // ----------- Back Left -----------
             private static final CANDeviceID kBackLeftDriveMotor = new CANDeviceID(
-                5, 
+                3, 
                 "BackLeftSwerveDriveMotor", 
                 kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
                 kCanivoreBusName
             );
             private static final CANDeviceID kBackLeftSteerMotor = new CANDeviceID(
-            6, 
+            4, 
                 "BackLeftSwerveSteerMotor", 
                 kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
                 kCanivoreBusName
             );
             private static final CANDeviceID kBackLeftSteerEncoder = new CANDeviceID(
-            3, 
+            25, 
                 "BackLeftSwerveSteerEncoder", 
                 kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.CANCODER, 
@@ -298,10 +313,14 @@ public class Spectre extends RobotConfig {
                 )
                 .withDriveFrictionVoltage(kDriveFrictionVoltage)
                 .withSteerFrictionVoltage(kSteerFrictionVoltage)
+                .withDriveMotorInverted(true)
+                .withSteerMotorInverted(true)
                 .withDriveInertia(kDriveInertia)
                 .withSteerInertia(kSteerInertia)
-                .withDriveMotorGains(0.0, 0.0, 0.0, 0.1238, 0.0)
-                .withSteerMotorGains(100.0, 0.0, 0.0, 0.0, 0.0)
+                .withDriveMotorGains(kDriveMotorGains)
+                .withSteerMotorGains(kSteerMotorGains)
+                .withDriveNeutralMode(kDriveNeutralMode)
+                .withSteerNeutralMode(kSteerNeutralMode)
                 .withEncoderOffsetRotations(kBackLeftEncoderOffsetRotations)
                 .withDriveMotorSupplyCurrentLimit(kDriveMotorSupplyCurrentLimit)
                 .withDriveMotorStatorCurrentLimit(kDriveMotorStatorCurrentLimit)
@@ -317,7 +336,7 @@ public class Spectre extends RobotConfig {
 
             // Back Right Swerve Module Configuration
             private static final CANDeviceID kBackRightDriveMotor = new CANDeviceID(
-                7, 
+                9, 
                 "BackRightSwerveDriveMotor", 
                 kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
@@ -325,7 +344,7 @@ public class Spectre extends RobotConfig {
             );
 
             private static final CANDeviceID kBackRightSteerMotor = new CANDeviceID(
-                8, 
+                2, 
                 "BackRightSwerveSteerMotor",  
                 kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.TALON_FX, 
@@ -333,7 +352,7 @@ public class Spectre extends RobotConfig {
             );
 
             private static final CANDeviceID kBackRightSteerEncoder = new CANDeviceID(
-                8, 
+                23, 
                 "BackRightSwerveSteerEncoder",  
                 kDriveSubsystemName,
                 CANDeviceID.CANDeviceType.CANCODER, 
@@ -349,10 +368,14 @@ public class Spectre extends RobotConfig {
                     )
                     .withDriveFrictionVoltage(kDriveFrictionVoltage)
                     .withSteerFrictionVoltage(kSteerFrictionVoltage)
+                    .withDriveMotorInverted(false)
+                    .withSteerMotorInverted(true)
                     .withDriveInertia(kDriveInertia)
                     .withSteerInertia(kSteerInertia)
-                    .withDriveMotorGains(0.0, 0.0, 0.0, 0.1238, 0.0)
-                    .withSteerMotorGains(100.0, 0.0, 0.0, 0.0, 0.0)
+                    .withDriveMotorGains(kDriveMotorGains)
+                    .withSteerMotorGains(kSteerMotorGains)
+                    .withDriveNeutralMode(kDriveNeutralMode)
+                    .withSteerNeutralMode(kSteerNeutralMode)
                     .withEncoderOffsetRotations(kBackRightEncoderOffsetRotations)
                     .withDriveMotorSupplyCurrentLimit(kDriveMotorSupplyCurrentLimit)
                     .withDriveMotorStatorCurrentLimit(kDriveMotorStatorCurrentLimit)
@@ -375,75 +398,129 @@ public class Spectre extends RobotConfig {
         private static final CameraConfiguration kFrontLeftCameraConfiguration = new CameraConfiguration(Location.FRONT_LEFT)
         .withCameraPose(
             new Translation3d(
-                Units.inchesToMeters(8.479),    // X (forward)
-                Units.inchesToMeters(-6.75),           // Y (right)
-                Units.inchesToMeters(8.479)     // Z (up)
+                Units.inchesToMeters(9),         // X (forward)
+                Units.inchesToMeters(8.25),      // Y (right)
+                Units.inchesToMeters(7.5)        // Z (up)
             ),
             new Rotation3d(
-                0,      // Roll
-                0,     // Pitch
-                0        // Yaw
+                Units.degreesToRadians(180),    // Roll
+                Units.degreesToRadians(-15),            // Pitch
+                Units.degreesToRadians(0)       // Yaw
             )
         )
-        .withCameraDistanceScalar(24.25, 24.06)
+        .withCameraDistanceScalar(24.25, 24.06) // TODO: DETERMINE
         .withCameraType(CameraConfiguration.Type.LIMELIGHT);
 
         // Front Right Camera
         private static final CameraConfiguration kFrontRightCameraConfiguration = new CameraConfiguration(Location.FRONT_RIGHT)
             .withCameraPose(
                 new Translation3d(
-                    Units.inchesToMeters(8.479),    // X (forward)
-                    Units.inchesToMeters(6.75),     // Y (right)
-                    Units.inchesToMeters(8.479)     // Z (up)
+                    Units.inchesToMeters(9),    // X (forward)
+                    Units.inchesToMeters(-8.25),       // Y (right)
+                    Units.inchesToMeters(7.5)   // Z (up)
                 ),
                 new Rotation3d(
-                    0,      // Roll
-                    0,     // Pitch
-                    0        // Yaw
+                Units.degreesToRadians(180),    // Roll
+                Units.degreesToRadians(-15),            // Pitch
+                Units.degreesToRadians(0)       // Yaw
                 )
             )
-            .withCameraDistanceScalar(24.25, 24.24)
+            .withCameraDistanceScalar(24.25, 24.24) // TODO: DETERMINE
             .withCameraType(CameraConfiguration.Type.LIMELIGHT);
 
         // Back Left Camera
         private static final CameraConfiguration kBackLeftCameraConfiguration = new CameraConfiguration(Location.BACK_LEFT)
             .withCameraPose(
                 new Translation3d(
-                    Units.inchesToMeters(11.199),   // X (forward)
-                    Units.inchesToMeters(-6.75),           // Y (right)
-                    Units.inchesToMeters(8.440)     // Z (up)
+                    Units.inchesToMeters(-11),              // X (forward)
+                    Units.inchesToMeters(11.5),      // Y (right)
+                    Units.inchesToMeters(6)          // Z (up)
                 ),
                 new Rotation3d(
-                    0,      // Roll
-                    0,     // Pitch
-                    180      // Yaw
+                    Units.degreesToRadians(0),      // Roll
+                    Units.degreesToRadians(-23.5),          // Pitch
+                    Units.degreesToRadians(147)     // Yaw
                 )
             )
-            .withCameraDistanceScalar(10.25, 10.77)
+            .withCameraDistanceScalar(10.25, 10.77) // TODO: DETERMINE
             .withCameraType(CameraConfiguration.Type.LIMELIGHT);
 
         // Back Right Camera 
         private static final CameraConfiguration kBackRightCameraConfiguration = new CameraConfiguration(Location.BACK_RIGHT)
         .withCameraPose(
             new Translation3d(
-                Units.inchesToMeters(11.199),   // X (forward)
-                Units.inchesToMeters(6.75),     // Y (right)
-                Units.inchesToMeters(8.440)     // Z (up)
+                Units.inchesToMeters(-11),              // X (forward)
+                Units.inchesToMeters(-11.5),            // Y (right)
+                Units.inchesToMeters(6)          // Z (up)
             ),
             new Rotation3d(
-                0,      // Roll
-                0,     // Pitch
-                180      // Yaw
+                Units.degreesToRadians(0),      // Roll
+                Units.degreesToRadians(-23.5),          // Pitch
+                Units.degreesToRadians(147)     // Yaw
             )
         )
-        .withCameraDistanceScalar(10.25, 10.88)
+        .withCameraDistanceScalar(10.25, 10.88) // TODO: DETERMINE
         .withCameraType(CameraConfiguration.Type.LIMELIGHT);
     }
     
+    // --- Elevator Config ---
+    private class Elevator {
+
+        // The max height the elevator can extend to in meters
+        private static final double kMaxHeight = 1.15;
+
+        // The min height the elevator can retract to in meters
+        private static final double kMinHeight = 0;
+
+        // The max velocity that we want the elevator to be capable of m/s
+        private static final double kMaxVelocity = 3.6;
+
+        // The max acceleration that we want the elevator to be capable of m/s²
+        private static final double kMaxAcceleration = 4.0;
+
+        // The max acceleration that we want the elevator to be capable of m/s³
+        private static final double kJerk = 0.0;
+
+        // ID of the the leader elevator motor
+        private static final int kTopLeaderMotorID = 13;
+        private static final double kTopLeaderMotorCurrentLimit = 50.0;
+
+        // ID of the the follower elevator motor
+        private static final int kBottomFollowerMotorID = 12;
+        private static final double kBottomFollowerMotorCurrentLimit = 50.0;
+
+        public static final double kElevatorDrumRadius = 0.02866242038;
+        public static final double kGearing = (11.0 / 50.0);
+        public static final double kElevatorUnitToRotorRatio = kGearing * 2.0 * kElevatorDrumRadius * Math.PI;
+
+
+        // Motion magic gains for the elevator
+        private static final ConfigureSlot0Gains kMotorGains = new ConfigureSlot0Gains(
+            1.0,
+            0.0,
+            0.0,
+            0.325,
+            0.075,
+            0.1333,
+            0.005
+            )
+        .withGravityType(GravityTypeValue.Elevator_Static);
+        // private static final ConfigureSlot0Gains kMotorGains = new ConfigureSlot0Gains(
+        //     10,
+        //     0.0,
+        //     0.0,
+        //     0.35,
+        //     0.15,
+        //     0,
+        //     0.005
+        //     )
+        // .withGravityType(GravityTypeValue.Elevator_Static);
+    }
+
     /**
      * Constructor for this robot configuration sets up variables that are used in the RobotConfig's override functions
      */
-    public Spectre(){
+    public Nautilus(){
         // Configure the cameras on this bot
         cameraConfigurations = buildCameraConfigurations();
 
@@ -453,7 +530,9 @@ public class Spectre extends RobotConfig {
         // Construct our constants for the overall swerve drive
         swerveDriveConstants = buildSwerveDriveConstants();
 
-        testSubsystemConfig = buildTestSubsystemConfiguration();
+        // Build the config for the elevator on this bot
+        elevatorSubsystemConfig = buildElevatorConfig();
+        simulatedElevatorConfiguration = buildSimulatedElevatorConfig(); 
     }
 
     /**
@@ -495,47 +574,82 @@ public class Spectre extends RobotConfig {
     }
 
     /**
-     * Build and return a set of swerve drive constants for this class
-     * @return
+     * Build and return a new elevator config for this robot
+     * @return The constructed config
      */
-    private ServoMotorCANCoderConfiguration<TalonFXConfiguration> buildTestSubsystemConfiguration(){
-        ServoMotorCANCoderConfiguration<TalonFXConfiguration> config = new ServoMotorCANCoderConfiguration<TalonFXConfiguration>()
-                                                                                .withConfig(new TalonFXConfiguration());
+    private ServoMotorFollowerConfiguration<TalonFXConfiguration> buildElevatorConfig(){
+
+        // ------------------------- Elevator Follower Motor Configuration----------------------------
+        ServoMotorFollowerConfiguration.FollowerConfiguration<TalonFXConfiguration> followerConfig = TalonFXConfigurationFactory.generateFollowerTalonFXConfiguration();
+
+        followerConfig.config.ConfigurationName = "BottomMotorFollower";
+        followerConfig.config.CANDevice = new CANDeviceID(
+            Elevator.kBottomFollowerMotorID, 
+            "BottomMotorFollower",  
+            kElevatorSubsystemName,
+            CANDeviceID.CANDeviceType.TALON_FX, 
+            kCanivoreBusName
+        );
+        followerConfig.config.unitToRotorRotationRatio = Elevator.kElevatorUnitToRotorRatio;
+
+        // Setup current limit on follower
+        followerConfig.config.motorConfig.CurrentLimits.StatorCurrentLimit = Elevator.kBottomFollowerMotorCurrentLimit;
+        followerConfig.config.motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        // Set follow direction and motor NeutralMode
+        followerConfig.followDirection = FollowDirection.SAME;
+        followerConfig.config.motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
 
-        config.ConfigurationName = "TestSubsystem";
+        // ------------------------- Elevator Subsystem Configuration -------------------------
+        ServoMotorFollowerConfiguration<TalonFXConfiguration> config = new ServoMotorFollowerConfiguration<>(
+                                                                            new TalonFXConfiguration()
+                                                                        );
+        config.ConfigurationName = "ElevatorSubsystem";
         config.CANDevice = new CANDeviceID(
-            14, 
-            "Flywheel",  
-            kTestSubsystemName,
+            Elevator.kTopLeaderMotorID, 
+            "TopMotorLeader",  
+            kElevatorSubsystemName,
             CANDeviceID.CANDeviceType.TALON_FX, 
             kCanivoreBusName
         );
 
-        config.momentOfInertia = 0.02330333;
-        config.unitToRotorRotationRatio = Units.rotationsToRadians(1);
+        // Configure Elevator motor gains
+        config.motorConfig.Slot0 = Elevator.kMotorGains;
 
+        // Configure elevator rotor ratio
+        config.unitToRotorRotationRatio = Elevator.kElevatorUnitToRotorRatio;
+
+        // Configure elevator motion magic parameters
+        config.motorConfig.MotionMagic.MotionMagicCruiseVelocity = 90.0;
+        config.motorConfig.MotionMagic.MotionMagicAcceleration = 1000.0;
+        config.motorConfig.MotionMagic.MotionMagicJerk = 3600.0;
+
+        // config.motorConfig.MotionMagic.MotionMagicCruiseVelocity = Elevator.kMaxVelocity / config.unitToRotorRotationRatio;
+        // config.motorConfig.MotionMagic.MotionMagicAcceleration = Elevator.kMaxAcceleration / config.unitToRotorRotationRatio;
+        // config.motorConfig.MotionMagic.MotionMagicJerk = Elevator.kJerk / config.unitToRotorRotationRatio;
+
+        // Configure motor in brake mode
         config.motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        config.canCoderConfig.CANDevice = new CANDeviceID(
-            19, 
-            "Flywheel",  
-            kTestSubsystemName,
-            CANDeviceID.CANDeviceType.CANCODER, 
-            kCanivoreBusName
-        );
 
-        config.canCoderConfig.config.MagnetSensor.MagnetOffset = 0.;
-        config.CANCoderRotationToUnitRatio = Units.rotationsToRadians(1);
+        config.motorConfig.CurrentLimits.StatorCurrentLimit = Elevator.kTopLeaderMotorCurrentLimit;
+        config.motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        config.motorConfig.Feedback.FeedbackRemoteSensorID = config.canCoderConfig.CANDevice.getDeviceID();
-        config.motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
-        config.motorConfig.Feedback.SensorToMechanismRatio = 1 / 1.0;
+        config.kMaxPositionUnits = Elevator.kMaxHeight;
+        config.kMinPositionUnits = Elevator.kMinHeight;
 
-        config.motorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
-        config.motorConfig.CurrentLimits.SupplyCurrentLimitEnable = false;
-        config.CANCoderGearRatioSim = 1.0;
-        config.CANCoderUnitToRotorRotationRatioSim = 1.0;
+        // Follower configurations 
+        config.followerConfigurations = List.of(followerConfig);
 
+        return config;
+    }
+
+    private SimulatedElevatorConfiguration buildSimulatedElevatorConfig(){
+        SimulatedElevatorConfiguration config = new SimulatedElevatorConfiguration();
+        config.carriageMass = 1.97312681;
+        config.drumRadius = Elevator.kElevatorDrumRadius;
+        config.gearing = Elevator.kGearing;
+        config.meterToRotorRatio = Elevator.kElevatorUnitToRotorRatio;
         return config;
     }
 
@@ -549,7 +663,6 @@ public class Spectre extends RobotConfig {
     public List<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> getModuleConstants() {
         return moduleConstants;
     }
-
 
     @Override
     public String getRobotName() {
@@ -565,9 +678,14 @@ public class Spectre extends RobotConfig {
     public List<String> getCANBusNames() {
         return kCANBuses;
     }
+ 
+    @Override
+    public ServoMotorFollowerConfiguration<TalonFXConfiguration> getElevatorConfiguration() {
+        return elevatorSubsystemConfig;
+    }
 
     @Override
-    public ServoMotorCANCoderConfiguration<TalonFXConfiguration> getTestSubsystemConfiguration() {
-        return testSubsystemConfig;
+    public SimulatedElevatorConfiguration getSimulatedElevatorConfiguration() {
+        return simulatedElevatorConfiguration;
     }
 }

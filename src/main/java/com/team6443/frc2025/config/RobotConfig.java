@@ -10,9 +10,10 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import com.team6443.frc2025.config.robots.Spectre;
+import com.team6443.frc2025.config.robots.Nautilus;
 import com.team6443.lib.config.camera.CameraConfiguration;
-import com.team6443.lib.config.motors.ServoMotorCANCoderConfiguration;
+import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
+import com.team6443.lib.subsystems.simulation.SimulatedElevator;
 
 /**
  * Define the basis for what needs to be provided for the robot to be controlled to its fullest.
@@ -40,10 +41,11 @@ public abstract class RobotConfig {
     public abstract List<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> getModuleConstants();
 
     /**
-     * Get the configuration for the Test subsystem on this bot
-     * @return The test subsystem configuration
+     * Get the configuration for the Elevator subsystem on this bot
+     * @return The elevator subsystem configuration
      */
-    public abstract ServoMotorCANCoderConfiguration<TalonFXConfiguration> getTestSubsystemConfiguration();
+    public abstract ServoMotorFollowerConfiguration<TalonFXConfiguration> getElevatorConfiguration();
+    public abstract SimulatedElevator.SimulatedElevatorConfiguration getSimulatedElevatorConfiguration();
 
     /**
      * Pure abstract method, retrieves how all the cameras on the bot are configured
@@ -64,10 +66,10 @@ public abstract class RobotConfig {
      */
     public static RobotConfig getRobotConstants(RobotID identification){
         switch (identification) {
-            case SPECTRE:
-                return new Spectre();
+            case NAUTILUS:
+                return new Nautilus();
             default:
-                return new Spectre();
+                return new Nautilus();
         }
     }
 }

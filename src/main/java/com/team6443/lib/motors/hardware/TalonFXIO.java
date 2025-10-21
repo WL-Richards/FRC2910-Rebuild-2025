@@ -34,12 +34,14 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.RobotBase;
 
 /** 
  * Generic implementation for the Talon FX
 */
 public class TalonFXIO implements MotorIO, CANable{
-    private final TalonFX talon;
+    protected final TalonFX talon;
+
     private final ServoMotorConfiguration<TalonFXConfiguration> config;
 
     // Object to drive output using a duty cycle control 
@@ -175,7 +177,7 @@ public class TalonFXIO implements MotorIO, CANable{
      * @return Clamped rotor rotation
      */
     private double clampPosition(double units){
-        return getRotorRotationsToUnits(
+        return getUnitsToRotorRotations(
             MathUtil.clamp(units, this.config.kMinPositionUnits, this.config.kMaxPositionUnits)
         );
     }
@@ -314,7 +316,6 @@ public class TalonFXIO implements MotorIO, CANable{
         return talon.setPosition(getUnitsToRotorRotations(position)) == StatusCode.OK;
     }
 
-   
     // ------- Motor Control -------
     /**
      * Set a standard duty cycle control value to drive the motor at
@@ -376,6 +377,7 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public boolean follow(CANDeviceID masterDevice, FollowDirection direction) {
+        this.getCANDevice().setMasterCANDevice(masterDevice);
         return talon.setControl(
             followerControl
                 .withMasterID(masterDevice.getDeviceID())
@@ -406,15 +408,15 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public boolean setSmartPositionSetpoint(double position, int slot) {
-        return talon.setControl(
-            motionMagicPositionControl
-            .withPosition(
-                clampPosition(position)
-            )
-            .withSlot(
-                slot
-            )
-        ) == StatusCode.OK;
+        MotionMagicVoltage mmVoltage = motionMagicPositionControl
+                                        .withPosition(
+                                            clampPosition(position)
+                                        )
+                                        .withSlot(
+                                            slot
+                                        );
+             
+        return talon.setControl(mmVoltage) == StatusCode.OK;
     }
 
    /**

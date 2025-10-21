@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 /**
  * This class is intended for the use case when a CAN coder is desired to be used instead of the motors internal encoder, and simply uses the CAN coder to update what the "motor" encoder reports to match
  */
-public class ServoMotorCANCoderSubsystem<
+public abstract class ServoMotorCANCoderSubsystem<
               MI extends MotorInputs,                         // Motor inputs class to be used, eg. MotorInputs
               M extends MotorIO,                              // Motor interface to be used within the subsystem, eg. TalonFXIO
               EI extends CANCoderInputs,                      // CANCoder inputs class to be used, eg. CANCoderInputs
@@ -50,7 +50,7 @@ public class ServoMotorCANCoderSubsystem<
     super(motorInputs, motor, motorConfiguration);
     this.canCoderInputs = canCoderInputs;
     this.canCoder = canCoder;
-    this.logPrefix = "RobotState/Subsystems/" + motorConfiguration.ConfigurationName + "/" + canCoder.getName();
+    this.logPrefix = "Subsystems/" + motorConfiguration.ConfigurationName + "/" + canCoder.getName();
   }
 
   @Override
@@ -59,7 +59,7 @@ public class ServoMotorCANCoderSubsystem<
 
     // Update the state of the CAN coder
     canCoder.updateInputs(canCoderInputs);
-    Logger.processInputs("RealOutputs/" + logPrefix + "/Inputs",  canCoderInputs);
+    Logger.processInputs(logPrefix + "/Inputs",  canCoderInputs);
 
     // If this encoder is not fused, has a valid location and the offset hasn't already been set we want to update the motors position to the same value
     if(!this.config.isFusedCANCoder && !this.hasSetOffset && !Double.isNaN(canCoderInputs.absolutePositionRotations)){

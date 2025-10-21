@@ -27,7 +27,7 @@ public class MotorInputs implements LoggableInputs{
         table.put("AppliedVolts", appliedVolts);
         table.put("CurrentStatorAmps", currentStatorAmps);
         table.put("CurrentSupplyAmps", currentSupplyAmps);
-        table.put("RawRotorPosition", rawRotorPosition);
+        table.put("RawRotorPosition", rawRotorPosition); 
     }
 
     @Override
