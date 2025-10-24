@@ -582,31 +582,31 @@ public class Nautilus extends RobotConfig {
         // ------------------------- Elevator Follower Motor Configuration----------------------------
         ServoMotorFollowerConfiguration.FollowerConfiguration<TalonFXConfiguration> followerConfig = TalonFXConfigurationFactory.generateFollowerTalonFXConfiguration();
 
-        followerConfig.config.ConfigurationName = "BottomMotorFollower";
-        followerConfig.config.CANDevice = new CANDeviceID(
+        followerConfig.config.kConfigurationName = "BottomMotorFollower";
+        followerConfig.config.kCANDevice = new CANDeviceID(
             Elevator.kBottomFollowerMotorID, 
             "BottomMotorFollower",  
             kElevatorSubsystemName,
             CANDeviceID.CANDeviceType.TALON_FX, 
             kCanivoreBusName
         );
-        followerConfig.config.unitToRotorRotationRatio = Elevator.kElevatorUnitToRotorRatio;
+        followerConfig.config.kUnitToRotorRotationRatio = Elevator.kElevatorUnitToRotorRatio;
 
         // Setup current limit on follower
-        followerConfig.config.motorConfig.CurrentLimits.StatorCurrentLimit = Elevator.kBottomFollowerMotorCurrentLimit;
-        followerConfig.config.motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        followerConfig.config.kMotorConfig.CurrentLimits.StatorCurrentLimit = Elevator.kBottomFollowerMotorCurrentLimit;
+        followerConfig.config.kMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
         // Set follow direction and motor NeutralMode
         followerConfig.followDirection = FollowDirection.SAME;
-        followerConfig.config.motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        followerConfig.config.kMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
 
         // ------------------------- Elevator Subsystem Configuration -------------------------
         ServoMotorFollowerConfiguration<TalonFXConfiguration> config = new ServoMotorFollowerConfiguration<>(
                                                                             new TalonFXConfiguration()
                                                                         );
-        config.ConfigurationName = "ElevatorSubsystem";
-        config.CANDevice = new CANDeviceID(
+        config.kConfigurationName = "ElevatorSubsystem";
+        config.kCANDevice = new CANDeviceID(
             Elevator.kTopLeaderMotorID, 
             "TopMotorLeader",  
             kElevatorSubsystemName,
@@ -615,25 +615,25 @@ public class Nautilus extends RobotConfig {
         );
 
         // Configure Elevator motor gains
-        config.motorConfig.Slot0 = Elevator.kMotorGains;
+        config.kMotorConfig.Slot0 = Elevator.kMotorGains;
 
         // Configure elevator rotor ratio
-        config.unitToRotorRotationRatio = Elevator.kElevatorUnitToRotorRatio;
+        config.kUnitToRotorRotationRatio = Elevator.kElevatorUnitToRotorRatio;
 
         // Configure elevator motion magic parameters
-        config.motorConfig.MotionMagic.MotionMagicCruiseVelocity = 90.0;
-        config.motorConfig.MotionMagic.MotionMagicAcceleration = 1000.0;
-        config.motorConfig.MotionMagic.MotionMagicJerk = 3600.0;
+        config.kMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 90.0;
+        config.kMotorConfig.MotionMagic.MotionMagicAcceleration = 1000.0;
+        config.kMotorConfig.MotionMagic.MotionMagicJerk = 3600.0;
 
         // config.motorConfig.MotionMagic.MotionMagicCruiseVelocity = Elevator.kMaxVelocity / config.unitToRotorRotationRatio;
         // config.motorConfig.MotionMagic.MotionMagicAcceleration = Elevator.kMaxAcceleration / config.unitToRotorRotationRatio;
         // config.motorConfig.MotionMagic.MotionMagicJerk = Elevator.kJerk / config.unitToRotorRotationRatio;
 
         // Configure motor in brake mode
-        config.motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        config.kMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        config.motorConfig.CurrentLimits.StatorCurrentLimit = Elevator.kTopLeaderMotorCurrentLimit;
-        config.motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        config.kMotorConfig.CurrentLimits.StatorCurrentLimit = Elevator.kTopLeaderMotorCurrentLimit;
+        config.kMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
         config.kMaxPositionUnits = Elevator.kMaxHeight;
         config.kMinPositionUnits = Elevator.kMinHeight;

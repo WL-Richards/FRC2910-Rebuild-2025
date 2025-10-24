@@ -33,7 +33,7 @@ public class ServoMotorCANCoderConfiguration<C> extends ServoMotorConfiguration<
      * @return The rotations converted into some units as defined in the config
      */
     public double getEncoderRotationsToUnits(double rotorRotations){
-        return rotorRotations * this.unitToRotorRotationRatio;
+        return rotorRotations * this.kUnitToRotorRotationRatio;
     }
 
     /**
@@ -42,7 +42,7 @@ public class ServoMotorCANCoderConfiguration<C> extends ServoMotorConfiguration<
      * @return The resulting Encoder rotations 
      */
     public double getUnitsToEncoderRotations(double units){
-        return units / this.unitToRotorRotationRatio;
+        return units / this.kUnitToRotorRotationRatio;
     }
 
     public ServoMotorCANCoderConfiguration<C> withConfig(C config){

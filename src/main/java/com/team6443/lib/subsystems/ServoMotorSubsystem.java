@@ -58,11 +58,11 @@ extends SubsystemBase {
     M motor, 
     C motorConfiguration
   ){
-    super(motorConfiguration.ConfigurationName);
+    super(motorConfiguration.kConfigurationName);
     this.config = motorConfiguration;
     this.motorInputs = motorInputs;
     this.motor = motor;
-    this.logPrefix = "Subsystems/" + motorConfiguration.ConfigurationName;
+    this.logPrefix = "Subsystems/" + motorConfiguration.kConfigurationName;
 
     setDefaultCommand(
       dutyCycleCommand(() -> 0.0)

@@ -50,7 +50,7 @@ public abstract class ServoMotorCANCoderSubsystem<
     super(motorInputs, motor, motorConfiguration);
     this.canCoderInputs = canCoderInputs;
     this.canCoder = canCoder;
-    this.logPrefix = "Subsystems/" + motorConfiguration.ConfigurationName + "/" + canCoder.getName();
+    this.logPrefix = "Subsystems/" + motorConfiguration.kConfigurationName + "/" + canCoder.getName();
   }
 
   @Override

@@ -206,7 +206,7 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public CANDeviceID getCANDevice() {
-        return this.config.CANDevice;
+        return this.config.kCANDevice;
     }
 
     // ------- Motor Configuration -------

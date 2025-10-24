@@ -17,16 +17,16 @@ import com.team6443.lib.motors.interfaces.MotorIO.NeutralMode;
 public class ServoMotorConfiguration<T> {
 
     // The actual configuration being used internally by the motor
-    public T motorConfig = null;
+    public T kMotorConfig = null;
 
     // The name of the configuration in use
-    public String ConfigurationName = "UNNAMED";
+    public String kConfigurationName = "UNNAMED";
 
     // The CAN device that is used by the device being configured
-    public CANDeviceID CANDevice = null;
+    public CANDeviceID kCANDevice = null;
 
     // Conversion factor for converting between the desired output units and rotations of the motor
-    public double unitToRotorRotationRatio = 1.0;
+    public double kUnitToRotorRotationRatio = 1.0;
 
     // In whatever units this configruation is using set the minimum position that this motor can drive to
     public double kMinPositionUnits = Double.NEGATIVE_INFINITY;
@@ -35,7 +35,7 @@ public class ServoMotorConfiguration<T> {
     public double kMaxPositionUnits = Double.POSITIVE_INFINITY;
 
     // Moment of Inertia (KgMetersSquared) (how resistant a motor's rotor is to changs in its rotational speed)
-    public double momentOfInertia = 0.5;
+    public double kMomentOfInertia = 0.5;
 
     // The neutral mode of the motor
     public NeutralMode kNeutralMode = NeutralMode.BRAKE;
@@ -46,7 +46,7 @@ public class ServoMotorConfiguration<T> {
      * @return The rotations converted into some units as defined in the config
      */
     public double getRotorRotationsToUnits(double rotorRotations){
-        return rotorRotations * this.unitToRotorRotationRatio;
+        return rotorRotations * this.kUnitToRotorRotationRatio;
     }
 
     /**
@@ -55,7 +55,7 @@ public class ServoMotorConfiguration<T> {
      * @return The resulting rotor rotations 
      */
     public double getUnitsToRotorRotations(double units){
-        return units / this.unitToRotorRotationRatio;
+        return units / this.kUnitToRotorRotationRatio;
     }
 
 
@@ -64,7 +64,7 @@ public class ServoMotorConfiguration<T> {
      * @return The motor configuration that this servo motor is using
      */
     public final T getMotorConfig(){
-        return motorConfig;
+        return kMotorConfig;
     }
 
     /**
@@ -73,7 +73,27 @@ public class ServoMotorConfiguration<T> {
      * @return Reference to this servo motor configuration for chaining
      */
     public ServoMotorConfiguration<T> withConfig(T config){
-        this.motorConfig = config;
+        this.kMotorConfig = config;
+        return this;
+    }
+
+    /**
+     * Update the name of the configuration that is in use
+     * @param name The new name to be set
+     * @return Reference to this servo motor configuration for chaining
+     */
+    public ServoMotorConfiguration<T> withName(String name){
+        this.kConfigurationName = name;
+        return this;
+    }
+
+    /**
+     * Update the name CANDeviceID used with this config
+     * @param device The CANDeviceID to set
+     * @return Reference to this servo motor configuration for chaining
+     */
+    public ServoMotorConfiguration<T> withCANDevice(CANDeviceID device){
+        this.kCANDevice = device;
         return this;
     }
 }

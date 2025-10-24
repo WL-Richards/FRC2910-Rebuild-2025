@@ -41,7 +41,7 @@ public class TalonFXFactory {
      * @return The newly created TalonFXIO
      */
     public static TalonFXIO createIO(ServoMotorConfiguration<TalonFXConfiguration> config) {
-        return new TalonFXIO(config.CANDevice, config);
+        return new TalonFXIO(config.kCANDevice, config);
     }
 
     // ------ Raw TalonFX Factory Functions ------

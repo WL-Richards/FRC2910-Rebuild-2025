@@ -102,7 +102,7 @@ public abstract class ServoMotorFollowerSubsystem<
         super(leaderMotorInputs, leaderMotor, config);
 
         // Setup logging information
-        this.logPrefix = "Subsystems/" + config.ConfigurationName;
+        this.logPrefix = "Subsystems/" + config.kConfigurationName;
 
         // Setup configs
         this.leaderConfig = config;
@@ -118,7 +118,7 @@ public abstract class ServoMotorFollowerSubsystem<
         // Configure each follower to follow the leader according to their configuration
         for (int i = 0; i <  config.followerConfigurations.size(); i++) {
             MotorIO motor = followerMotors[i];
-            motor.follow(leaderConfig.CANDevice, config.followerConfigurations.get(i).followDirection);
+            motor.follow(leaderConfig.kCANDevice, config.followerConfigurations.get(i).followDirection);
         }
     }
 

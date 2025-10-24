@@ -5,6 +5,7 @@
 package com.team6443.lib.config.motors.factories;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.config.motors.ServoMotorConfiguration;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
 
@@ -16,6 +17,15 @@ public class TalonFXConfigurationFactory {
         return new ServoMotorFollowerConfiguration.FollowerConfiguration<>(
                     new ServoMotorConfiguration<TalonFXConfiguration>()
                     .withConfig(new TalonFXConfiguration())
+                );
+    }
+
+    public static ServoMotorFollowerConfiguration.FollowerConfiguration<TalonFXConfiguration> generateFollowerTalonFXConfiguration(String name, CANDeviceID device){
+        return new ServoMotorFollowerConfiguration.FollowerConfiguration<>(
+                    new ServoMotorConfiguration<TalonFXConfiguration>()
+                        .withConfig(new TalonFXConfiguration())
+                        .withName(name)
+                        .withCANDevice(device)
                 );
     }
 }

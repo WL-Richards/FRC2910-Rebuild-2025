@@ -23,14 +23,14 @@ public class CANDeviceID {
         PIGEON2("Pigeon2")
         ;
 
-        private final String printableString;
+        private final String printableName;
         private CANDeviceType(String name){
-            this.printableString = name;
+            this.printableName = name;
         }
 
         @Override
         public String toString() {
-            return this.printableString;
+            return this.printableName;
         }
     }
 

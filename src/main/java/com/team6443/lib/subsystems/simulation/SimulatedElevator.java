@@ -72,13 +72,13 @@ public class SimulatedElevator {
         );
 
         // Setup lead talon
-        leadTalonSimulation = new TalonFXSimIO(config.CANDevice, config);
+        leadTalonSimulation = new TalonFXSimIO(config.kCANDevice, config);
 
         // Create instances of the simulated elevator talon for all the followers
         followerTalonSimulations = new TalonFXSimIO[config.followerConfigurations.size()];
         for(int i = 0; i < config.followerConfigurations.size(); i++){
             followerTalonSimulations[i] = new TalonFXSimIO(
-                config.followerConfigurations.get(i).config.CANDevice,
+                config.followerConfigurations.get(i).config.kCANDevice,
                 config.followerConfigurations.get(i).config
             );
         }
@@ -109,13 +109,13 @@ public class SimulatedElevator {
         TalonFXSimState simState = leadTalonSimulation.getSimState();
         double supplyVoltage = RobotController.getBatteryVoltage();
 
-        Logger.recordOutput("Subsystems/" + config.ConfigurationName + "/Sim/SupplyVoltage", supplyVoltage);
+        Logger.recordOutput("Subsystems/" + config.kConfigurationName + "/Sim/SupplyVoltage", supplyVoltage);
 
         simState.setSupplyVoltage(supplyVoltage);
         double simVoltage = applyFriction(simState.getMotorVoltage(), elevatorSimulationConfiguration.frictionVoltage);
         
         elevatorSimulation.setInput(simVoltage);
-        Logger.recordOutput("Subsystems/" + config.ConfigurationName + "/Sim/SimulatorVoltage", simVoltage);
+        Logger.recordOutput("Subsystems/" + config.kConfigurationName + "/Sim/SimulatorVoltage", simVoltage);
 
         double timestamp = Timer.getFPGATimestamp();
         elevatorSimulation.update(timestamp - lastUpdateTimestamp);
@@ -123,18 +123,18 @@ public class SimulatedElevator {
 
         // Find current state of sim in M
         double simPositionM = elevatorSimulation.getPositionMeters();
-        Logger.recordOutput("Subsystems/" + config.ConfigurationName  + "/Sim/SimulatorPositionMeters", simPositionM);
+        Logger.recordOutput("Subsystems/" + config.kConfigurationName  + "/Sim/SimulatorPositionMeters", simPositionM);
 
         // Mutate rotor position
         double rotorPosition = simPositionM / elevatorSimulationConfiguration.meterToRotorRatio;
         simState.setRawRotorPosition(rotorPosition);
-        Logger.recordOutput("Subsystems/" + config.ConfigurationName + "/Sim/setRawRotorPosition", rotorPosition);
+        Logger.recordOutput("Subsystems/" + config.kConfigurationName + "/Sim/setRawRotorPosition", rotorPosition);
 
         // Mutate rotor vel
         double rotorVel = elevatorSimulation.getVelocityMetersPerSecond() / elevatorSimulationConfiguration.meterToRotorRatio;
         simState.setRotorVelocity(rotorVel);
         Logger.recordOutput(
-                "Subsystems/" + config.ConfigurationName + "/Sim/SimulatorVelocityMS", elevatorSimulation.getVelocityMetersPerSecond());
+                "Subsystems/" + config.kConfigurationName + "/Sim/SimulatorVelocityMS", elevatorSimulation.getVelocityMetersPerSecond());
 
         for (int i = 0; i < followerTalonSimulations.length; ++i) {
             followerTalonSimulations[i].getSimState().setRawRotorPosition(

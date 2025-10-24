@@ -21,7 +21,7 @@ public class TalonFXSimIO extends TalonFXIO {
     public TalonFXSimIO(CANDeviceID device, ServoMotorConfiguration<TalonFXConfiguration> servoMotorConfig){
         super(device, servoMotorConfig);
         talon.getSimState().Orientation =
-                    (servoMotorConfig.motorConfig.MotorOutput.Inverted == InvertedValue.Clockwise_Positive)
+                    (servoMotorConfig.kMotorConfig.MotorOutput.Inverted == InvertedValue.Clockwise_Positive)
                             ? ChassisReference.Clockwise_Positive
                             : ChassisReference.CounterClockwise_Positive;
 
