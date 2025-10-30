@@ -17,7 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 public class DrivetrainInputs extends SwerveDriveState implements LoggableInputs{
     public double gyroYawAngle = 0.0;
 
-    DrivetrainInputs() {
+    public DrivetrainInputs() {
         this.Pose = Pose2d.kZero;
     }
 

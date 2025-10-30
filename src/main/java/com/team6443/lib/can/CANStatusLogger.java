@@ -17,6 +17,8 @@ import com.ctre.phoenix6.CANBus.CANBusStatus;
 import com.team6443.frc2025.constants.RobotRuntimeConstants;
 import com.team6443.lib.logging.interfaces.Loggable;
 
+import edu.wpi.first.wpilibj.DriverStation;
+
 /** 
  * Class intended to managing logging of both the CAN bus itself and devices connected to the BUS
 */
@@ -54,8 +56,10 @@ public class CANStatusLogger implements Loggable {
      * Update the logs for all CAN status loggers
      */
     public static void updateAllLogs(){
-        for(CANStatusLogger logger : instances.values()){
-            logger.updateLog();
+        if(DriverStation.isDisabled()){ // Only update CAN statuses when the robot is disabled
+            for(CANStatusLogger logger : instances.values()){
+                logger.updateLog();
+            }
         }
     }
 

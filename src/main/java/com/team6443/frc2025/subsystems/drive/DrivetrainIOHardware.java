@@ -46,12 +46,14 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
  * Hardware implementation of the drivetrain
  */
 public class DrivetrainIOHardware extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> implements DrivetrainIO {
+    // What to prepend to logs from this subsystem
+    private String logPrefix;
 
     // Create a thread safe cached version of the telemetry that we can use to produce logs from
     private AtomicReference<SwerveDriveState> swerveTelemetryCache = new AtomicReference<>();
 
     // Updates the odometry information from the drive train within our overall robot state as well as updating the cache 
-    private Consumer<SwerveDriveState> swerveTelemetryConsumer =
+    protected Consumer<SwerveDriveState> swerveTelemetryConsumer =
                     state -> {
                         swerveTelemetryCache.set(state.clone());
                         RobotState.get().addOdometryMeasurement(
@@ -75,11 +77,11 @@ public class DrivetrainIOHardware extends SwerveDrivetrain<TalonFX, TalonFX, CAN
     // --- Accelerations
     private final StatusSignal<LinearAcceleration> accelerationX;
     private final StatusSignal<LinearAcceleration> accelerationY;
+    Matrix<N3, N1> stateStdDevs = null;
 
     public DrivetrainIOHardware(
-        RobotState state,
         SwerveDrivetrainConstants  drivetrainConstants,
-        SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>... moduleConstants){
+        SwerveModuleConstants<?, ?, ?>[] moduleConstants){
 
         // Create the CTRE swerve drive train from our robot configuration
         super(
@@ -205,8 +207,8 @@ public class DrivetrainIOHardware extends SwerveDrivetrain<TalonFX, TalonFX, CAN
     }
 
     @Override
-    public void logModules(SwerveDriveState state) {
-        final String[] moduleNames = {"Drive/FL", "Drive/FR", "Drive/BL", "Drive/BR"};
+    public void logModules(SwerveDriveState state,  String prefix) {
+        final String[] moduleNames = {prefix + "/Modules/FL/", prefix + "/Modules/FR/", prefix + "/Modules/BL/", prefix + "/Modules/BR/"};
         if (state.ModuleStates == null) return;
         for (int i = 0; i < getModules().length; i++) {
             Logger.recordOutput(
@@ -237,7 +239,21 @@ public class DrivetrainIOHardware extends SwerveDrivetrain<TalonFX, TalonFX, CAN
 
     @Override
     public void setOdometryStdDevs(double xStd, double yStd, double rotStd) {
-        Matrix<N3, N1> stateStdDevs = VecBuilder.fill(xStd, yStd, rotStd);
+
+        // Don't run fill more than once no need to run the garbage collector all the time
+        if (stateStdDevs == null) {
+            stateStdDevs = VecBuilder.fill(xStd, yStd, rotStd);
+        } else {
+            stateStdDevs.set(0, 0, xStd);
+            stateStdDevs.set(1, 0, yStd);
+            stateStdDevs.set(2, 0, rotStd);
+        }
+        
         this.setStateStdDevs(stateStdDevs);
+    }
+
+    @Override
+    public void setLoggingPrefix(String prefix) {
+        this.logPrefix = prefix + "/IO/Hardware";
     }
 }

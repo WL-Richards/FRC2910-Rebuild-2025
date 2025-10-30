@@ -6,14 +6,14 @@ package com.team6443.frc2025.config;
 
 import java.util.List;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.team6443.frc2025.config.robots.Nautilus;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
-import com.team6443.lib.subsystems.simulation.SimulatedElevator;
+import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
+import com.team6443.lib.config.subsystems.drive.DrivetrainSimConfiguration;
+import com.team6443.lib.subsystems.simulation.elevator.SimulatedElevator;
 
 /**
  * Define the basis for what needs to be provided for the robot to be controlled to its fullest.
@@ -29,16 +29,12 @@ public abstract class RobotConfig {
     public abstract String getRobotName();
 
     /**
-     * Pure abstract method, retrieves the phoenix 6 swerve drive constants to be used by this robot configuration
-     * @return Constants utilized by the swerve drive
+     * Configuration that will be passed into the drivetrain configuration
+     * 
+     * @return
      */
-    public abstract SwerveDrivetrainConstants getSwerveDriveConstants();
-
-    /**
-     * Pure abstract method, retrieves the phoenix 6 swerve drive constants for each module utilized in the swerve drive
-     * @return Constants utilized by each swerve drive module
-     */
-    public abstract List<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> getModuleConstants();
+    public abstract DrivetrainConfiguration getDrivetrainConfiguration();
+    public abstract DrivetrainSimConfiguration getSimulatedDrivetrainConfiguration();
 
     /**
      * Get the configuration for the Elevator subsystem on this bot

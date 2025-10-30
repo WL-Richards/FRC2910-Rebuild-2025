@@ -28,7 +28,7 @@ public interface DrivetrainIO {
      * Log the state of the swerve drive modules
      * @param state Current Swerve Drive state to be logged
      */
-    void logModules(SwerveDriveState state);
+    void logModules(SwerveDriveState state, String prefix);
 
     /**
      * Resets the drive train odometry to some pose
@@ -57,4 +57,10 @@ public interface DrivetrainIO {
      * @param rotStd +/- theta standard deviation in radians
      */
     void setOdometryStdDevs(double xStd, double yStd, double rotStd);
+
+    /**
+     * Set the logging prefix of the drive train to that of the subsystem
+     * @param prefix Prefix to prepend logs with for organization
+     */
+    void setLoggingPrefix(String prefix);
 }

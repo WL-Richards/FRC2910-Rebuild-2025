@@ -168,5 +168,4 @@ public final class RobotState implements Loggable {
         RobotState.Odometry.logTimeInterpolatedPose("RobotState/FinalRobotPose2d", odometryState.TimeInterpolatableRobotPose);
     }
 
-    
 }

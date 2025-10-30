@@ -5,13 +5,21 @@
 package com.team6443.frc2025.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.google.flatbuffers.Constants;
 import com.team6443.frc2025.constants.RobotRuntimeConstants;
+import com.team6443.frc2025.subsystems.drive.DrivetrainIOHardware;
+import com.team6443.frc2025.subsystems.drive.DrivetrainIOSim;
+import com.team6443.frc2025.subsystems.drive.DrivetrainSubsystem;
 import com.team6443.frc2025.subsystems.elevator.ElevatorSubsystem;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
 import com.team6443.lib.factories.motors.TalonFXFactory;
 import com.team6443.lib.motors.hardware.TalonFXIO;
-import com.team6443.lib.subsystems.simulation.SimulatedElevator;
-import com.team6443.lib.subsystems.simulation.SimulatedElevator.SimulatedElevatorConfiguration;
+import com.team6443.lib.subsystems.simulation.drive.MapleSimSwerveDrivetrain;
+import com.team6443.lib.subsystems.simulation.elevator.SimulatedElevator;
+import com.team6443.lib.subsystems.simulation.elevator.SimulatedElevator.SimulatedElevatorConfiguration;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 /** 
  * High level subsystem factories intended to be called from RobotContainer when the robot Subsystem representation is being constructed
@@ -58,4 +66,35 @@ public class SubsystemFactory {
         return elevator;
     }
     
+
+    public static DrivetrainSubsystem creatDrivetrainSubsystem(){
+
+        switch (RobotRuntimeConstants.kCurrentRuntimeMode) {
+            // ---- Simulation instance of drivetrain ----
+            case SIM:
+                return new DrivetrainSubsystem(
+                        RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration(),
+                        new DrivetrainIOSim(
+                            RobotRuntimeConstants.kRobotConfiguration.getSimulatedDrivetrainConfiguration(),
+                            RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kDriveConstants,
+                            // NOTE: regulateModuleConstantsForSimulation this must be run to prevent modules from doing cursed things
+                            MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kModuleConstants)
+                        )
+                )
+                .withStartingPose(new Pose2d(3, 3, new Rotation2d(0.1)));
+
+            // ---- Physical instance of drivetrain ----
+            case REPLAY: // fall down to default
+            case REAL:
+            default:
+                return new DrivetrainSubsystem(
+                    RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration(),
+                    new DrivetrainIOHardware(
+                            RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kDriveConstants,
+                            RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kModuleConstants
+                        )
+                );
+        }
+
+    }
 }
