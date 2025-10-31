@@ -20,7 +20,11 @@ public class DrivetrainConfiguration {
     public double kChassisTranslationSpeedThreshold; // Anything less than this chassis speed in meters per second will be set to 0
     public double kChassisRotationalSpeedThreshold; // Anything less than this chassis speed in radians per second will be set to 0
 
+    public double kSteerJoystickDeadband;
+    public double kDriveJoystickDeadband;
+
     public double kMaxDriveSpeed;
+    public double kMaxAngularRate;
     public SwerveModuleConstants<?, ?, ?>[] kModuleConstants;
     public SwerveDrivetrainConstants kDriveConstants;
 
@@ -52,6 +56,17 @@ public class DrivetrainConfiguration {
 
     public DrivetrainConfiguration withMaxDriveSpeed(double speed){
         this.kMaxDriveSpeed = speed;
+        return this;
+    }
+
+    public DrivetrainConfiguration withMaxAngularRate(double rate){
+        this.kMaxAngularRate = rate;
+        return this;
+    }
+
+    public DrivetrainConfiguration withJoystickDeadband(double steerDeadband, double driveDeadband){
+        this.kSteerJoystickDeadband = steerDeadband;
+        this.kDriveJoystickDeadband = driveDeadband;
         return this;
     }
 

@@ -403,10 +403,12 @@ public class Nautilus extends RobotConfig {
         private static final double kChassisTranslationSpeedThreshold = 0.05; // Anything less than this chassis speed in meters per second will be set to 0
         private static final double kChassisRotationalSpeedThreshold = 0.05; // Anything less than this chassis speed in radians per second will be set to 0
         private static final double kMaxDriveSpeed = 3.6; // Max speed of the robot in meters per second
+        public static final double kMaxAngularRate = 8.2; // Radians per second
 
         private static final DrivetrainConfiguration kDrivetrainConfiguration = new DrivetrainConfiguration()
                                                                                         .withName(kDriveSubsystemName)
                                                                                         .withMaxDriveSpeed(kMaxDriveSpeed)
+                                                                                        .withMaxAngularRate(kMaxAngularRate)
                                                                                         .withChassisSpeedDeadband(
                                                                                             kChassisTranslationSpeedThreshold, 
                                                                                             kChassisRotationalSpeedThreshold
@@ -428,7 +430,8 @@ public class Nautilus extends RobotConfig {
                                                                                         .withOdometryStandardDevs(
                                                                                             Odometry.kEnabledModeStandardDevs,
                                                                                             Odometry.kDisabledModeStandardDevs
-                                                                                        );
+                                                                                        )
+                                                                                        .withJoystickDeadband(0.05, 0.05);
 
         private static final DrivetrainSimConfiguration kSimulatedDrivetrainConfiguration = new DrivetrainSimConfiguration(0.005) // 5 ms
                                                                                         .withName(kDriveSubsystemName)

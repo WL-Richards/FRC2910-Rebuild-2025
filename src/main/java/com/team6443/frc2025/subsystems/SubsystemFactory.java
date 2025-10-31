@@ -67,7 +67,7 @@ public class SubsystemFactory {
     }
     
 
-    public static DrivetrainSubsystem creatDrivetrainSubsystem(){
+    public static DrivetrainSubsystem createDrivetrainSubsystem(){
 
         switch (RobotRuntimeConstants.kCurrentRuntimeMode) {
             // ---- Simulation instance of drivetrain ----

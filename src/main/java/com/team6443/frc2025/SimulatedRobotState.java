@@ -69,7 +69,7 @@ public final class SimulatedRobotState implements Loggable {
      * Retrieve the latest robot field pose from the simulated robot
      * @return Simulated robot field pose
      */
-    public synchronized Pose2d getLatestFieldRobotPose(){
+    public Pose2d getLatestFieldRobotPose(){
         var entry = odometryState.TimeInterpolatableRobotPose.getInternalBuffer().lastEntry();
         if(entry == null){
             return null;

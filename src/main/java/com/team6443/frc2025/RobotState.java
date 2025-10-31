@@ -108,6 +108,18 @@ public final class RobotState implements Loggable {
     }
 
     /**
+     * Retrieve the latest robot field pose from the simulated robot
+     * @return Simulated robot field pose
+     */
+    public Pose2d getLatestFieldRobotPose(){
+        var entry = odometryState.TimeInterpolatableRobotPose.getInternalBuffer().lastEntry();
+        if(entry == null){
+            return null;
+        }
+        return entry.getValue();
+    }
+    
+    /**
      * Add the current motion measurements for the robot to the time buffer for logging
      * @param timestamp The timestamp for which these measurements were logged
      * @param angularRollRadPerS The angular roll velocity in rads per second
@@ -160,6 +172,26 @@ public final class RobotState implements Loggable {
         // --- Desired speeds
         odometryState.desiredRobotRelativeChassisSpeeds.set(desiredRobotRelativeChassisSpeeds);
         odometryState.desiredRobotRelativeChassisSpeeds.set(desiredRobotRelativeChassisSpeeds);
+    }
+
+    public ChassisSpeeds getLatestMeasuredFieldRelativeChassisSpeeds() {
+        return odometryState.actualFieldRelativeChassisSpeeds.get();
+    }
+
+    public ChassisSpeeds getLatestRobotRelativeChassisSpeed() {
+        return odometryState.actualRobotRelativeChassisSpeeds.get();
+    }
+
+    public ChassisSpeeds getLatestDesiredRobotRelativeChassisSpeeds() {
+        return odometryState.actualRobotRelativeChassisSpeeds.get();
+    }
+
+    public ChassisSpeeds getLatestDesiredFieldRelativeChassisSpeed() {
+        return odometryState.actualFieldRelativeChassisSpeeds.get();
+    }
+
+    public ChassisSpeeds getLatestFusedFieldRelativeChassisSpeed() {
+        return odometryState.gyroFusedChassisSpeeds.get();
     }
 
     // --- Loggable Implementation ---

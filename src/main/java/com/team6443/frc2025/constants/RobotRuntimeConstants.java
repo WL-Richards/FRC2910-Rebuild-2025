@@ -4,9 +4,13 @@
 
 package com.team6443.frc2025.constants;
 
+import java.util.Optional;
+
 import com.team6443.frc2025.config.RobotConfig;
 import com.team6443.frc2025.config.RobotID;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -36,4 +40,20 @@ public abstract class RobotRuntimeConstants {
 
     // What configuration is actually in use
     public static final RobotConfig kRobotConfiguration = RobotConfig.getRobotConstants(kRobotIdentification);
+
+    /**
+     * Are on the red alliance currently
+     * @return true if alliance assigned and red alliance
+     */
+    public static boolean isRedAlliance(){
+        return DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().equals(Optional.of(Alliance.Red));
+    }
+
+    /**
+     * Are on the blue alliance currently
+     * @return true if alliance assigned and blue alliance
+     */
+    public static boolean isBlueAlliance(){
+        return DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().equals(Optional.of(Alliance.Blue));
+    }
 }
