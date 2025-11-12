@@ -16,7 +16,9 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.google.flatbuffers.Constants;
 import com.team6443.frc2025.SimulatedRobotState;
+import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainSimConfiguration;
+import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
 import com.team6443.lib.subsystems.drive.DrivetrainInputs;
 import com.team6443.lib.subsystems.simulation.drive.MapleSimSwerveDrivetrain;
 
@@ -56,13 +58,14 @@ public class DrivetrainIOSim extends DrivetrainIOHardware {
 
     public DrivetrainIOSim(
         DrivetrainSimConfiguration simConfig,
-        SwerveDrivetrainConstants  drivetrainConstants,
-        SwerveModuleConstants<?, ?, ?>[] moduleConstants
+        DrivetrainConfiguration driveTrainConfiguration,
+        List<SwerveModuleConfiguration<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> swerveModuleConfiguration
     ){
-        super(drivetrainConstants, moduleConstants);
+
+        super(MapleSimSwerveDrivetrain.regulateModuleConstantForSimulation(driveTrainConfiguration), swerveModuleConfiguration);
        
         this.simConfig = simConfig;
-        this.moduleConstants = moduleConstants;
+        this.moduleConstants = driveTrainConfiguration.kModuleConstants;
 
         registerTelemetry(simSwerveStateConsumer);
         startSimThread();

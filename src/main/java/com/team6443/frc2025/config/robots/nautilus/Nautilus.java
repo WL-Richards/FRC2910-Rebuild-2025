@@ -78,7 +78,7 @@ public class Nautilus extends RobotConfig {
             .withCANDevice(
                 new CANDeviceID(
                     1, 
-                    "Pigeon2",
+                    "DriveTrainGyro",
                     kDriveSubsystemName,
                     CANDeviceID.CANDeviceType.PIGEON2,
                     kCanivoreBusName
@@ -125,6 +125,11 @@ public class Nautilus extends RobotConfig {
     @Override
     public DrivetrainConfiguration getDrivetrainConfiguration() {
         return kDriveConfiguration.kDrivetrainConfiguration;
+    }
+
+    @Override
+    public List<SwerveModuleConfiguration<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> getSwerveConfigurations() {
+        return kDriveConfiguration.kSwerveModuleConfigurations.kConfigurations;
     }
 
     @Override

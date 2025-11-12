@@ -14,7 +14,14 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.CANBus.CANBusStatus;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.swerve.SwerveDrivetrain;
+import com.ctre.phoenix6.swerve.SwerveModule;
 import com.team6443.frc2025.constants.RobotRuntimeConstants;
+import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
 import com.team6443.lib.logging.interfaces.Loggable;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -81,7 +88,7 @@ public class CANStatusLogger implements Loggable {
         this.canBus = new CANBus(busName);
 
         // We are logging can status to CANStatus/<bus name>/*
-        logLocationPrefix = "CANStatus/" + busName + "/";
+        logLocationPrefix = "Logger/CANStatus/" + busName + "/";
     }
 
     public String getBusName(){
@@ -94,6 +101,36 @@ public class CANStatusLogger implements Loggable {
      */
     public void registerCANDevice(CANDeviceID device) {
         devices.add(device);
+    }
+
+     /**
+     * Register a CTRE swerve drivetrain with the logger
+     * @param device The device we are registering with the logger
+     */
+    public void registerSwerveDrivetrain(
+        SwerveDrivetrain<TalonFX, TalonFX, CANcoder> drivetrain,
+        List<SwerveModuleConfiguration<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> moduleConfigurations,
+        CANDeviceID gyroDevice
+    ) {
+        
+        for (int i = 0; i < moduleConfigurations.size(); i++){
+            // Set update rate of our CANDeviceID status signal to update at 100 hz
+            SwerveModule<TalonFX, TalonFX, CANcoder> module = drivetrain.getModule(i);
+            SwerveModuleConfiguration<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> moduleConfig = moduleConfigurations.get(i);
+
+            // Set status signal updater for can
+            moduleConfig.getkDriveMotorID().setStatusSignal(module.getDriveMotor().getSupplyVoltage(), 100);
+            moduleConfig.getkSteerMotorID().setStatusSignal(module.getSteerMotor().getSupplyVoltage(), 100);
+            moduleConfig.getkSteerEncoderID().setStatusSignal(module.getEncoder().getSupplyVoltage(), 100);
+            gyroDevice.setStatusSignal(drivetrain.getPigeon2().getSupplyVoltage(), 100);
+
+            // Add the three devices for it
+            devices.add(moduleConfig.getkDriveMotorID());
+            devices.add(moduleConfig.getkSteerMotorID());
+            devices.add(moduleConfig.getkSteerEncoderID());
+            devices.add(gyroDevice);
+        }
+        
     }
 
     // --- Loggable Implementation ---
@@ -149,10 +186,10 @@ public class CANStatusLogger implements Loggable {
             String subsystemName = device.getSubsystemName();
             boolean isConnected = device.isConnected();
 
-            Logger.recordOutput(logLocationPrefix + subsystemName + "/" + deviceName, isConnected);
+            Logger.recordOutput(logLocationPrefix + subsystemName + "/" + device.getDeviceType().toString() + "/" + deviceName, isConnected);
             // There is a master device set so we want to log that
             if (device.getMasterDevice() != null){
-                Logger.recordOutput(logLocationPrefix + subsystemName + "/" + deviceName + "/Following", device.getMasterDevice().getDeviceName());
+                Logger.recordOutput(logLocationPrefix + subsystemName + "/" + device.getDeviceType().toString() + "/" + deviceName + "/Following", device.getMasterDevice().getDeviceName());
 
             }
         }

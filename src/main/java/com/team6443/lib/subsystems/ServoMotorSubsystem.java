@@ -62,7 +62,7 @@ extends SubsystemBase {
     this.config = motorConfiguration;
     this.motorInputs = motorInputs;
     this.motor = motor;
-    this.logPrefix = "Subsystems/" + motorConfiguration.kConfigurationName;
+    this.logPrefix = "Subsystems/" + motorConfiguration.kConfigurationName + "/ServoMotorSubsystem";
 
     setDefaultCommand(
       dutyCycleCommand(() -> 0.0)
@@ -83,7 +83,7 @@ extends SubsystemBase {
   private void updateLogs(){
     // Log the inputs for this motor
     Logger.processInputs(
-      logPrefix, 
+      "RealOutputs/" + logPrefix + "/Inputs", 
       motorInputs
     );
     // Record the current command being executed on this motor

@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.GyroTrimConfigs;
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.team6443.lib.can.CANDeviceID;
+import com.team6443.lib.can.CANStatusLogger;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 

@@ -21,10 +21,7 @@ import edu.wpi.first.math.util.Units;
 public abstract class SwerveModuleConfiguration<DC extends ParentConfiguration, SC extends ParentConfiguration, SE extends ParentConfiguration> {
 
     protected final String moduleName;
-    protected final CANDeviceID driveMotorID;
-    protected final CANDeviceID steerMotorID;
-    protected final CANDeviceID steerEncoderID;
-
+    
     // Physical properties 
     protected double kWheelRadiusM = 0;
 
@@ -76,9 +73,9 @@ public abstract class SwerveModuleConfiguration<DC extends ParentConfiguration, 
     protected MultistageGearBox kSteerGearBox = null;
 
     // CAN
-    protected CANDeviceID kDriveMotor = null;
-    protected CANDeviceID kSteerMotor = null;
-    protected CANDeviceID kSteerEncoder = null;
+    protected CANDeviceID kDriveMotorID = null;
+    protected CANDeviceID kSteerMotorID = null;
+    protected CANDeviceID kSteerEncoderID = null;
 
     // Position
     protected Translation2d kLocationOffset = null;
@@ -94,9 +91,9 @@ public abstract class SwerveModuleConfiguration<DC extends ParentConfiguration, 
 
     public SwerveModuleConfiguration(String moduleName, CANDeviceID driveMotorID, CANDeviceID steerMotorID, CANDeviceID steerEncoderID){
         this.moduleName = moduleName;
-        this.driveMotorID = driveMotorID;
-        this.steerMotorID = steerMotorID;
-        this.steerEncoderID = steerEncoderID;
+        this.kDriveMotorID = driveMotorID;
+        this.kSteerMotorID = steerMotorID;
+        this.kSteerEncoderID = steerEncoderID;
     };
 
     /**
@@ -305,7 +302,7 @@ public abstract class SwerveModuleConfiguration<DC extends ParentConfiguration, 
      * @return The {@link SwerveModuleConfiguration} being configured
      */
     public SwerveModuleConfiguration<DC, SC, SE> withDriveMotor(CANDeviceID canDevice) {
-        this.kDriveMotor = canDevice;
+        this.kDriveMotorID = canDevice;
         return this;
     }
 
@@ -318,7 +315,7 @@ public abstract class SwerveModuleConfiguration<DC extends ParentConfiguration, 
      * @return The {@link SwerveModuleConfiguration} being configured
      */
     public SwerveModuleConfiguration<DC, SC, SE> withSteerMotor(CANDeviceID canDevice) {
-        this.kSteerMotor = canDevice;
+        this.kSteerMotorID = canDevice;
         return this;
     }
 
@@ -332,7 +329,7 @@ public abstract class SwerveModuleConfiguration<DC extends ParentConfiguration, 
      * @return The {@link SwerveModuleConfiguration} being configured
      */
     public SwerveModuleConfiguration<DC, SC, SE> withSteerEncoder(CANDeviceID canDevice) {
-        this.kSteerEncoder = canDevice;
+        this.kSteerEncoderID = canDevice;
         return this;
     }
 
@@ -455,6 +452,18 @@ public abstract class SwerveModuleConfiguration<DC extends ParentConfiguration, 
                                             kWheelRadiusM / kDriveGearBox.getTotalRatio();
         }
         return  kMaxRobotSpeedMeterPerSecond;
+    }
+
+    public CANDeviceID getkDriveMotorID() {
+        return kDriveMotorID;
+    }
+    
+    public CANDeviceID getkSteerMotorID() {
+        return kSteerMotorID;
+    }
+    
+    public CANDeviceID getkSteerEncoderID() {
+        return kSteerEncoderID;
     }
     
 

@@ -139,11 +139,11 @@ public class CANDeviceID {
     }
 
     /**
-     * Returns a string consisting of GivenName_TYPE_ID
+     * Returns a string consisting of GivenName_ID
      * @return String created from device information
      */
     public String getDeviceName(){
-        return deviceName + "_" + deviceType.toString() +  "_" + canID;
+        return deviceName + "_" + canID;
     }
 
     /**
@@ -156,7 +156,7 @@ public class CANDeviceID {
 
     @Override
     public String toString() {
-        // GivenName_TYPE_ID_BUS
-        return getDeviceName() + "_" +  busName;
+        // GivenName_TYPE_BUS
+        return getDeviceName() + "_" + busName;
     }
 }

@@ -59,7 +59,7 @@ public abstract class ServoMotorCANCoderSubsystem<
 
     // Update the state of the CAN coder
     canCoder.updateInputs(canCoderInputs);
-    Logger.processInputs(logPrefix + "/Inputs",  canCoderInputs);
+    Logger.processInputs("RealOutputs/" + logPrefix + "/Inputs",  canCoderInputs);
 
     // If this encoder is not fused, has a valid location and the offset hasn't already been set we want to update the motors position to the same value
     if(!this.config.isFusedCANCoder && !this.hasSetOffset && !Double.isNaN(canCoderInputs.absolutePositionRotations)){

@@ -6,13 +6,14 @@ package com.team6443.frc2025.config;
 
 import java.util.List;
 
-
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.team6443.frc2025.config.robots.nautilus.Nautilus;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainSimConfiguration;
+import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
 import com.team6443.lib.subsystems.simulation.elevator.SimulatedElevator;
 
 /**
@@ -34,6 +35,7 @@ public abstract class RobotConfig {
      * @return
      */
     public abstract DrivetrainConfiguration getDrivetrainConfiguration();
+    public abstract List<SwerveModuleConfiguration<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> getSwerveConfigurations();
     public abstract DrivetrainSimConfiguration getSimulatedDrivetrainConfiguration();
 
     /**

@@ -22,6 +22,7 @@ import com.ctre.phoenix6.sim.Pigeon2SimState;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -195,6 +196,18 @@ public class MapleSimSwerveDrivetrain {
                 .withSteerFrictionVoltage(Units.Volts.of(0.15))
                 // Adjust steer inertia
                 .withSteerInertia(Units.KilogramSquareMeters.of(0.05));
+    }
+
+    public static DrivetrainConfiguration regulateModuleConstantForSimulation(DrivetrainConfiguration drivetrainConfiguration){
+        // Skip regulation if running on a real robot
+        if (RobotBase.isReal()) return null;
+
+        // Apply simulation-specific adjustments to module constants
+        for (SwerveModuleConstants<?, ?, ?> moduleConstants :  drivetrainConfiguration.kModuleConstants){
+            regulateModuleConstantForSimulation(moduleConstants);
+        }
+        return drivetrainConfiguration;
+                
     }
 
 }

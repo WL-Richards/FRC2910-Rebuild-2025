@@ -4,6 +4,7 @@
 
 package com.team6443.frc2025.subsystems.drive;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -13,6 +14,7 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.CANBus.CANBusStatus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -22,6 +24,9 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.team6443.frc2025.RobotState;
+import com.team6443.lib.can.CANStatusLogger;
+import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
+import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
 import com.team6443.lib.config.talonFX.TalonFXConfigEquality;
 import com.team6443.lib.subsystems.drive.DrivetrainIO;
 import com.team6443.lib.subsystems.drive.DrivetrainInputs;
@@ -80,17 +85,18 @@ public class DrivetrainIOHardware extends SwerveDrivetrain<TalonFX, TalonFX, CAN
     Matrix<N3, N1> stateStdDevs = null;
 
     public DrivetrainIOHardware(
-        SwerveDrivetrainConstants  drivetrainConstants,
-        SwerveModuleConstants<?, ?, ?>[] moduleConstants){
+        DrivetrainConfiguration driveTrainConfiguration,
+        List<SwerveModuleConfiguration<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> swerveModuleConfiguration
+    ){
 
         // Create the CTRE swerve drive train from our robot configuration
         super(
             TalonFX::new, 
             TalonFX::new, 
             CANcoder::new, 
-            drivetrainConstants, 
+            driveTrainConfiguration.kDriveConstants, 
             250.0, 
-            moduleConstants
+            driveTrainConfiguration.kModuleConstants
         );
 
         // Retrieve all Pigeon2 signals
@@ -116,11 +122,19 @@ public class DrivetrainIOHardware extends SwerveDrivetrain<TalonFX, TalonFX, CAN
             accelerationY
         );
 
+        // Register the drivetrain with the CAN status logger
+        CANStatusLogger.get(driveTrainConfiguration.kDriveConstants.CANBusName).registerSwerveDrivetrain(
+            this,
+            swerveModuleConfiguration,
+            driveTrainConfiguration.kGyroDeviceID
+        );
+
         // Set odometry thread to have the highest priority
         this.getOdometryThread().setThreadPriority(99);
 
         // Register the telemetry object with the CTRE swerve drive train
         registerTelemetry(swerveTelemetryConsumer);
+        
     }
 
     @Override

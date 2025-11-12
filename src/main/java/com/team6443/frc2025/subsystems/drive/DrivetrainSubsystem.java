@@ -60,7 +60,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     // Log the state of the drive train
     visualization.updateViz(inputs);
-    Logger.processInputs(logPrefix, inputs);
+    Logger.processInputs("RealOutputs/" + logPrefix + "/Inputs", inputs);
     drivetrain.logModules(inputs, this.logPrefix);
 
 

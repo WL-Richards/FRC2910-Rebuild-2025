@@ -30,7 +30,7 @@ public final class SimulatedRobotState implements Loggable {
      */
     class Odometry {
         // Thread safe buffer to track robot pose over time this pose includes updates from vision
-        public final ConcurrentTimeInterpolatableBuffer<Pose2d> TimeInterpolatableRobotPose = 
+        public final ConcurrentTimeInterpolatableBuffer<Pose2d> TimeInterpolatableSimulatedRobotPose = 
             ConcurrentTimeInterpolatableBuffer.createBuffer(RobotStateConstants.Kinematics.kRobotPoseWindowLengthSeconds);
 
         public Odometry(){}
@@ -62,7 +62,7 @@ public final class SimulatedRobotState implements Loggable {
     private final SimulatedRobotState.Odometry odometryState = new SimulatedRobotState.Odometry();
 
     public synchronized void addOdometryMeasurement(Pose2d pose){
-        odometryState.TimeInterpolatableRobotPose.addSample(Timer.getFPGATimestamp(), pose);
+        odometryState.TimeInterpolatableSimulatedRobotPose.addSample(Timer.getFPGATimestamp(), pose);
     }
 
     /**
@@ -70,7 +70,7 @@ public final class SimulatedRobotState implements Loggable {
      * @return Simulated robot field pose
      */
     public Pose2d getLatestFieldRobotPose(){
-        var entry = odometryState.TimeInterpolatableRobotPose.getInternalBuffer().lastEntry();
+        var entry = odometryState.TimeInterpolatableSimulatedRobotPose.getInternalBuffer().lastEntry();
         if(entry == null){
             return null;
         }
@@ -80,7 +80,7 @@ public final class SimulatedRobotState implements Loggable {
     // --- Loggable Implementation ---
     @Override
     public void updateLog(String prefix) {
-        RobotState.Odometry.logTimeInterpolatedPose("RobotState/FinalRobotPose2d", odometryState.TimeInterpolatableRobotPose);
+        RobotState.Odometry.logTimeInterpolatedPose("RobotState/SimulatedRobotPose2d", odometryState.TimeInterpolatableSimulatedRobotPose);
     }
 
 }

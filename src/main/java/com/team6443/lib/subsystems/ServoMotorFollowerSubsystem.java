@@ -102,7 +102,7 @@ public abstract class ServoMotorFollowerSubsystem<
         super(leaderMotorInputs, leaderMotor, config);
 
         // Setup logging information
-        this.logPrefix = "Subsystems/" + config.kConfigurationName;
+        this.logPrefix = "Subsystems/" + config.kConfigurationName + "/ServoMotorSubsystem";
 
         // Setup configs
         this.leaderConfig = config;
@@ -134,7 +134,7 @@ public abstract class ServoMotorFollowerSubsystem<
         for (int i = 0; i <  config.followerConfigurations.size(); i++) {
             MotorIO motor = followerMotors[i];
             motor.updateInputs(followerMotorInputs[i]);
-            Logger.processInputs(logPrefix + "/" + motor.getName(), followerMotorInputs[i]);
+            Logger.processInputs("RealOutputs/" +  logPrefix + "/Inputs/" + motor.getName(), followerMotorInputs[i]);
         }
     }
 

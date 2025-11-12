@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.config.odometry.OdometryStandardDevs;
 
 /** 
@@ -25,6 +26,8 @@ public class DrivetrainConfiguration {
 
     public double kMaxDriveSpeed;
     public double kMaxAngularRate;
+
+    public CANDeviceID kGyroDeviceID;
     public SwerveModuleConstants<?, ?, ?>[] kModuleConstants;
     public SwerveDrivetrainConstants kDriveConstants;
 
@@ -35,6 +38,11 @@ public class DrivetrainConfiguration {
 
     public DrivetrainConfiguration withName(String name){
         this.kConfigurationName = name;
+        return this;
+    }
+
+    public DrivetrainConfiguration withGyroDevice(CANDeviceID device){
+        this.kGyroDeviceID = device;
         return this;
     }
 

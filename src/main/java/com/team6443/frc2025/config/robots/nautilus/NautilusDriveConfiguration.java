@@ -76,6 +76,7 @@ public class NautilusDriveConfiguration {
                     kChassisTranslationSpeedThreshold, 
                     kChassisRotationalSpeedThreshold
                 )
+                .withGyroDevice(this.kGyroConfiguration.kCANDevice)
                 .withDrivetrainConstants(
                     new SwerveDrivetrainConstants()
                         .withCANBusName(driveSubsystemCANBus)

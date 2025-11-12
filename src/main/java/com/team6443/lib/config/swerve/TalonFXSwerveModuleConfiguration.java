@@ -11,6 +11,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.team6443.lib.can.CANDeviceID;
+import com.team6443.lib.can.CANStatusLogger;
 import com.team6443.lib.config.encoders.CANCoderConfiguration;
 import com.team6443.lib.motors.interfaces.MotorIO.NeutralMode;
 
@@ -24,6 +25,7 @@ public class TalonFXSwerveModuleConfiguration extends SwerveModuleConfiguration<
         CANDeviceID steerEncoderID
     ){
        super(moduleName, driveMotorID, steerMotorID, steerEncoderID);
+       
     }
 
     public TalonFXSwerveModuleConfiguration(
@@ -44,9 +46,9 @@ public class TalonFXSwerveModuleConfiguration extends SwerveModuleConfiguration<
         if(kModuleConstants == null){
             double couplingGearRatio = (double)kDriveGearBox.getStage(0).getGearRatio();
             kModuleConstants = new SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
-                .withDriveMotorId(kDriveMotor.getDeviceID())
-                .withSteerMotorId(kSteerMotor.getDeviceID())
-                .withEncoderId(kSteerEncoder.getDeviceID())
+                .withDriveMotorId(kDriveMotorID.getDeviceID())
+                .withSteerMotorId(kSteerMotorID.getDeviceID())
+                .withEncoderId(kSteerEncoderID.getDeviceID())
                 .withDriveMotorGearRatio(kDriveGearBox.getTotalRatio())
                 .withSteerMotorGearRatio(kSteerGearBox.getTotalRatio())
                 .withCouplingGearRatio(couplingGearRatio)

@@ -76,9 +76,8 @@ public class SubsystemFactory {
                         RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration(),
                         new DrivetrainIOSim(
                             RobotRuntimeConstants.kRobotConfiguration.getSimulatedDrivetrainConfiguration(),
-                            RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kDriveConstants,
-                            // NOTE: regulateModuleConstantsForSimulation this must be run to prevent modules from doing cursed things
-                            MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kModuleConstants)
+                            RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration(),
+                            RobotRuntimeConstants.kRobotConfiguration.getSwerveConfigurations()
                         )
                 )
                 .withStartingPose(new Pose2d(3, 3, new Rotation2d()));
@@ -90,8 +89,8 @@ public class SubsystemFactory {
                 return new DrivetrainSubsystem(
                     RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration(),
                     new DrivetrainIOHardware(
-                            RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kDriveConstants,
-                            RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kModuleConstants
+                            RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration(),
+                            RobotRuntimeConstants.kRobotConfiguration.getSwerveConfigurations()
                         )
                 );
         }

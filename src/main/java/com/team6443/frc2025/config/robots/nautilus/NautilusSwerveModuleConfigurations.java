@@ -4,6 +4,8 @@
 
 package com.team6443.frc2025.config.robots.nautilus;
 
+import java.util.List;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.team6443.frc2025.config.robots.nautilus.swerve_tunings.NautilusSwerveConstantsComp;
@@ -25,6 +27,7 @@ public class NautilusSwerveModuleConfigurations {
     // ---------------------- Back Right -----------------------
     public final SwerveModuleConfiguration<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> kBackRightModule;
 
+    public final List<SwerveModuleConfiguration<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> kConfigurations;
     public NautilusSwerveModuleConfigurations(String driveSubsystemName, String driveCANBusName){
 
         // --- Front Left Module ---
@@ -157,6 +160,14 @@ public class NautilusSwerveModuleConfigurations {
                 CANDeviceID.CANDeviceType.CANCODER, 
                 driveCANBusName
             )
+        );
+
+        // List of configurations in FL, FR, BL, BR order
+        this.kConfigurations = List.of(
+            kFrontLeftModule,
+            kFrontRightModule,
+            kBackLeftModule,
+            kBackRightModule
         );
     }
 }

@@ -29,7 +29,7 @@ public final class RobotState implements Loggable {
      */
     class Odometry {
         // Thread safe buffer to track robot pose over time this pose includes updates from vision
-        public final ConcurrentTimeInterpolatableBuffer<Pose2d> TimeInterpolatableRobotPose = 
+        public final ConcurrentTimeInterpolatableBuffer<Pose2d> TimeInterpolatableEstimatedRobotPose = 
             ConcurrentTimeInterpolatableBuffer.createBuffer(RobotStateConstants.Kinematics.kRobotPoseWindowLengthSeconds);
 
         /// -- Angular Velocity Time Buffers
@@ -74,7 +74,7 @@ public final class RobotState implements Loggable {
         
         public Odometry(){
             // Add a sample at 0,0 so the bit exists
-            this.TimeInterpolatableRobotPose.addSample(0.0, Pose2d.kZero);
+            this.TimeInterpolatableEstimatedRobotPose.addSample(0.0, Pose2d.kZero);
         }
 
         /**
@@ -104,7 +104,7 @@ public final class RobotState implements Loggable {
     private final RobotState.Odometry odometryState = new RobotState.Odometry();
 
     public void addOdometryMeasurement(double timestamp, Pose2d pose){
-        odometryState.TimeInterpolatableRobotPose.addSample(timestamp, pose);
+        odometryState.TimeInterpolatableEstimatedRobotPose.addSample(timestamp, pose);
     }
 
     /**
@@ -112,7 +112,7 @@ public final class RobotState implements Loggable {
      * @return Simulated robot field pose
      */
     public Pose2d getLatestFieldRobotPose(){
-        var entry = odometryState.TimeInterpolatableRobotPose.getInternalBuffer().lastEntry();
+        var entry = odometryState.TimeInterpolatableEstimatedRobotPose.getInternalBuffer().lastEntry();
         if(entry == null){
             return null;
         }
@@ -197,7 +197,7 @@ public final class RobotState implements Loggable {
     // --- Loggable Implementation ---
     @Override
     public void updateLog(String prefix) {
-        RobotState.Odometry.logTimeInterpolatedPose("RobotState/FinalRobotPose2d", odometryState.TimeInterpolatableRobotPose);
+        RobotState.Odometry.logTimeInterpolatedPose("RobotState/FinalRobotPose2d", odometryState.TimeInterpolatableEstimatedRobotPose);
     }
 
 }

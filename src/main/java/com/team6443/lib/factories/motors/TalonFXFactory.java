@@ -64,6 +64,22 @@ public class TalonFXFactory {
     }
 
     /**
+     * Create a new TalonFX and does not apply a configuration
+     * @param device CANDevice the represents the Talon being created
+     * @return The newly created Talon instance
+     */
+    public static TalonFX createRawNoConfig(CANDeviceID device){
+        TalonFX talon = createRaw(device);
+
+        // Set update rate of our CANDeviceID status signal to update at 100 hz
+        device.setStatusSignal(talon.getSupplyVoltage(), 100);
+
+        // Automatically register the Talon with the CAN status logger upon creation 
+        CANStatusLogger.get(device.getBus()).registerCANDevice(device);
+        return talon;
+    }
+
+    /**
      * Create a new TalonFX with the default configuration described below and link it with the given CANDeviceID
      * @param device CANDeviceID that the TalonFX is object is being created from
      * @return The newly created Talon FX
