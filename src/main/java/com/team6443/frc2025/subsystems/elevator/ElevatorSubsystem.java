@@ -40,7 +40,6 @@ public class ElevatorSubsystem extends ServoMotorFollowerSubsystem<
       config
     );
 
-
     this.logPrefix = "Subsystems/" + config.kConfigurationName;
 
     // Zero the encoders, set the default command to effectively "hold position"

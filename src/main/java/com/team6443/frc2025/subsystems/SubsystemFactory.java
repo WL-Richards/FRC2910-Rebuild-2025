@@ -81,7 +81,7 @@ public class SubsystemFactory {
                             MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kModuleConstants)
                         )
                 )
-                .withStartingPose(new Pose2d(3, 3, new Rotation2d(0.1)));
+                .withStartingPose(new Pose2d(3, 3, new Rotation2d()));
 
             // ---- Physical instance of drivetrain ----
             case REPLAY: // fall down to default

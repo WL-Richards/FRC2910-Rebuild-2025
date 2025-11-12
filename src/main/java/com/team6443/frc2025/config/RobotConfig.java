@@ -8,7 +8,7 @@ import java.util.List;
 
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.team6443.frc2025.config.robots.Nautilus;
+import com.team6443.frc2025.config.robots.nautilus.Nautilus;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
