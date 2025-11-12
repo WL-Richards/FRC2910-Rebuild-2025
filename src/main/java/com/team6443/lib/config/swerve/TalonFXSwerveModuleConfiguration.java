@@ -11,13 +11,32 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.team6443.lib.can.CANDeviceID;
+import com.team6443.lib.config.encoders.CANCoderConfiguration;
 import com.team6443.lib.motors.interfaces.MotorIO.NeutralMode;
 
 /** Implementation of the swerve module configuration when using 2 TalonFX motor controllers and one CANCoder */
 public class TalonFXSwerveModuleConfiguration extends SwerveModuleConfiguration<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> {
     
-    public TalonFXSwerveModuleConfiguration(String moduleName, CANDeviceID driveMotorID, CANDeviceID steerMotorID, CANDeviceID steerEncoderID){
+    public TalonFXSwerveModuleConfiguration(
+        String moduleName, 
+        CANDeviceID driveMotorID, 
+        CANDeviceID steerMotorID, 
+        CANDeviceID steerEncoderID
+    ){
        super(moduleName, driveMotorID, steerMotorID, steerEncoderID);
+    }
+
+    public TalonFXSwerveModuleConfiguration(
+        SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> constants,
+        String moduleName, 
+        CANDeviceID driveMotorID, 
+        CANDeviceID steerMotorID, 
+        CANDeviceID steerEncoderID
+    ){
+        super(moduleName, driveMotorID, steerMotorID, steerEncoderID);
+        this.kModuleConstants = constants;
+        this.kDriveMotorConfiguration = constants.DriveMotorInitialConfigs;
+        this.kSteerMotorConfiguration = constants.SteerMotorInitialConfigs;
     }
     
     @Override

@@ -13,8 +13,8 @@ public class DrivetrainSimConfiguration {
 
     public double kRobotWeightPounds;
 
-    public double kBumperWidthInches;
-    public double kBumperLengthInches;
+    public double kBumperWidthMeters;
+    public double kBumperLengthMeters;
 
     public int kDriveMotorCount;
     public int kSteerMotorCount;
@@ -30,13 +30,13 @@ public class DrivetrainSimConfiguration {
         return this;
     }
     
-    public DrivetrainSimConfiguration withBumperWidthInches(double bumperWidthInches) {
-        this.kBumperWidthInches = bumperWidthInches;
+    public DrivetrainSimConfiguration withBumperWidthMeters(double bumperWidthMeters) {
+        this.kBumperWidthMeters = bumperWidthMeters;
         return this;
     }
     
-    public DrivetrainSimConfiguration withBumperLengthInches(double bumperLengthInches) {
-        this.kBumperLengthInches = bumperLengthInches;
+    public DrivetrainSimConfiguration withBumperLengthMeters(double bumperLengthMeters) {
+        this.kBumperLengthMeters = bumperLengthMeters;
         return this;
     }
     

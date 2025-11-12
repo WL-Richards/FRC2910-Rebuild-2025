@@ -20,7 +20,7 @@ public class RobotContainer implements Loggerable {
 
   private final DriveControllable driveController = new XboxControllerImplementation(0);
 
-  // --- Elevator subsystme ---
+  // --- Elevator subsystem ---
   private final ElevatorSubsystem elevatorSubsystem = SubsystemFactory.createElevatorSubsystem(); 
 
   // --- Drive train system ---

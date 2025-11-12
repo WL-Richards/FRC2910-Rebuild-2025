@@ -29,10 +29,10 @@ public class Pigeon2GyroConfiguration {
     public Rotation3d kMountRotation = null;
 
     // CAN Device ID associated with the gyro
-    private CANDeviceID kCANDevice = null;
+    public CANDeviceID kCANDevice = null;
 
     // Configuration for the Pigeon2 that is to be used with the swerve drive
-    private final Pigeon2Configuration kConfiguration = new Pigeon2Configuration();
+    public final Pigeon2Configuration kConfiguration = new Pigeon2Configuration();
 
     public Pigeon2GyroConfiguration() {
         withGyroYawError(kGyroYawErrorDegrees);

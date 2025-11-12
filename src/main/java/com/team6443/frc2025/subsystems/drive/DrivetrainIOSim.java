@@ -77,8 +77,8 @@ public class DrivetrainIOSim extends DrivetrainIOHardware {
                 new MapleSimSwerveDrivetrain(
                         Units.Seconds.of(simConfig.kSimLoopPeriodMS),
                         Units.Pounds.of(simConfig.kRobotWeightPounds),
-                        Units.Inches.of(simConfig.kBumperWidthInches),
-                        Units.Inches.of(simConfig.kBumperLengthInches),
+                        Units.Meters.of(simConfig.kBumperWidthMeters),
+                        Units.Meters.of(simConfig.kBumperLengthMeters),
                         DCMotor.getKrakenX60(simConfig.kDriveMotorCount),
                         DCMotor.getKrakenX60(simConfig.kSteerMotorCount),
                         simConfig.kWheelCoefficientOfFriction,
