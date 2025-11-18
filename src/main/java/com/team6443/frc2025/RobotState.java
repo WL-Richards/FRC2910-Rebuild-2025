@@ -4,6 +4,8 @@
 
 package com.team6443.frc2025;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -12,6 +14,7 @@ import org.littletonrobotics.junction.Logger;
 import com.team6443.frc2025.constants.RobotStateConstants;
 import com.team6443.lib.logging.interfaces.Loggable;
 import com.team6443.lib.math.ConcurrentTimeInterpolatableBuffer;
+import com.team6443.lib.subsystems.vision.VisionInputs;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -103,8 +106,32 @@ public final class RobotState implements Loggable {
     /* Normal class properties */
     private final RobotState.Odometry odometryState = new RobotState.Odometry();
 
+    // The current list of april tag observations
+    private final List<VisionInputs.AprilTagObservations> aprilTagObservations = new ArrayList<>();
+
     public void addOdometryMeasurement(double timestamp, Pose2d pose){
         odometryState.TimeInterpolatableEstimatedRobotPose.addSample(timestamp, pose);
+    }
+
+    /**
+     * Adds a valid vision observation into our overall robot state
+     * @param observations The observations to add 
+     */
+    public void addVisionObservation(VisionInputs.AprilTagObservations... observations){
+        aprilTagObservations.clear();
+
+        
+        for(VisionInputs.AprilTagObservations observation : observations){
+            aprilTagObservations.add(observation);
+        }
+    }
+
+    /**
+     * Get the current valid april tag observations
+     * @return The list of valid april tag observations
+     */
+    public List<VisionInputs.AprilTagObservations> getAprilTagObservations() {
+        return aprilTagObservations;
     }
 
     /**

@@ -8,12 +8,16 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.littletonrobotics.junction.Logger;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.VisionSystemSim;
 
+import com.team6443.frc2025.constants.FieldConstants;
 import com.team6443.frc2025.constants.RobotStateConstants;
 import com.team6443.lib.logging.interfaces.Loggable;
 import com.team6443.lib.math.ConcurrentTimeInterpolatableBuffer;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -46,11 +50,35 @@ public final class SimulatedRobotState implements Loggable {
                 Logger.recordOutput(key, latest.getValue());
             }
         }
+
+         /**
+         * Retrieve the latest robot field pose from the simulated robot
+         * @return Simulated robot field pose
+         */
+        public Pose2d getLatestFieldRobotPose(){
+            var entry = TimeInterpolatableSimulatedRobotPose.getInternalBuffer().lastEntry();
+            if(entry == null){
+                return null;
+            }
+            return entry.getValue();
+        }
     }
 
 
     /*  Singleton setup for robot state */
     private static SimulatedRobotState robotState = null;
+    
+
+    /* Normal class properties */
+    private final SimulatedRobotState.Odometry odometryState = new SimulatedRobotState.Odometry();
+
+    private final VisionSystemSim visionSimulation = new VisionSystemSim("main");
+
+    private SimulatedRobotState(){
+        // Add the april tags to the simulation
+        visionSimulation.addAprilTags(FieldConstants.APRIL_TAG_FIELD_LAYOUT);
+    }
+
     public static SimulatedRobotState get(){
         if (robotState == null){
             robotState = new SimulatedRobotState();
@@ -58,9 +86,21 @@ public final class SimulatedRobotState implements Loggable {
         return robotState;
     }
 
-    /* Normal class properties */
-    private final SimulatedRobotState.Odometry odometryState = new SimulatedRobotState.Odometry();
+    // --- State updater
+    
+    /**
+     * Update the simulated robot state this is used to tick any simulated robot state functions that need to run during simulationPeriodic
+     */
+    public void updateState(){
+        visionSimulation.update(odometryState.getLatestFieldRobotPose());
+    }
 
+    // --- Vision Implementation ---
+    public void addCameraToVisionSimulation(PhotonCameraSim simulatedCamera, Transform3d robotToCameraTransform){
+        visionSimulation.addCamera(simulatedCamera, robotToCameraTransform);
+    }
+
+    // --- Odometry information ---
     public synchronized void addOdometryMeasurement(Pose2d pose){
         odometryState.TimeInterpolatableSimulatedRobotPose.addSample(Timer.getFPGATimestamp(), pose);
     }

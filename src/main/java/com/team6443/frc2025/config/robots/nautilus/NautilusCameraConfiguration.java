@@ -7,7 +7,9 @@ package com.team6443.frc2025.config.robots.nautilus;
 import java.util.List;
 
 import com.team6443.lib.config.camera.CameraConfiguration;
+import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
 import com.team6443.lib.config.camera.CameraConfiguration.Location;
+import com.team6443.lib.config.camera.CameraConfiguration.Resolution;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -18,22 +20,37 @@ import edu.wpi.first.math.util.Units;
  */
 public class NautilusCameraConfiguration {
 
+    private final double kSimulatedCameraFPS = 120;
+    
+    private final double kSimulatedLatencyMS = 0;
+    private final double kSimulatedLatencyStdevMS = 0;
+
+
     // ------ Front Left Camera ------
     public final CameraConfiguration kFrontLeftCameraConfiguration = new CameraConfiguration(Location.FRONT_LEFT)
         .withCameraPose(
             new Translation3d(
                 Units.inchesToMeters(9),         // X (forward)
-                Units.inchesToMeters(8.25),      // Y (right)
-                Units.inchesToMeters(7.5)        // Z (up)
+                Units.inchesToMeters(6),            // Y (right)
+                Units.inchesToMeters(8.479)        // Z (up)
             ),
             new Rotation3d(
-                Units.degreesToRadians(180),    // Roll
-                Units.degreesToRadians(-15),            // Pitch
+                Units.degreesToRadians(0),    // Roll
+                Units.degreesToRadians(0),            // Pitch
                 Units.degreesToRadians(0)       // Yaw
             )
         )
-        .withCameraDistanceScalar(24.25, 24.06) // TODO: DETERMINE
-        .withCameraType(CameraConfiguration.Type.LIMELIGHT);
+        .withCameraDistanceScalar(1,1)
+        .withCameraType(CameraConfiguration.Type.LIMELIGHT)
+        .withCameraResolution(Resolution._1280x960);
+
+
+    public final SimulatedCameraConfiguration kFrontLeftSimulatedCameraConfiguration = new SimulatedCameraConfiguration(kFrontLeftCameraConfiguration)
+        .withFramerate(kSimulatedCameraFPS)
+        .withCameraNoise(0, 0)
+        .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS)
+        .withCameraDistanceScalar(0.940,1.154);
+        //1.272, 1.454
     // -------------------------------
 
     // ------ Front Right Camera ------
@@ -41,17 +58,24 @@ public class NautilusCameraConfiguration {
         .withCameraPose(
             new Translation3d(
                 Units.inchesToMeters(9),    // X (forward)
-                Units.inchesToMeters(-8.25),       // Y (right)
-                Units.inchesToMeters(7.5)   // Z (up)
+                Units.inchesToMeters(-6), // Y (right)
+                Units.inchesToMeters(8.479)   // Z (up)
             ),
             new Rotation3d(
-            Units.degreesToRadians(180),    // Roll
-            Units.degreesToRadians(-15),            // Pitch
+            Units.degreesToRadians(0),    // Roll
+            Units.degreesToRadians(0),            // Pitch
             Units.degreesToRadians(0)       // Yaw
             )
         )
-        .withCameraDistanceScalar(24.25, 24.24) // TODO: DETERMINE
-        .withCameraType(CameraConfiguration.Type.LIMELIGHT);
+        .withCameraDistanceScalar(1, 1)
+        .withCameraType(CameraConfiguration.Type.LIMELIGHT)
+        .withCameraResolution(Resolution._1280x960);
+
+    public final SimulatedCameraConfiguration kFrontRightSimulatedCameraConfiguration = new SimulatedCameraConfiguration(kFrontRightCameraConfiguration)
+        .withFramerate(kSimulatedCameraFPS)
+        .withCameraNoise(0, 0)
+        .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS)
+        .withCameraDistanceScalar(0.950,1.154);
     // ---------------------------------
 
     // ------ Back Left Camera ------
@@ -59,17 +83,25 @@ public class NautilusCameraConfiguration {
         .withCameraPose(
             new Translation3d(
                 Units.inchesToMeters(-11),              // X (forward)
-                Units.inchesToMeters(11.5),      // Y (right)
-                Units.inchesToMeters(6)          // Z (up)
+                Units.inchesToMeters(6.75),            // Y (right)
+                Units.inchesToMeters(8.440)          // Z (up)
             ),
             new Rotation3d(
                 Units.degreesToRadians(0),      // Roll
-                Units.degreesToRadians(-23.5),          // Pitch
-                Units.degreesToRadians(147)     // Yaw
+                Units.degreesToRadians(0),          // Pitch
+                Units.degreesToRadians(180)     // Yaw
             )
         )
-        .withCameraDistanceScalar(10.25, 10.77) // TODO: DETERMINE
-        .withCameraType(CameraConfiguration.Type.LIMELIGHT);
+        .withCameraDistanceScalar(1, 1)
+        .withCameraType(CameraConfiguration.Type.LIMELIGHT)
+        .withCameraResolution(Resolution._1280x960);
+
+
+    public final SimulatedCameraConfiguration kBackLeftSimulatedCameraConfiguration = new SimulatedCameraConfiguration(kBackLeftCameraConfiguration)
+        .withFramerate(kSimulatedCameraFPS)
+        .withCameraNoise(0, 0)
+        .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS)
+        .withCameraDistanceScalar(0.900,1.090);
     // -----------------------------
 
     // ------ Back Right Camera  ------
@@ -77,17 +109,26 @@ public class NautilusCameraConfiguration {
         .withCameraPose(
             new Translation3d(
                 Units.inchesToMeters(-11),              // X (forward)
-                Units.inchesToMeters(-11.5),            // Y (right)
-                Units.inchesToMeters(6)          // Z (up)
+                Units.inchesToMeters(-6.75),            // Y (right)
+                Units.inchesToMeters(8.440)          // Z (up)
             ),
             new Rotation3d(
                 Units.degreesToRadians(0),      // Roll
-                Units.degreesToRadians(-23.5),          // Pitch
-                Units.degreesToRadians(147)     // Yaw
+                Units.degreesToRadians(0),          // Pitch
+                Units.degreesToRadians(180)     // Yaw
             )
         )
-        .withCameraDistanceScalar(10.25, 10.88) // TODO: DETERMINE
-        .withCameraType(CameraConfiguration.Type.LIMELIGHT);
+        .withCameraDistanceScalar(1, 1) 
+        .withCameraType(CameraConfiguration.Type.LIMELIGHT)
+        .withCameraResolution(Resolution._1280x960);
+
+
+    public final SimulatedCameraConfiguration kBackRightSimulatedCameraConfiguration = new SimulatedCameraConfiguration(kBackRightCameraConfiguration)
+        .withFramerate(kSimulatedCameraFPS)
+        .withCameraNoise(0, 0)
+        .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS)
+        .withCameraDistanceScalar(0.890,1.090);
+        
     // --------------------------------
 
     // List of configurations in FL, FR, BL, BR order
@@ -96,6 +137,14 @@ public class NautilusCameraConfiguration {
         kFrontRightCameraConfiguration,
         kBackLeftCameraConfiguration,
         kBackRightCameraConfiguration
+    );
+
+    // List of configurations in FL, FR, BL, BR order
+    public final List<SimulatedCameraConfiguration> kSimulatedCameraConfigurations = List.of(
+        kFrontLeftSimulatedCameraConfiguration,
+        kFrontRightSimulatedCameraConfiguration,
+        kBackLeftSimulatedCameraConfiguration,
+        kBackRightSimulatedCameraConfiguration
     );
 
     public NautilusCameraConfiguration(){}

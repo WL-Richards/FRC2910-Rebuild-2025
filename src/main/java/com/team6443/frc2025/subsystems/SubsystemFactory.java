@@ -5,18 +5,21 @@
 package com.team6443.frc2025.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.google.flatbuffers.Constants;
 import com.team6443.frc2025.constants.RobotRuntimeConstants;
 import com.team6443.frc2025.subsystems.drive.DrivetrainIOHardware;
 import com.team6443.frc2025.subsystems.drive.DrivetrainIOSim;
 import com.team6443.frc2025.subsystems.drive.DrivetrainSubsystem;
 import com.team6443.frc2025.subsystems.elevator.ElevatorSubsystem;
+import com.team6443.frc2025.subsystems.vision.VisionSubsystem;
+import com.team6443.lib.config.camera.CameraConfiguration;
+import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
 import com.team6443.lib.factories.motors.TalonFXFactory;
 import com.team6443.lib.motors.hardware.TalonFXIO;
-import com.team6443.lib.subsystems.simulation.drive.MapleSimSwerveDrivetrain;
 import com.team6443.lib.subsystems.simulation.elevator.SimulatedElevator;
 import com.team6443.lib.subsystems.simulation.elevator.SimulatedElevator.SimulatedElevatorConfiguration;
+import com.team6443.lib.subsystems.vision.limelight.Limelight4IOHardware;
+import com.team6443.lib.subsystems.vision.limelight.LimelightIOSim;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -80,7 +83,7 @@ public class SubsystemFactory {
                             RobotRuntimeConstants.kRobotConfiguration.getSwerveConfigurations()
                         )
                 )
-                .withStartingPose(new Pose2d(3, 3, new Rotation2d()));
+                .withStartingPose(new Pose2d(2.5, 4, Rotation2d.fromDegrees(0)));
 
             // ---- Physical instance of drivetrain ----
             case REPLAY: // fall down to default
@@ -95,5 +98,30 @@ public class SubsystemFactory {
                 );
         }
 
+    }
+
+    public static VisionSubsystem createVisionSubsystem(){
+        switch (RobotRuntimeConstants.kCurrentRuntimeMode) {
+            // ---- Simulation instance of drivetrain ----
+            case SIM:
+                return new VisionSubsystem(
+                    new LimelightIOSim(RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(0)),
+                    new LimelightIOSim(RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(1)),
+                    new LimelightIOSim(RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(2)),
+                    new LimelightIOSim(RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(3))
+                );
+                
+
+            // ---- Physical instance of drivetrain ----
+            case REPLAY: // fall down to default
+            case REAL:
+            default:
+                return new VisionSubsystem(
+                    new Limelight4IOHardware(RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(0)),
+                    new Limelight4IOHardware(RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(1)),
+                    new Limelight4IOHardware(RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(2)),
+                    new Limelight4IOHardware(RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(3))
+                );
+        }
     }
 }

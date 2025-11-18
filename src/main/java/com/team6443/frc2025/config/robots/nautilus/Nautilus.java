@@ -20,6 +20,7 @@ import com.team6443.frc2025.config.RobotConfig;
 import com.team6443.frc2025.config.robots.nautilus.swerve_tunings.NautilusSwerveConstantsComp;
 import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.config.camera.CameraConfiguration;
+import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
 import com.team6443.lib.config.camera.CameraConfiguration.Location;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
 import com.team6443.lib.config.motors.factories.TalonFXConfigurationFactory;
@@ -115,6 +116,11 @@ public class Nautilus extends RobotConfig {
     @Override
     public List<CameraConfiguration> getCameraConfigurations() {
         return kCameraConfiguration.kCameraConfigurations;
+    }
+
+    @Override
+    public List<SimulatedCameraConfiguration> getSimulatedCameraConfigurations() {
+        return kCameraConfiguration.kSimulatedCameraConfigurations;
     }
 
     @Override

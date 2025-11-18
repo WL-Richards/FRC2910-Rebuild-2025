@@ -4,8 +4,11 @@
 
 package com.team6443.frc2025;
 
+import java.lang.reflect.Field;
+
 import org.littletonrobotics.junction.LoggedRobot;
 
+import com.team6443.frc2025.constants.FieldConstants;
 import com.team6443.lib.can.CANStatusLogger;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -26,6 +29,12 @@ public class Robot extends LoggedRobot {
     
     // Update the robot state
     RobotState.get().updateLog();
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    SimulatedRobotState.get().updateState();
+    SimulatedRobotState.get().updateLog();
   }
 
   @Override

@@ -4,29 +4,12 @@
 
 package com.team6443.frc2025.config.robots.nautilus;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.GyroTrimConfigs;
-import com.ctre.phoenix6.configs.MountPoseConfigs;
-import com.ctre.phoenix6.configs.Pigeon2Configuration;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import com.team6443.frc2025.config.robots.nautilus.swerve_tunings.NautilusSwerveConstantsComp;
-import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.config.odometry.OdometryStandardDevs;
 import com.team6443.lib.config.robot.Pigeon2GyroConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainSimConfiguration;
-import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
-import com.team6443.lib.config.swerve.TalonFXSwerveModuleConfiguration;
-import com.team6443.lib.config.wrappers.ConfigureSlot0Gains;
-import com.team6443.lib.mechanics.MultistageGearBox;
-import com.team6443.lib.motors.interfaces.MotorIO.NeutralMode;
-
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
-
 /** 
  * Configuration for the nautilius drivetrain
  */

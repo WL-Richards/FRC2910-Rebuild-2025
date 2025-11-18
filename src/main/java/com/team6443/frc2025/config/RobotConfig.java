@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.team6443.frc2025.config.robots.nautilus.Nautilus;
 import com.team6443.lib.config.camera.CameraConfiguration;
+import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainSimConfiguration;
@@ -45,11 +46,18 @@ public abstract class RobotConfig {
     public abstract ServoMotorFollowerConfiguration<TalonFXConfiguration> getElevatorConfiguration();
     public abstract SimulatedElevator.SimulatedElevatorConfiguration getSimulatedElevatorConfiguration();
 
+
     /**
      * Pure abstract method, retrieves how all the cameras on the bot are configured
      * @return Current configuration of sensor and motor ports and IDs
      */
     public abstract List<CameraConfiguration> getCameraConfigurations();
+
+    /**
+     * Get the list of simulated camera configurations
+     * @return The list of simulated camera configuration
+     */
+    public abstract List<SimulatedCameraConfiguration> getSimulatedCameraConfigurations();
 
     /**
      * Pure abstract method, retrieves the list of named CAN buses that are present on this bot

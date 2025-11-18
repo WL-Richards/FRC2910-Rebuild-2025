@@ -2,20 +2,20 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package com.team6443.lib.controllers;
+package com.team6443.lib.input;
 
-import com.team6443.lib.controllers.interfaces.DriveControllable;
+import com.team6443.lib.input.interfaces.DriveInputable;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /** 
- * Implementation of the 
+ * Implementation of the various input inter
 */
-public class XboxControllerImplementation implements DriveControllable {
+public class XboxInputImplementation implements DriveInputable {
     private final CommandXboxController controller;
 
-    public XboxControllerImplementation(int port){
+    public XboxInputImplementation(int port){
         controller = new CommandXboxController(port);
     }
 
