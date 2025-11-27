@@ -20,9 +20,13 @@ import edu.wpi.first.math.util.Units;
  */
 public class NautilusCameraConfiguration {
 
+    // Target Camera FPS for simulated cameras
     private final double kSimulatedCameraFPS = 120;
     
+    // Target Camera latency for simulated cameras
     private final double kSimulatedLatencyMS = 0;
+
+    // Target Camera latency variablity for simulated cameras
     private final double kSimulatedLatencyStdevMS = 0;
 
 
@@ -30,14 +34,14 @@ public class NautilusCameraConfiguration {
     public final CameraConfiguration kFrontLeftCameraConfiguration = new CameraConfiguration(Location.FRONT_LEFT)
         .withCameraPose(
             new Translation3d(
-                Units.inchesToMeters(9),         // X (forward)
+                Units.inchesToMeters(9),            // X (forward)
                 Units.inchesToMeters(6),            // Y (right)
-                Units.inchesToMeters(8.479)        // Z (up)
+                Units.inchesToMeters(8.479)         // Z (up)
             ),
             new Rotation3d(
-                Units.degreesToRadians(0),    // Roll
-                Units.degreesToRadians(0),            // Pitch
-                Units.degreesToRadians(0)       // Yaw
+                Units.degreesToRadians(0),          // Roll
+                Units.degreesToRadians(0),          // Pitch
+                Units.degreesToRadians(0)           // Yaw
             )
         )
         .withCameraDistanceScalar(1,1)
