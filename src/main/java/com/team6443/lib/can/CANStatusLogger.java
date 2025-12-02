@@ -88,7 +88,7 @@ public class CANStatusLogger implements Loggable {
         this.canBus = new CANBus(busName);
 
         // We are logging can status to CANStatus/<bus name>/*
-        logLocationPrefix = "Logger/CANStatus/" + busName + "/";
+        logLocationPrefix = "CANStatus/" + busName + "/";
     }
 
     public String getBusName(){
@@ -167,6 +167,7 @@ public class CANStatusLogger implements Loggable {
     private void logBusStatus(){
         CANBusStatus status = canBus.getStatus();
         Logger.recordOutput(logLocationPrefix + "BusStatus", status.Status);
+        Logger.recordOutput(logLocationPrefix + "BusUtilization", status.BusUtilization);
     }
 
     /**

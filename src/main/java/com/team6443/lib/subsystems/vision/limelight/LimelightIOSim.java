@@ -18,7 +18,7 @@ import com.team6443.frc2025.SimulatedRobotState;
 import com.team6443.frc2025.constants.FieldConstants;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
-import com.team6443.lib.subsystems.vision.AprilTagCornerPosition;
+import com.team6443.lib.subsystems.vision.util.AprilTagCornerPosition;
 import com.team6443.lib.subsystems.vision.VisionInputs;
 
 import edu.wpi.first.math.geometry.Pose2d;

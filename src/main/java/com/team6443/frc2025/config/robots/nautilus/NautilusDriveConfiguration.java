@@ -7,9 +7,10 @@ package com.team6443.frc2025.config.robots.nautilus;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.team6443.lib.config.odometry.OdometryStandardDevs;
+import com.team6443.lib.config.robot.PhysicalConfiguration;
 import com.team6443.lib.config.robot.Pigeon2GyroConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
-import com.team6443.lib.config.subsystems.drive.DrivetrainSimConfiguration;
+import com.team6443.lib.config.subsystems.drive.simulation.DrivetrainSimConfiguration;
 /** 
  * Configuration for the nautilius drivetrain
  */
@@ -35,7 +36,7 @@ public class NautilusDriveConfiguration {
     public final DrivetrainSimConfiguration kSimulatedDrivetrainConfiguration;
 
     public NautilusDriveConfiguration(
-        NautilusPhysicalConfiguration physicalConfiguration,
+        PhysicalConfiguration physicalConfiguration,
         Pigeon2GyroConfiguration gyroConfig,  
         String driveSubsystemName, 
         String driveSubsystemCANBus
@@ -87,14 +88,11 @@ public class NautilusDriveConfiguration {
 
         // Configure simulated drive train
         this.kSimulatedDrivetrainConfiguration = 
-        new DrivetrainSimConfiguration(0.005) // 5 ms
+        new DrivetrainSimConfiguration(0.005) // 5 ms thread loop time
                 .withName(driveSubsystemName)
-                .withRobotWeightPounds(physicalConfiguration.kRobotWeightPounds)
-                .withBumperLengthMeters(physicalConfiguration.kBumperLengthM)
-                .withBumperWidthMeters(physicalConfiguration.kBumperWidthM)
-                .withWheelCoefficientOfFriction(1.2)
-                .withDriveMotorCount(1)
-                .withSteerMotorCount(1);
+                .withPhysicalConfiguration(physicalConfiguration)
+                .withModuleDriveMotorCount(1)
+                .withModuleSteerMotorCount(1);
 
     }
 }

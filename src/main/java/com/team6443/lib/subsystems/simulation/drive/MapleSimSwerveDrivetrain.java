@@ -23,6 +23,8 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
+import com.team6443.lib.config.swerve.SimSwerveModuleConfiguration;
+import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -40,7 +42,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  */
 public class MapleSimSwerveDrivetrain {
     private final Pigeon2SimState pigeonSim;
-    private final SimSwerveModule[] simSwerveModules;
+    private final SimSwerveModuleConfiguration[] simSwerveModules;
     
     public final SwerveDriveSimulation mapleSimSwerveDrivetrain;
 
@@ -82,10 +84,15 @@ public class MapleSimSwerveDrivetrain {
                             ?,
                             ?,
                             ?>[]
-                        moduleConstants
+                        moduleConstants,
+            List<SwerveModuleConfiguration<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> swerveModuleConfigurations
             ) {
+
+        // Get simulated state of the Pigeon 2 gyro
         this.pigeonSim = pigeon.getSimState();
-        simSwerveModules = new SimSwerveModule[moduleConstants.length];
+
+        // Create an array of 
+        simSwerveModules = new SimSwerveModuleConfiguration[moduleConstants.length];
 
         // --- Configure simulation ---
         DriveTrainSimulationConfig simulationConfig =
@@ -105,20 +112,25 @@ public class MapleSimSwerveDrivetrain {
                                         Units.Meters.of(moduleConstants[0].WheelRadius),
                                         Units.KilogramSquareMeters.of(moduleConstants[0].SteerInertia),
                                         wheelCOF));
+
+
         mapleSimSwerveDrivetrain = new SwerveDriveSimulation(simulationConfig, new Pose2d());
 
         SwerveModuleSimulation[] moduleSimulations = mapleSimSwerveDrivetrain.getModules();
         for (int i = 0; i < this.simSwerveModules.length; i++)
             simSwerveModules[i] =
-                    new SimSwerveModule(moduleConstants[0], moduleSimulations[i], modules[i]);
+                    new SimSwerveModuleConfiguration(
+                        moduleConstants[i], 
+                        moduleSimulations[i], 
+                        modules[i], 
+                        swerveModuleConfigurations.get(i)
+                    );
 
         SimulatedArena.overrideSimulationTimings(simPeriod, 1);
         SimulatedArena.getInstance().addDriveTrainSimulation(mapleSimSwerveDrivetrain);
     }
 
     /**
-     *
-     *
      * <h2>Update the simulation.</h2>
      *
      * <p>Updates the Maple-Sim simulation and injects the results into the simulated CTRE devices,

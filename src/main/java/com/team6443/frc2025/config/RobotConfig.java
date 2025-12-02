@@ -13,7 +13,7 @@ import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
-import com.team6443.lib.config.subsystems.drive.DrivetrainSimConfiguration;
+import com.team6443.lib.config.subsystems.drive.simulation.DrivetrainSimConfiguration;
 import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
 import com.team6443.lib.subsystems.simulation.elevator.SimulatedElevator;
 
