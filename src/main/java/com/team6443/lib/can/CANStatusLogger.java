@@ -20,7 +20,6 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveModule;
-import com.team6443.frc2025.constants.RobotRuntimeConstants;
 import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
 import com.team6443.lib.logging.interfaces.Loggable;
 
@@ -45,18 +44,6 @@ public class CANStatusLogger implements Loggable {
         }
 
         return logger;
-    }
-
-    /**
-     * Retrieve the CANStatus logger by bus index
-     * @return Reference to the desired CAN status logger
-     */
-    public static CANStatusLogger get(int busIndex){
-        try{
-            return get(RobotRuntimeConstants.kRobotConfiguration.getCANBusNames().get(busIndex));
-        } catch (IndexOutOfBoundsException e){
-            return null;
-        }
     }
 
     /**

@@ -46,12 +46,8 @@ public class TalonFXSimIO extends TalonFXIO implements SimulatedMotorController 
     public TalonFXSimIO(CANDeviceID device, ServoMotorConfiguration<TalonFXConfiguration> servoMotorConfig){
         super(device, servoMotorConfig);
 
-        talon.getSimState().Orientation =
-        (servoMotorConfig.kMotorConfig.MotorOutput.Inverted == InvertedValue.Clockwise_Positive)
-                ? ChassisReference.Clockwise_Positive
-                : ChassisReference.CounterClockwise_Positive;
-       
         simSate = talon.getSimState();
+        simSate.Orientation =TalonFXSimIO.computeSimMotorOrientation(servoMotorConfig.kMotorConfig.MotorOutput.Inverted);
     }
     
     /**
@@ -62,12 +58,8 @@ public class TalonFXSimIO extends TalonFXIO implements SimulatedMotorController 
     public TalonFXSimIO(CANDeviceID device, TalonFXConfiguration motorConfig){
         super(device, motorConfig);
 
-        talon.getSimState().Orientation =
-        (motorConfig.MotorOutput.Inverted == InvertedValue.Clockwise_Positive)
-                ? ChassisReference.Clockwise_Positive
-                : ChassisReference.CounterClockwise_Positive;
-       
         simSate = talon.getSimState();
+        simSate.Orientation = TalonFXSimIO.computeSimMotorOrientation(motorConfig.MotorOutput.Inverted);    
     }
 
     /**
@@ -79,7 +71,27 @@ public class TalonFXSimIO extends TalonFXIO implements SimulatedMotorController 
     }
 
     /**
-     * Forcibly update the control signals for the simulated motor
+     * Forcibly updates the internal simulation state of the motor using measured
+     * encoder values and battery voltage, then calculates and returns the
+     * corresponding **motor voltage measure**.
+     *
+     * This method is intended for use within a simulation environment (Sim)
+     * to synchronize the simulated motor model's state (position, velocity,
+     * supply voltage) with the external measurements being fed to it (e.g.,
+     * from an encoder or another physics model).
+     *
+     * @param mechanismAngle The current angular position of the mechanism (e.g., arm, wheel)
+     * that the motor is driving. Not directly used in the current
+     * implementation, but included for API completeness.
+     * @param mechanismVelocity The current angular velocity of the mechanism.
+     * Not directly used in the current implementation.
+     * @param encoderAngle The latest angular position reading from the motor's encoder.
+     * This is used to set the motor's raw rotor position in the simulation.
+     * @param encoderVelocity The latest angular velocity reading from the motor's encoder.
+     * This is used to set the motor's rotor velocity in the simulation.
+     * @return A {@link Voltage} object representing the calculated motor voltage measure
+     * that should be applied to the motor for the next simulation step, based on
+     * the updated state.
      */
     @Override
     public Voltage updateControlSignal(
@@ -93,4 +105,16 @@ public class TalonFXSimIO extends TalonFXIO implements SimulatedMotorController 
 
         return simSate.getMotorVoltageMeasure();
     }
+
+    /**
+     * Compute the proper chassis orientation given some motor inverted value
+     * @param value The inverted direction of the motor
+     * @return The chassis centric orientation of the motor
+     */
+    private static ChassisReference computeSimMotorOrientation(InvertedValue value){
+        return (value == InvertedValue.Clockwise_Positive)
+        ? ChassisReference.Clockwise_Positive
+        : ChassisReference.CounterClockwise_Positive;
+    }
+
 }

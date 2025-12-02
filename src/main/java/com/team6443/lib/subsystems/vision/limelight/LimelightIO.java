@@ -4,23 +4,18 @@
 
 package com.team6443.lib.subsystems.vision.limelight;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.logging.Logger;
 
-import com.team6443.frc2025.RobotState;
-import com.team6443.frc2025.constants.FieldConstants;
+import com.team6443.lib.constants.FieldConstants;
+import com.team6443.lib.RobotState;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.subsystems.vision.util.AprilTagCornerPosition;
 import com.team6443.lib.subsystems.vision.interfaces.CameraIO;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import pabeles.concurrency.IntOperatorTask.Max;
 
 /** 
  * Interface to represent data and functionality that can be preformed by a Limelight camera

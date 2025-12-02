@@ -23,7 +23,47 @@ import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
- * Subsystem used to drive any MotorIO motor with commands
+ * Flexible base subsystem for any {@link MotorIO}-driven mechanism that should behave
+ * like a servo. It wraps a configurable motor controller, handles telemetry,
+ * and exposes a library of {@link Command commands} for open-loop and closed-loop
+ * position/velocity control.
+ * <p>
+ * Key capabilities provided by this class include:
+ * <ul>
+ *   <li>Polling {@link MotorInputs} and pushing telemetry to
+ *       {@link org.littletonrobotics.junction.Logger}</li>
+ *   <li>Helper methods for managing encoder offsets and setpoints</li>
+ *   <li>Factories for Motion Magic, PID, and duty-cycle commands that own
+ *       their lifecycle and cancel cleanly</li>
+ * </ul>
+ * <p>
+ * <b>Example Usage</b>
+ * <pre>{@code
+ * // Configure the motor controller
+ * ServoMotorConfiguration<TalonFXConfiguration> configuration =
+ *     new ServoMotorConfiguration<>("ArmPivot")
+ *         .withConfig(new TalonFXConfiguration());
+ *
+ * // Provide hardware interfaces
+ * MotorInputs inputs = new MotorInputs();
+ * TalonFXIO motor = new TalonFXIO(configuration.kCANDevice);
+ *
+ * // Extend ServoMotorSubsystem to expose your mechanism-specific commands
+ * public class ArmPivotSubsystem extends ServoMotorSubsystem<
+ *         MotorInputs, TalonFXIO, ServoMotorConfiguration<TalonFXConfiguration>> {
+ *   public ArmPivotSubsystem() {
+ *     super(inputs, motor, configuration);
+ *   }
+ * }
+ *
+ * // Within your robot container, schedule one of the built-in commands
+ * armPivot.setDefaultCommand(
+ *     armPivot.smartPositionSetpointCommand(() -> 45.0 )); // target degrees
+ * }</pre>
+ *
+ * @param <I> {@link MotorInputs} implementation capturing feedback for this motor.
+ * @param <M> {@link MotorIO} implementation that issues hardware commands.
+ * @param <C> {@link ServoMotorConfiguration} describing units, limits, and tuning.
  */
 public abstract class ServoMotorSubsystem<
       I extends MotorInputs, 

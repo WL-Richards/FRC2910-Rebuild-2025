@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.team6443.frc2025.constants.FieldConstants;
+import com.team6443.lib.constants.FieldConstants;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.subsystems.vision.util.AprilTagCornerPosition;
 import com.team6443.lib.subsystems.vision.VisionInputs;

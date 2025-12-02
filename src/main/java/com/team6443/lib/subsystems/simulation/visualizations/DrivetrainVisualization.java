@@ -7,14 +7,13 @@ package com.team6443.lib.subsystems.simulation.visualizations;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
-import com.team6443.frc2025.Robot;
-import com.team6443.lib.subsystems.drive.DrivetrainInputs;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -108,7 +107,7 @@ public class DrivetrainVisualization {
                 new Rotation3d(0.0, 0.0, pose.getRotation().getRadians()));
         Logger.recordOutput(logPrefix + "/Visualizations/DrivetrainViz/Pose3D", pose3d);
 
-        if (DriverStation.isDisabled() || Robot.isSimulation()) {
+        if (DriverStation.isDisabled() || RobotBase.isSimulation()) {
             field.setRobotPose(pose);
         }
 

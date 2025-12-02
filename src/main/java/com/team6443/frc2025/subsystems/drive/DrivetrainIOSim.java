@@ -12,7 +12,7 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import com.team6443.frc2025.SimulatedRobotState;
+import com.team6443.lib.SimulatedRobotState;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
 import com.team6443.lib.config.subsystems.drive.simulation.DrivetrainSimConfiguration;
 import com.team6443.lib.config.swerve.SwerveModuleConfiguration;

@@ -9,21 +9,17 @@ import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.team6443.frc2025.RobotState;
-import com.team6443.frc2025.constants.RobotRuntimeConstants;
 import com.team6443.frc2025.subsystems.drive.DrivetrainSubsystem;
-
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* 
  * Drive heading command to power the swerve drive train control
 */
 public class DriveWithHeadingCommand extends Command {
-
-
   private final DrivetrainSubsystem drivetrainSubsystem;
 
   // Inputs to the drive train
@@ -44,33 +40,21 @@ public class DriveWithHeadingCommand extends Command {
   private double joystickLastTurnTime = -1;
 
   // --- Control Modes ---
-  private final SwerveRequest.FieldCentric driveNoHeading =
-          new SwerveRequest.FieldCentric()
-              .withDeadband(
-                RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kChassisTranslationSpeedThreshold * 
-                RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kDriveJoystickDeadband
-              )
-              .withRotationalDeadband(
-                RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kChassisRotationalSpeedThreshold * 
-                  RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kSteerJoystickDeadband
-              )
-              .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
+  private final SwerveRequest.FieldCentric driveNoHeading;
 
-  private final SwerveRequest.FieldCentricFacingAngle driveWithHeading = 
-          new SwerveRequest.FieldCentricFacingAngle()
-              .withDeadband(
-                RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kChassisTranslationSpeedThreshold * 
-                  RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kDriveJoystickDeadband
-              )
-              .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
-        
+  private final SwerveRequest.FieldCentricFacingAngle driveWithHeading;
 
-  /** Creates a new DriveWithHeadingCommand. */
   public DriveWithHeadingCommand(
     DrivetrainSubsystem subsystem, 
     DoubleSupplier throttle,
     DoubleSupplier strafe,
-    DoubleSupplier turn
+    DoubleSupplier turn,
+    double chassisTranslationSpeedThreshold,
+    double chassisRotationalSpeedThreshold,
+    double throttleDeadband,
+    double turnDeadband,
+    double maxDriveSpeed,
+    double maxAngularRate
   ) {
      this.drivetrainSubsystem = subsystem;
      addRequirements(this.drivetrainSubsystem);
@@ -80,10 +64,29 @@ public class DriveWithHeadingCommand extends Command {
      this.turnSupplier = turn;
 
      // Fetch once, every loop is slow
-     this.kMaxDriveSpeed = RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kMaxDriveSpeed;
-     this.kMaxAngularRate = RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kMaxAngularRate;
-     this.kJoystickSteerDeadband = RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kSteerJoystickDeadband;
-     this.kJoystickDriveDeadband = RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kDriveJoystickDeadband;
+     this.kMaxDriveSpeed = maxDriveSpeed;
+     this.kMaxAngularRate = maxAngularRate;
+     this.kJoystickSteerDeadband = turnDeadband;
+     this.kJoystickDriveDeadband = throttleDeadband;
+
+      // Field centric drive WITHOUT heading lock set
+      driveNoHeading =
+          new SwerveRequest.FieldCentric()
+              .withDeadband(
+                chassisTranslationSpeedThreshold * throttleDeadband
+              )
+              .withRotationalDeadband(
+                chassisRotationalSpeedThreshold * turnDeadband
+              )
+              .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
+    
+      // Field centric drive WITH heading lock
+      driveWithHeading = 
+          new SwerveRequest.FieldCentricFacingAngle()
+              .withDeadband(
+                chassisTranslationSpeedThreshold * throttleDeadband
+              )
+              .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
   }
 
   // Called when the command is initially scheduled.
@@ -101,25 +104,27 @@ public class DriveWithHeadingCommand extends Command {
 
     double turn = this.turnSupplier.getAsDouble();
 
-    double throttleAllianceRelative = RobotRuntimeConstants.isRedAlliance() ? -throttle : throttle;
-    double strafeAllianceRelative = RobotRuntimeConstants.isRedAlliance() ? -strafe : strafe;
+    boolean isRedAlliance = DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red;
+    double throttleAllianceRelative = isRedAlliance ? -throttle : throttle;
+    double strafeAllianceRelative = isRedAlliance ? -strafe : strafe;
 
     if (Math.abs(turn) > this.kJoystickSteerDeadband){
       joystickLastTurnTime = Timer.getFPGATimestamp();
     }
 
     // We should only update our rotational input if the user is providing input or was recently providing input and the rotation rate is still greater than 10 degrees per second
-     if ( (
-           Math.abs(turn) > this.kJoystickSteerDeadband))   // IF we are attempting to turn the robot
+    if (Math.abs(turn) > this.kJoystickSteerDeadband) 
+    
+    // This is used if we are driving wit
+    // IF we are attempting to turn the robot
     //       || // // OR our last turn joystick time was within .25 seconds of input (this is just to allow the joystick to settle) AND the bot is still rotating too quickly (more than 10 degress per second)
     //       ((MathUtil.isNear(joystickLastTurnTime, Timer.getFPGATimestamp(), 0.25))  
     //             && Math.abs(                                                                     
     //                 RobotState.get().getLatestRobotRelativeChassisSpeed().omegaRadiansPerSecond
     //       ) >
     //       Math.toRadians(10))
-    //   )
+    //   )   
     {
-
       // Command the subsystem to drive with the given rotational rate
       drivetrainSubsystem.setControl(
         driveNoHeading

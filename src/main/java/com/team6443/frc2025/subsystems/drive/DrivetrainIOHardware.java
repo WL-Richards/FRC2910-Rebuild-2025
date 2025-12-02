@@ -23,7 +23,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.team6443.frc2025.RobotState;
+import com.team6443.lib.RobotState;
 import com.team6443.lib.can.CANStatusLogger;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
 import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
