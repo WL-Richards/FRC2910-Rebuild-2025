@@ -14,12 +14,42 @@ import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
- * A concurrent version of WPIlib's TimeInterpolatableBuffer class to avoid the need for explicit
- * synchronization in our robot code.
- * 
- * Yoinked from 254: https://github.com/Team254/FRC-2025-Public/blob/main/src/main/java/com/team254/lib/util/ConcurrentTimeInterpolatableBuffer.java
+ * ConcurrentTimeInterpolatableBuffer: A Thread-Safe Data History for Robotics**
  *
- * @param <T> The type stored in this buffer.
+ * This class is designed to store a short history of data samples (like robot poses or sensor
+ * readings) keyed by their precise **timestamp**, and it lets you **interpolate** to find the
+ * estimated value at *any* time within that recorded history.
+ *
+ * This is the **concurrent version** of the standard WPILib time buffer.
+ *
+ * ---
+ * **Why use this? (The Concurrency Advantage)**
+ *
+ * We use a {@link ConcurrentSkipListMap} to store the snapshots. This structure is inherently
+ * **thread-safe** and **sorted by time**, which means you can have one thread (e.g., your Drivetrain
+ * Odometry loop) constantly **writing** new data and another thread (e.g., your Vision processing
+ * loop) simultaneously **reading** old data without needing to use explicit `synchronized` blocks.
+ * This prevents timing issues and avoids slowing down your main robot loop.
+ *
+ * ---
+ * **Primary Use Case: Pose Estimation**
+ *
+ * When dealing with sensors that have **latency** (like a camera), you need to know what the
+ * robot's state was *at the moment the sensor captured the data*, not when the data was
+ * processed. This buffer is essential for:
+ *
+ * 1.  **Time Alignment:** Storing a history of high-rate data (like poses).
+ * 2.  **State Reconstruction:** When a vision packet arrives with timestamp T, this buffer
+ * allows you to calculate the robot's estimated pose at T, even if T falls between
+ * two recorded poses. 
+ * 3.  **Memory Management:** Samples older than the configured {@code historySizeSeconds} are
+ * automatically discarded to keep memory usage in check.
+ *
+ * @param <T> The type of data you're storing (e.g., a Pose2d, Rotation2d, or Double).
+ * The type must be able to calculate a value between two points (i.e., implement
+ * {@link Interpolatable} or be used with an external {@link Interpolator}).
+ *
+ * @see <a href="https://github.com/Team254/FRC-2025-Public/blob/main/src/main/java/com/team254/lib/util/ConcurrentTimeInterpolatableBuffer.java">Source Yoinked from Team 254 (The Cheesy Poofs)</a>
  */
 public final class ConcurrentTimeInterpolatableBuffer<T> {
     private final double historySize;

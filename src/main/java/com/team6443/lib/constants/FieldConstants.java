@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package com.team6443.frc2025.constants;
+package com.team6443.lib.constants;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -11,7 +11,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.util.Units;
 
 /** 
- * Constants 
+ * Constants specific to the current game year in this case 2025 Reefscape
  */
 public class FieldConstants {
 
@@ -56,7 +56,7 @@ public class FieldConstants {
     public static final int BLUE_REEF_RIGHT_BARGE = 20;
     public static final int BLUE_REEF_CENTER_BARGE = 21;
     public static final int BLUE_REEF_LEFT_BARGE = 22;
-
+    
     public static Pose3d getTagPose3d(int id) {
         if (id < RED_LEFT_CORAL_STATION || id > BLUE_REEF_LEFT_BARGE) {
             throw new IllegalArgumentException("id must be between 1 and 22");

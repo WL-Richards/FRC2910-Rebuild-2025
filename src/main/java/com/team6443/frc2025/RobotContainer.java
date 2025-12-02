@@ -4,6 +4,7 @@
 
 package com.team6443.frc2025;
 import com.team6443.frc2025.commands.drive.DriveWithHeadingCommand;
+import com.team6443.frc2025.constants.RobotRuntimeConstants;
 import com.team6443.frc2025.subsystems.SubsystemFactory;
 import com.team6443.frc2025.subsystems.drive.DrivetrainSubsystem;
 import com.team6443.frc2025.subsystems.elevator.ElevatorSubsystem;
@@ -25,7 +26,13 @@ public class RobotContainer implements Loggerable {
     drivetrainSubsystem, 
     primaryController::getThrottle,   // throttle
     primaryController::getStrafe,     // strafe
-    primaryController::getRotation    // turn
+    primaryController::getRotation,   // turn
+    RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kChassisTranslationSpeedThreshold, // Chassis translational speed threshold
+    RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kChassisRotationalSpeedThreshold,  // Chassis rotational speed threshold
+    RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kDriveJoystickDeadband,            // Drive joystick deadband
+    RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kSteerJoystickDeadband,            // Steer joystick deadband
+    RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kMaxDriveSpeed,                    // The max drive speed of the robot
+    RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kMaxAngularRate                    // The max angular rate of the robot
   );
 
   // --- Vision system ---

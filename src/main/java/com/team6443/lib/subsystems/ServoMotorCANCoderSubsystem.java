@@ -16,7 +16,41 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 /**
- * This class is intended for the use case when a CAN coder is desired to be used instead of the motors internal encoder, and simply uses the CAN coder to update what the "motor" encoder reports to match
+ * Extension of {@link ServoMotorSubsystem} that fuses an external {@link CANCoderIO}
+ * with a servo-controlled motor. Many FRC mechanisms prefer absolute feedback to
+ * guarantee a known zero on boot; this subsystem automatically mirrors a CANcoder's
+ * angle into the motor encoder so all of the base class commands "just work".
+ * <p>
+ * <b>Typical use cases:</b> elevators, arms, or turrets that must know their position
+ * after power cycles, or anytime the native motor encoder cannot be mechanically
+ * referenced.
+ * <p>
+ * <b>Example Usage</b>
+ * <pre>{@code
+ * ServoMotorCANCoderConfiguration<TalonFXConfiguration> configuration =
+ *     new ServoMotorCANCoderConfiguration<>("Elevator")
+ *         .withConfig(new TalonFXConfiguration())
+ *         .withCANCoderRotationToUnitRatio(Units.kRotationsToMeters);
+ *
+ * MotorInputs motorInputs = new MotorInputs();
+ * TalonFXIO motor = new TalonFXIO(configuration.kCANDevice);
+ * CANCoderInputs canCoderInputs = new CANCoderInputs();
+ * CANCoderIO canCoder = new Phoenix6CANCoderIO(3); // device id
+ *
+ * public class ElevatorSubsystem extends ServoMotorCANCoderSubsystem<
+ *         MotorInputs, TalonFXIO, CANCoderInputs, CANCoderIO,
+ *         ServoMotorCANCoderConfiguration<TalonFXConfiguration>> {
+ *   public ElevatorSubsystem() {
+ *     super(motorInputs, motor, canCoderInputs, canCoder, configuration);
+ *   }
+ * }
+ * }</pre>
+ *
+ * @param <MI> Motor inputs type that stores encoder/voltage/current data.
+ * @param <M>  {@link MotorIO} controller implementation.
+ * @param <EI> CANcoder inputs container used for logging and offset calculations.
+ * @param <E>  {@link CANCoderIO} hardware interface.
+ * @param <C>  {@link ServoMotorCANCoderConfiguration} applied to this subsystem.
  */
 public abstract class ServoMotorCANCoderSubsystem<
               MI extends MotorInputs,                         // Motor inputs class to be used, eg. MotorInputs

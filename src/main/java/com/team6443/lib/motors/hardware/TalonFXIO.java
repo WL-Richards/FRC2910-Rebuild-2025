@@ -34,6 +34,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /** 
@@ -97,16 +98,37 @@ public class TalonFXIO implements MotorIO, CANable{
     // All the status signals we are using for this TalonFX
     private final BaseStatusSignal[] signals;
 
-    /**
-     * Construct a new instance of the TalonFXIO device
-     * @param device The CAN device that represents this motor
-     * @param servoMotorConfig The configuration used to determine how the motor should be driven outside the context of just the motor
-     */
-    public TalonFXIO(CANDeviceID device, ServoMotorConfiguration<TalonFXConfiguration> servoMotorConfig){
-        this.config = servoMotorConfig;
+    private TalonFXIO(
+        CANDeviceID device, 
+        TalonFX talonFX,
+        TalonFXConfiguration motorConfig, 
+        ServoMotorConfiguration<TalonFXConfiguration> servoMotorConfig
+    ){
 
-        // Create talon 
-        talon = TalonFXFactory.createRawWithConfig(device, servoMotorConfig.getMotorConfig());
+        // If an actual talon is passed in
+        if (talonFX != null){
+            this.config = new ServoMotorConfiguration<TalonFXConfiguration>();
+            talon = talonFX;
+        }
+        // If servo motor configuration is supplied use that to create the motor
+        else if(servoMotorConfig != null){
+            this.config = servoMotorConfig;
+            talon = TalonFXFactory.createRawWithConfig(device, servoMotorConfig.getMotorConfig());
+        }
+
+        // If raw motor configuration then create new servo motor configuration supplying our motor config
+        else if(motorConfig != null){
+            this.config = new ServoMotorConfiguration<TalonFXConfiguration>().withConfig(motorConfig);
+            talon = TalonFXFactory.createRawWithConfig(device, motorConfig);
+        }
+
+        // This is kinda undefined case, so we throw some errors, it will still work as it creates a talon as expected but default configuration is used
+        else{
+            this.config = new ServoMotorConfiguration<TalonFXConfiguration>().withConfig(TalonFXFactory.getDefaultConfig());
+            talon = TalonFXFactory.createRawDefault(device);
+            DriverStation.reportError("!!!!! Talon FX IO Created with no Explicit ServoMotorConfiguration or TalonFXConfiguration !!!!!", false);
+        }
+        
 
         // Set signal sources
         positionSignal = talon.getPosition();
@@ -135,6 +157,34 @@ public class TalonFXIO implements MotorIO, CANable{
 
         // Optimization the bus utilization for the talon
         CTREUtil.Configuration.Motors.optimizeBusUtilization(talon);
+    }
+
+    /**
+     * Construct a new instance of the TalonFXIO device with a ServoMotorConfiguration
+     * @param device The CAN device that represents this motor
+     * @param servoMotorConfig The configuration used to determine how the motor should be driven outside the context of just the motor
+     */
+    public TalonFXIO(CANDeviceID device, ServoMotorConfiguration<TalonFXConfiguration> servoMotorConfig){
+        this(device, null, null, servoMotorConfig);
+        
+    }
+
+    /**
+     * Construct a new instance of the TalonFXIO device with a TalonFX configuration
+     * @param device The CAN device that represents this motor
+     * @param motorConfiguration The TalonFXConfiguration config used to determine how the motor should be driven
+     */
+    public TalonFXIO(CANDeviceID device, TalonFXConfiguration motorConfiguration){
+        this(device, null, motorConfiguration, null);
+    }
+
+    /**
+     * Construct a new instance of the TalonFXIO device with a TalonFX configuration
+     * @param device The CAN device that represents this motor
+     * @param motor The TalonFX to use with this wrapper
+     */
+    public TalonFXIO(CANDeviceID device, TalonFX motor){
+        this(device, motor, null, null);
     }
 
     /**

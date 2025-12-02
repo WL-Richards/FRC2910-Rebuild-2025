@@ -96,10 +96,21 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   // --- Drive train commanding ----
+
+  /**
+   * Start a continuous command to apply new swerve drive requests each loop
+   * @param request Supplier of SwerveRequests that will be used to command the drivetrain
+   * @return The command applying the request
+   */
   public Command applyRequest(Supplier<SwerveRequest> request){
-    return drivetrain.continuousRequestCommand(request, this).withName("SwerveDriveRequest");
+    return drivetrain.continuousRequestCommand(request, this)
+      .withName("SwerveDriveRequest");
   }
 
+  /**
+   * Set a control request instantaneously
+   * @param request The swerve drive request to pass to the drivetrain
+   */
   public void setControl(SwerveRequest request) {
     drivetrain.setControl(request);
   }
@@ -122,9 +133,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
   protected void setStateStdDevs(OdometryStandardDevs stdDevs){
     drivetrain.setOdometryStdDevs(stdDevs.xStdDev, stdDevs.yStdDev, stdDevs.rotStdDev);
   }
+  
+  /**
+   * Set odometry standard deviation for when the robot is DISABLED
+   */
   public void configureStandardDevsForDisabled() {
     setStateStdDevs(this.configuration.kDisabledOdometryStandardDevs);
   }
+
+  /**
+   * Set odometry standard deviation for when the robot is ENABLED
+   */
   public void configureStandardDevsForEnabled() {
       setStateStdDevs(this.configuration.kEnabledOdometryStandardDevs);
   }

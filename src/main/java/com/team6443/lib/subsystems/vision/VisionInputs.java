@@ -10,6 +10,7 @@ import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import com.team6443.lib.config.camera.CameraConfiguration;
+import com.team6443.lib.subsystems.vision.util.AprilTagCornerPosition;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;

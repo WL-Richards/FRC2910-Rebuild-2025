@@ -23,7 +23,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.team6443.frc2025.RobotState;
+import com.team6443.lib.RobotState;
 import com.team6443.lib.can.CANStatusLogger;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
 import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
@@ -59,14 +59,19 @@ public class DrivetrainIOHardware extends SwerveDrivetrain<TalonFX, TalonFX, CAN
 
     // Updates the odometry information from the drive train within our overall robot state as well as updating the cache 
     protected Consumer<SwerveDriveState> swerveTelemetryConsumer =
-                    state -> {
-                        swerveTelemetryCache.set(state.clone());
-                        RobotState.get().addOdometryMeasurement(
-                            // Synchronize the RoboRIO clock with the system time and return the rio time of the state 
-                            (Timer.getFPGATimestamp() - Utils.getCurrentTimeSeconds()) + state.Timestamp,   
-                            state.Pose
-                        );
-                    };
+        state -> {
+
+            // Update the state via deep-copy
+            swerveTelemetryCache.set(state.clone());
+            
+            RobotState.get().addOdometryMeasurement(
+                // Synchronize the RoboRIO clock with the system time and return the rio time of the state 
+                (Timer.getFPGATimestamp() - Utils.getCurrentTimeSeconds()) + state.Timestamp,
+
+                // New pose of the swerve drive
+                state.Pose
+            );
+        };
 
     // ------ Pigeon2 signals ------
 
@@ -199,7 +204,7 @@ public class DrivetrainIOHardware extends SwerveDrivetrain<TalonFX, TalonFX, CAN
         // Add all the speed measurements to our robot state
         RobotState.get().addChassisMotionMeasurements(
             timestamp, 
-            rollRads, 
+            rollRadsPerS, 
             pitchRadsPerS, 
             yawRadsPerS, 
             pitchRads, 

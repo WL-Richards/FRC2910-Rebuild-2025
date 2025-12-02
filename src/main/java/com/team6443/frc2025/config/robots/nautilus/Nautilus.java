@@ -25,9 +25,10 @@ import com.team6443.lib.config.camera.CameraConfiguration.Location;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
 import com.team6443.lib.config.motors.factories.TalonFXConfigurationFactory;
 import com.team6443.lib.config.odometry.OdometryStandardDevs;
+import com.team6443.lib.config.robot.PhysicalConfiguration;
 import com.team6443.lib.config.robot.Pigeon2GyroConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
-import com.team6443.lib.config.subsystems.drive.DrivetrainSimConfiguration;
+import com.team6443.lib.config.subsystems.drive.simulation.DrivetrainSimConfiguration;
 import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
 import com.team6443.lib.config.swerve.TalonFXSwerveModuleConfiguration;
 import com.team6443.lib.config.wrappers.ConfigureSlot0Gains;
@@ -62,7 +63,14 @@ public class Nautilus extends RobotConfig {
     );
 
     // --- Robot Physical Properties ---
-    private static final NautilusPhysicalConfiguration kPhysicalConfiguration = new NautilusPhysicalConfiguration();
+    private static final PhysicalConfiguration kPhysicalConfiguration = 
+        new PhysicalConfiguration()
+            .withRobotWeightPounds(150)
+            .withWheelBaseLengthM(Units.inchesToMeters(22.75))
+            .withWheelTrackWidthM(Units.inchesToMeters(22.75))
+            .withBumperLengthM(Units.inchesToMeters(35.625))
+            .withBumperWidthM(Units.inchesToMeters(35.625))
+            .withWheelCoefficientOfFriction(1.2);
 
     // --- Drivetrain Config ---
     // --- Gyro ---

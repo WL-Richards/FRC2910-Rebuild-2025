@@ -20,7 +20,7 @@ import com.team6443.lib.motors.interfaces.MotorIO;
  * configured and updated each cycle based on their individual {@link ServoMotorFollowerConfiguration.FollowerConfiguration}
  * definitions.
  * <p>
- * Typical use case: multi-motor mechanisms such as drivetrains, elevators, or shooters,
+ * Typical use case: multi-motor mechanisms such as elevators, or shooters,
  * where motors must maintain identical (or inverted) behavior.
  * 
  * <h2>Example Usage</h2>
