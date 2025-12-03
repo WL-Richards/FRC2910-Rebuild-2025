@@ -16,7 +16,7 @@ import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration.FollowerCo
 import com.team6443.lib.motors.hardware.TalonFXIO;
 import com.team6443.lib.motors.interfaces.MotorIO.FollowDirection;
 import com.team6443.lib.motors.sim.TalonFXSimIO;
-import com.team6443.lib.subsystems.simulation.visualizations.ElevatorVisualization;
+import com.team6443.lib.subsystems.simulation.visualizations.ElevatorVizualizer;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Notifier;
@@ -41,7 +41,7 @@ public class SimulatedElevator {
         public double meterToRotorRatio;
     }
 
-    protected ElevatorVisualization elevatorViz = new ElevatorVisualization();
+    protected ElevatorVizualizer elevatorViz = new ElevatorVizualizer();
 
     // Setup our instances of our simulated talons and elevator configs
     protected ServoMotorFollowerConfiguration<TalonFXConfiguration> config;

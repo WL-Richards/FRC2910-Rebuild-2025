@@ -11,21 +11,30 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.google.flatbuffers.Constants;
 import com.team6443.frc2025.constants.RobotRuntimeConstants;
+import com.team6443.frc2025.subsystems.AEMSubsystem;
 import com.team6443.lib.config.odometry.OdometryStandardDevs;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
 import com.team6443.lib.subsystems.drive.DrivetrainIO;
 import com.team6443.lib.subsystems.drive.DrivetrainInputs;
 import com.team6443.lib.subsystems.simulation.drive.MapleSimSwerveDrivetrain;
-import com.team6443.lib.subsystems.simulation.visualizations.DrivetrainVisualization;
+import com.team6443.lib.subsystems.simulation.visualizations.SwerveVisualizer;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class DrivetrainSubsystem extends SubsystemBase {
+public class DrivetrainSubsystem extends AEMSubsystem {
+
+  // Game field reference
+  private final Field2d field = new Field2d();
 
   // Reference to the drivetrain and the inputs to the drivetrain
   protected DrivetrainIO drivetrain;
@@ -34,23 +43,22 @@ public class DrivetrainSubsystem extends SubsystemBase {
   // Configuration of this given drivetrain
   protected final DrivetrainConfiguration configuration;
 
-  // Drive train visualizer
-  protected final DrivetrainVisualization visualization;
-
-  // What to prepend to logs from this subsystem
-  private final String logPrefix;
+  //
+  private final SwerveVisualizer swerveViz;
   
   /** Creates a new DriveSubsystem. */
   public DrivetrainSubsystem(
     DrivetrainConfiguration configuration,
     DrivetrainIO drivetrain
   ) {
-    this.logPrefix = "Subsystems/" + configuration.kConfigurationName;
+    super(configuration.kConfigurationName);
+    
+    // Helper class for creating swerve state mechanism
+    swerveViz = new SwerveVisualizer(configuration.kMaxDriveSpeed);
 
     this.configuration = configuration;
     this.drivetrain = drivetrain;
-    this.drivetrain.setLoggingPrefix(logPrefix);
-    this.visualization = new DrivetrainVisualization(configuration.kMaxDriveSpeed, this.logPrefix);
+    this.drivetrain.setLoggingPrefix(kLogPrefixStandard);
   }
 
   @Override
@@ -59,9 +67,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
     drivetrain.updateInputs(inputs);
 
     // Log the state of the drive train
-    visualization.updateViz(inputs);
-    Logger.processInputs("RealOutputs/" + logPrefix + "/Inputs", inputs);
-    drivetrain.logModules(inputs, this.logPrefix);
+    updateLogs();
+    drivetrain.logModules(inputs, kLogPrefixStandard);
 
 
     // Update standard deviations based on enable state
@@ -74,13 +81,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     // Log Drive train subsystem latency
     Logger.recordOutput(
-            this.logPrefix + "/LatencyPeriodicMS", 
+            kLogPrefixStandard + "/LatencyPeriodicMS", 
             (Timer.getFPGATimestamp() - timestamp)*1000
     );
 
     // Log the drive train subsystems current command
     Logger.recordOutput(
-            this.logPrefix + "/CurrentCommand",
+            kLogPrefixStandard + "/CurrentCommand",
             (getCurrentCommand() == null) ? "Default" : getCurrentCommand().getName()
     );
   }
@@ -88,6 +95,27 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public DrivetrainSubsystem withStartingPose(Pose2d pose){
     resetOdometry(pose);
     return this;
+  }
+
+  // ---- Logging ----
+  @Override
+  protected void updateLogs() {
+    Logger.processInputs(kLogPrefixStandard + "/Inputs", inputs);
+
+    Logger.recordOutput(kLogPrefixStandard + "/Odometry/Speed", new Translation2d(inputs.Speeds.vxMetersPerSecond, inputs.Speeds.vyMetersPerSecond).getNorm());
+    Logger.recordOutput(kLogPrefixStandard + "/Odometry/VelocityX", inputs.Speeds.vxMetersPerSecond);
+    Logger.recordOutput(kLogPrefixStandard + "/Odometry/VelocityY", inputs.Speeds.vyMetersPerSecond);
+    Logger.recordOutput(kLogPrefixStandard + "/Odometry/OdomPeriod", inputs.OdometryPeriod);
+
+    if (DriverStation.isDisabled() || RobotBase.isSimulation()) {
+        field.setRobotPose(inputs.Pose);
+    }
+
+    // Update the swerve module states
+    swerveViz.updateSwerveState(inputs);
+    Logger.recordOutput(kLogPrefixStandard + "/Modules/States", inputs.ModuleStates);
+    
+
   }
 
   // ---- Odometry updates ----

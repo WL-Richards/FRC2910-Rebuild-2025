@@ -118,7 +118,8 @@ public final class SimulatedRobotState implements Loggable {
     // --- Loggable Implementation ---
     @Override
     public void updateLog(String prefix) {
-        RobotState.Odometry.logTimeInterpolatedPose("RobotState/SimulatedRobotPose2d", odometryState.TimeInterpolatableSimulatedRobotPose);
+        RobotState.Odometry.logTimeInterpolatedPose("SimulatedRobotState/RobotPose2d", odometryState.TimeInterpolatableSimulatedRobotPose);
+        RobotState.Odometry.logTimeInterpolatedPose3d("SimulatedRobotState/RobotPose3d", odometryState.TimeInterpolatableSimulatedRobotPose);
     }
 
 }

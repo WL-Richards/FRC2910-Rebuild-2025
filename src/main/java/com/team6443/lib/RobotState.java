@@ -17,6 +17,8 @@ import com.team6443.lib.math.ConcurrentTimeInterpolatableBuffer;
 import com.team6443.lib.subsystems.vision.VisionInputs;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 /**
@@ -89,6 +91,23 @@ public final class RobotState implements Loggable {
             Entry<Double, Pose2d> latest = buffer.getLatest();
             if(latest != null){
                 Logger.recordOutput(key, latest.getValue());
+            }
+        }
+
+        /**
+         * Logs the latest pose in the time interpolated pose 
+         * @param key Where to log the result to
+         * @param buffer Buffer we are logging the data from
+         */
+        public static void logTimeInterpolatedPose3d(String key, ConcurrentTimeInterpolatableBuffer<Pose2d> buffer){
+            Entry<Double, Pose2d> latest = buffer.getLatest();
+            if(latest != null){
+                Pose2d pose = latest.getValue();
+                Logger.recordOutput(key, new Pose3d(
+                    pose.getX(),
+                    pose.getY(),
+                0.0,
+                new Rotation3d(0.0, 0.0, pose.getRotation().getRadians())));
             }
         }
     }
@@ -224,7 +243,8 @@ public final class RobotState implements Loggable {
     // --- Loggable Implementation ---
     @Override
     public void updateLog(String prefix) {
-        RobotState.Odometry.logTimeInterpolatedPose("RobotState/FinalRobotPose2d", odometryState.TimeInterpolatableEstimatedRobotPose);
+        RobotState.Odometry.logTimeInterpolatedPose("SensorRobotState/RobotPose2d", odometryState.TimeInterpolatableEstimatedRobotPose);
+        RobotState.Odometry.logTimeInterpolatedPose("SensorRobotState/RobotPose3d", odometryState.TimeInterpolatableEstimatedRobotPose);
     }
 
 }

@@ -15,13 +15,13 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 /**
  * 
  */
-public class ElevatorVisualization {
+public class ElevatorVizualizer {
     private Color8Bit white = new Color8Bit(Color.kWhite);
     private LoggedMechanism2d viz2d = new LoggedMechanism2d(1.27, 2.032);
     private final LoggedMechanismRoot2d root = viz2d.getRoot("elevatorRoot", 0.75, 0.51);
     private final LoggedMechanismLigament2d elevatorLigament = new LoggedMechanismLigament2d("elevatorLigament", 0.13, 90.0, 20.0, white);
 
-    public ElevatorVisualization() {
+    public ElevatorVizualizer() {
         root.append(elevatorLigament);
     }
 

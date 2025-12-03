@@ -111,12 +111,6 @@ public class DrivetrainIOSim extends DrivetrainIOHardware {
     @Override
     public void updateInputs(DrivetrainInputs inputs) {
         super.updateInputs(inputs);
-
-        /* After updating inputs we want to find the latest pose and log it if its not null */
-        Pose2d pose = SimulatedRobotState.get().getLatestFieldRobotPose();
-        if(pose != null){
-            Logger.recordOutput(this.logPrefix + "/Viz/SimPose", pose);
-        }
     }
 
     /**
