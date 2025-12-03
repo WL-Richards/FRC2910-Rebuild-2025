@@ -9,11 +9,11 @@ import com.team6443.lib.config.robot.PhysicalConfiguration;
 /** Configuration for how this drive train should be simulated */
 public class DrivetrainSimConfiguration {
     
-    /* Rate in milliseconds that the sim will loop */
+    /* Name of the confiugration  */
     public String kConfigurationName;
 
-    /* Rate in milliseconds that the sim will loop */
-    public final double kSimLoopPeriodMS; 
+    /* Rate in seconds that the sim will loop */
+    public final double kSimLoopPeriodS; 
 
     /* Describes physical properties about the robot: weight, track width + length, wheel coef. of friction, etc. */
     public PhysicalConfiguration kPhysicalConfiguration;
@@ -23,7 +23,7 @@ public class DrivetrainSimConfiguration {
     public int kModuleSteerMotorCount;
 
     public DrivetrainSimConfiguration(double loopPeriod){
-        this.kSimLoopPeriodMS = loopPeriod;
+        this.kSimLoopPeriodS = loopPeriod;
     }
 
     public DrivetrainSimConfiguration withPhysicalConfiguration(PhysicalConfiguration config){

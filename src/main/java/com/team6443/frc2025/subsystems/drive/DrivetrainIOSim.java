@@ -77,7 +77,7 @@ public class DrivetrainIOSim extends DrivetrainIOHardware {
         
         drivetrainSim =
                 new MapleSimSwerveDrivetrain(
-                        Units.Seconds.of(simConfig.kSimLoopPeriodMS),                               // Simulation Update Rate 5ms = 200hz
+                        Units.Seconds.of(simConfig.kSimLoopPeriodS),                               // Simulation Update Rate 0.005s = 5ms = 200hz
                         Units.Pounds.of(simConfig.kPhysicalConfiguration.kRobotWeightPounds),       // Weight of the robot in pounds
                         Units.Meters.of(simConfig.kPhysicalConfiguration.kBumperWidthMeters),       // Bumper width meters
                         Units.Meters.of(simConfig.kPhysicalConfiguration.kBumperLengthMeters),      // Bumper length meters
@@ -93,7 +93,7 @@ public class DrivetrainIOSim extends DrivetrainIOHardware {
         // Create and start simulation thread
         simulationThread = new Notifier(drivetrainSim::update);
         simulationThread.setName("DrivetrainSimNotifier");
-        simulationThread.startPeriodic(simConfig.kSimLoopPeriodMS);
+        simulationThread.startPeriodic(simConfig.kSimLoopPeriodS);
     }
 
     /**
