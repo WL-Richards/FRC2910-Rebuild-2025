@@ -5,12 +5,15 @@
 package com.team6443.lib.subsystems.simulation.visualizations;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 
@@ -25,53 +28,53 @@ public class SwerveVisualizer {
     
     // ----- Swerve Drive Module Visualization -----
     // Mechanisms to represent the swerve module states
-    private final Mechanism2d[] moduleMechanisms = new Mechanism2d[] {
-            new Mechanism2d(1, 1),
-            new Mechanism2d(1, 1),
-            new Mechanism2d(1, 1),
-            new Mechanism2d(1, 1)
+    private final LoggedMechanism2d[] moduleMechanisms = new LoggedMechanism2d[] {
+            new LoggedMechanism2d(1, 1),
+            new LoggedMechanism2d(1, 1),
+            new LoggedMechanism2d(1, 1),
+            new LoggedMechanism2d(1, 1)
     };
 
     // A direction and length changing ligament for speed representation
-    private final MechanismLigament2d[] moduleSpeeds = new MechanismLigament2d[] {
+    private final LoggedMechanismLigament2d[] moduleSpeeds = new LoggedMechanismLigament2d[] {
             moduleMechanisms[0]
                     .getRoot("RootSpeed", 0.5, 0.5)
-                    .append(new MechanismLigament2d("Speed", 0.5, 0)),
+                    .append(new LoggedMechanismLigament2d("Speed", 0.5, 0)),
             moduleMechanisms[1]
                     .getRoot("RootSpeed", 0.5, 0.5)
-                    .append(new MechanismLigament2d("Speed", 0.5, 0)),
+                    .append(new LoggedMechanismLigament2d("Speed", 0.5, 0)),
             moduleMechanisms[2]
                     .getRoot("RootSpeed", 0.5, 0.5)
-                    .append(new MechanismLigament2d("Speed", 0.5, 0)),
+                    .append(new LoggedMechanismLigament2d("Speed", 0.5, 0)),
             moduleMechanisms[3]
                     .getRoot("RootSpeed", 0.5, 0.5)
-                    .append(new MechanismLigament2d("Speed", 0.5, 0)),
+                    .append(new LoggedMechanismLigament2d("Speed", 0.5, 0)),
     };
 
     // A direction changing and length constant ligament for module direction
-    private final MechanismLigament2d[] moduleDirections = new MechanismLigament2d[] {
+    private final LoggedMechanismLigament2d[] moduleDirections = new LoggedMechanismLigament2d[] {
             moduleMechanisms[0]
                     .getRoot("RootDirection", 0.5, 0.5)
                     .append(
-                            new MechanismLigament2d(
+                            new LoggedMechanismLigament2d(
                                     "Direction", 0.1, 0, 0,
                                     new Color8Bit(Color.kWhite))),
             moduleMechanisms[1]
                     .getRoot("RootDirection", 0.5, 0.5)
                     .append(
-                            new MechanismLigament2d(
+                            new LoggedMechanismLigament2d(
                                     "Direction", 0.1, 0, 0,
                                     new Color8Bit(Color.kWhite))),
             moduleMechanisms[2]
                     .getRoot("RootDirection", 0.5, 0.5)
                     .append(
-                            new MechanismLigament2d(
+                            new LoggedMechanismLigament2d(
                                     "Direction", 0.1, 0, 0,
                                     new Color8Bit(Color.kWhite))),
             moduleMechanisms[3]
                     .getRoot("RootDirection", 0.5, 0.5)
                     .append(
-                            new MechanismLigament2d(
+                            new LoggedMechanismLigament2d(
                                     "Direction", 0.1, 0, 0,
                                     new Color8Bit(Color.kWhite))),
     };
@@ -91,6 +94,7 @@ public class SwerveVisualizer {
             moduleSpeeds[i].setAngle(state.ModuleStates[i].angle);
             moduleDirections[i].setAngle(state.ModuleStates[i].angle);
             moduleSpeeds[i].setLength(state.ModuleStates[i].speedMetersPerSecond / (2 * kMaxRobotSpeed));
+            Logger.recordOutput("Visualizations/Swerve/ModuleViz"+i, moduleMechanisms[i]);
         }
     }
 }
