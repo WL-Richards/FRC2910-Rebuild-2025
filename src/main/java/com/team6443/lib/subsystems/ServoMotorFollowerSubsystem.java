@@ -129,7 +129,7 @@ public abstract class ServoMotorFollowerSubsystem<
         for (int i = 0; i <  config.followerConfigurations.size(); i++) {
             MotorIO motor = followerMotors[i];
             motor.updateInputs(followerMotorInputs[i]);
-            Logger.processInputs(kLogPrefixInput + "/Inputs/" + motor.getName(), followerMotorInputs[i]);
+            Logger.processInputs(kLogPrefixInput + "/Inputs", followerMotorInputs[i]);
         }
     }
 

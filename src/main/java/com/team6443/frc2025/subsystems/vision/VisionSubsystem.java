@@ -48,7 +48,7 @@ public class VisionSubsystem extends AEMSubsystem {
 
       limelight.updateInputs(inputs);
       Logger.processInputs(kLogPrefixInput + "/" + limelight.getConfiguration().toString(), inputs);
-      limelight.updateLog();
+      limelight.updateLog(kLogPrefixStandard, kLogPrefixInput);
 
       // If this input has a valid robot pose we want to add it to our observation list
       if(inputs.hasTag && inputs.robotPoseBasedOffTagLocationLatencyCompensated != null){
