@@ -242,7 +242,7 @@ public final class RobotState implements Loggable {
 
     // --- Loggable Implementation ---
     @Override
-    public void updateLog(String prefix) {
+    public void updateLog(String standardPrefix, String inputPrefix) {
         RobotState.Odometry.logTimeInterpolatedPose("SensorRobotState/RobotPose2d", odometryState.TimeInterpolatableEstimatedRobotPose);
         RobotState.Odometry.logTimeInterpolatedPose("SensorRobotState/RobotPose3d", odometryState.TimeInterpolatableEstimatedRobotPose);
     }

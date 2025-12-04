@@ -52,7 +52,7 @@ public class CANStatusLogger implements Loggable {
     public static void updateAllLogs(){
         if(DriverStation.isDisabled()){ // Only update CAN statuses when the robot is disabled
             for(CANStatusLogger logger : instances.values()){
-                logger.updateLog();
+                logger.updateLog("", "");
             }
         }
     }
@@ -122,7 +122,7 @@ public class CANStatusLogger implements Loggable {
 
     // --- Loggable Implementation ---
     @Override
-    public void updateLog(String prefix) {
+    public void updateLog(String standardPrefix, String inputPrefix) {
         logBusStatus();
         logDeviceStatuses();
     }

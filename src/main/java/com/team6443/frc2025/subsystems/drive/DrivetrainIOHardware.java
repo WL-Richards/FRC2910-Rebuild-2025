@@ -28,6 +28,7 @@ import com.team6443.lib.can.CANStatusLogger;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
 import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
 import com.team6443.lib.config.talonFX.TalonFXConfigEquality;
+import com.team6443.lib.logging.interfaces.Loggable;
 import com.team6443.lib.subsystems.drive.DrivetrainIO;
 import com.team6443.lib.subsystems.drive.DrivetrainInputs;
 
@@ -51,8 +52,6 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
  * Hardware implementation of the drivetrain
  */
 public class DrivetrainIOHardware extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> implements DrivetrainIO {
-    // What to prepend to logs from this subsystem
-    private String logPrefix;
 
     // Create a thread safe cached version of the telemetry that we can use to produce logs from
     private AtomicReference<SwerveDriveState> swerveTelemetryCache = new AtomicReference<>();
@@ -269,10 +268,5 @@ public class DrivetrainIOHardware extends SwerveDrivetrain<TalonFX, TalonFX, CAN
         }
         
         this.setStateStdDevs(stateStdDevs);
-    }
-
-    @Override
-    public void setLoggingPrefix(String prefix) {
-        this.logPrefix = prefix + "/IO/Hardware";
     }
 }

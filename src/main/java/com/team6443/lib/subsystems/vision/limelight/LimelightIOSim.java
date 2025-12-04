@@ -32,9 +32,6 @@ import edu.wpi.first.math.geometry.Translation2d;
  */
 public class LimelightIOSim implements LimelightIO {
 
-    // --- Logging ---
-    private String logPrefix;
-
     // --- Configuration ---
     private final SimulatedCameraConfiguration kSimulatedCameraConfiguration;
     
@@ -118,7 +115,6 @@ public class LimelightIOSim implements LimelightIO {
                     
                 }
                 inputs.tagCornerPositions = getTagCornerPositions();
-                Logger.recordOutput(this.logPrefix + "/" + kSimulatedCameraConfiguration.toString() + "/NumberOfTagCorners", kTagCorners.size());
 
                 // --- Pose Estimation ---
                 Pose3d tagPose = FieldConstants.getTagPose3d(inputs.tagID);
@@ -154,9 +150,6 @@ public class LimelightIOSim implements LimelightIO {
                         robotRotation, 
                         inputs.horizontalRotationToTag
                     );
-                    Logger.recordOutput(this.logPrefix + "/" + kSimulatedCameraConfiguration.toString() + "/CameraLocationWithRot", new Pose2d(cameraToRobotCenter.plus(SimulatedRobotState.get().getLatestFieldRobotPose().getTranslation()), new Rotation2d()));
-                    
-                    Logger.recordOutput(this.logPrefix + "/" + kSimulatedCameraConfiguration.toString() + "/TrueDistanceToTag", SimulatedRobotState.get().getLatestFieldRobotPose().getTranslation().plus(cameraToRobotCenter).getDistance(tagPose.toPose2d().getTranslation()));
                     Translation2d cameraToTag = LimelightIO.computeCameraToTag(
                         kSimulatedCameraConfiguration.kCameraConfiguration, 
                         robotRotation,
@@ -164,9 +157,6 @@ public class LimelightIOSim implements LimelightIO {
                         inputs.tagDistanceMeters
                     );
 
-                    Logger.recordOutput(this.logPrefix + "/" + kSimulatedCameraConfiguration.toString() + "/CameraTagLocation", new Pose2d(cameraToRobotCenter.plus(SimulatedRobotState.get().getLatestFieldRobotPose().getTranslation()).plus(cameraToTag), new Rotation2d()));
-
-                    
                     VisionPoseEstimation poseEstimation = LimelightIO.computeRobotPose(
                         tagPose.toPose2d(), 
                         kSimulatedCameraConfiguration.kCameraConfiguration, 
@@ -240,9 +230,8 @@ public class LimelightIOSim implements LimelightIO {
     }
 
     @Override
-    public void setLoggingPrefix(String prefix) {
-        this.logPrefix = prefix;
-        
+    public void updateLog(String standardPrefix, String inputPrefix) {
+        Logger.recordOutput(standardPrefix + "/" + kSimulatedCameraConfiguration.toString() + "/NumberOfTagCorners", kTagCorners.size());
     }
 
 }

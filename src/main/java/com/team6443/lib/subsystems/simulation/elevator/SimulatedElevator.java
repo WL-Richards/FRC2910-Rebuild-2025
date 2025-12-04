@@ -13,6 +13,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.team6443.lib.config.motors.ServoMotorConfiguration;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration.FollowerConfiguration;
+import com.team6443.lib.logging.interfaces.Loggable;
 import com.team6443.lib.motors.hardware.TalonFXIO;
 import com.team6443.lib.motors.interfaces.MotorIO.FollowDirection;
 import com.team6443.lib.motors.sim.TalonFXSimIO;
@@ -27,7 +28,7 @@ import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 /** 
  * Handles running an elevator simulation on the given hardware 
  */
-public class SimulatedElevator {
+public class SimulatedElevator implements Loggable{
 
     public static class SimulatedElevatorConfiguration {
         public double gearing;
@@ -41,7 +42,19 @@ public class SimulatedElevator {
         public double meterToRotorRatio;
     }
 
+    /**
+     * Tracks the current state of the simulated elevator
+     */
+    class SimulatedElevatorInputs {
+        double SupplyVoltage;
+        double SimVoltage;
+        double SimPositionM;
+        double RotorPosition;
+        double RotorVel;
+    }
+
     protected ElevatorVizualizer elevatorViz = new ElevatorVizualizer();
+    protected SimulatedElevatorInputs inputs = new SimulatedElevatorInputs();
 
     // Setup our instances of our simulated talons and elevator configs
     protected ServoMotorFollowerConfiguration<TalonFXConfiguration> config;
@@ -94,6 +107,18 @@ public class SimulatedElevator {
 
     }
 
+    @Override
+    public void updateLog(String standardPrefix, String inputPrefix){
+        Logger.recordOutput(standardPrefix + "/Simulation/SupplyVoltage", inputs.SupplyVoltage);
+        Logger.recordOutput(standardPrefix + "/Simulation/Voltage", inputs.SimVoltage);
+        Logger.recordOutput(standardPrefix + "/Simulation/PositionMeters", inputs.SimPositionM);
+        Logger.recordOutput(standardPrefix + "/Simulation/RotorPosition", inputs.RotorPosition);
+        Logger.recordOutput(standardPrefix + "/Simulation/VelocityMS", elevatorSimulation.getVelocityMetersPerSecond());
+
+        elevatorViz.updateViz(inputs.SimPositionM);
+        elevatorViz.updateLog(standardPrefix, inputPrefix);
+    }
+
     protected double applyFriction(double motorVoltage, double frictionVoltage) {
         if (Math.abs(motorVoltage) < frictionVoltage) {
             motorVoltage = 0.0;
@@ -104,47 +129,42 @@ public class SimulatedElevator {
         }
         return motorVoltage;
     }
+    
 
     protected void updateSimState(){
         TalonFXSimState simState = leadTalonSimulation.getSimState();
-        double supplyVoltage = RobotController.getBatteryVoltage();
 
-        Logger.recordOutput("Subsystems/" + config.kConfigurationName + "/Sim/SupplyVoltage", supplyVoltage);
+        inputs.SupplyVoltage = RobotController.getBatteryVoltage();
+        simState.setSupplyVoltage(inputs.SupplyVoltage);
 
-        simState.setSupplyVoltage(supplyVoltage);
-        double simVoltage = applyFriction(simState.getMotorVoltage(), elevatorSimulationConfiguration.frictionVoltage);
-        
-        elevatorSimulation.setInput(simVoltage);
-        Logger.recordOutput("Subsystems/" + config.kConfigurationName + "/Sim/SimulatorVoltage", simVoltage);
+        inputs.SimVoltage = applyFriction(simState.getMotorVoltage(), elevatorSimulationConfiguration.frictionVoltage);
+        elevatorSimulation.setInput(inputs.SimVoltage);
 
         double timestamp = Timer.getFPGATimestamp();
         elevatorSimulation.update(timestamp - lastUpdateTimestamp);
         lastUpdateTimestamp = timestamp;
 
         // Find current state of sim in M
-        double simPositionM = elevatorSimulation.getPositionMeters();
-        Logger.recordOutput("Subsystems/" + config.kConfigurationName  + "/Sim/SimulatorPositionMeters", simPositionM);
+        inputs.SimPositionM = elevatorSimulation.getPositionMeters();
 
         // Mutate rotor position
-        double rotorPosition = simPositionM / elevatorSimulationConfiguration.meterToRotorRatio;
-        simState.setRawRotorPosition(rotorPosition);
-        Logger.recordOutput("Subsystems/" + config.kConfigurationName + "/Sim/setRawRotorPosition", rotorPosition);
+        inputs.RotorPosition = inputs.SimPositionM / elevatorSimulationConfiguration.meterToRotorRatio;
+        simState.setRawRotorPosition(inputs.RotorPosition);
 
         // Mutate rotor vel
-        double rotorVel = elevatorSimulation.getVelocityMetersPerSecond() / elevatorSimulationConfiguration.meterToRotorRatio;
-        simState.setRotorVelocity(rotorVel);
-        Logger.recordOutput(
-                "Subsystems/" + config.kConfigurationName + "/Sim/SimulatorVelocityMS", elevatorSimulation.getVelocityMetersPerSecond());
+        inputs.RotorVel = elevatorSimulation.getVelocityMetersPerSecond() / elevatorSimulationConfiguration.meterToRotorRatio;
+        simState.setRotorVelocity(inputs.RotorVel);
+        
 
         for (int i = 0; i < followerTalonSimulations.length; ++i) {
             followerTalonSimulations[i].getSimState().setRawRotorPosition(
-                    rotorPosition * (this.config.followerConfigurations.get(i).followDirection == FollowDirection.INVERT ? 1.0 : -1.0));
+                inputs.RotorPosition * (this.config.followerConfigurations.get(i).followDirection == FollowDirection.INVERT ? 1.0 : -1.0));
                     
             followerTalonSimulations[i].getSimState().setRotorVelocity(
-                    rotorVel * (this.config.followerConfigurations.get(i).followDirection == FollowDirection.INVERT ? 1.0 : -1.0));
+                inputs.RotorVel * (this.config.followerConfigurations.get(i).followDirection == FollowDirection.INVERT ? 1.0 : -1.0));
         }
 
-        elevatorViz.updateViz(simPositionM);
+        
     }
 
     public TalonFXIO getLeadTalon() {

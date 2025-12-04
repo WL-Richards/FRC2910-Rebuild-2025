@@ -7,6 +7,7 @@ package com.team6443.lib.subsystems.vision.limelight;
 import java.util.List;
 
 import com.team6443.lib.constants.FieldConstants;
+import com.team6443.lib.logging.interfaces.Loggable;
 import com.team6443.lib.RobotState;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.subsystems.vision.util.AprilTagCornerPosition;
@@ -20,7 +21,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 /** 
  * Interface to represent data and functionality that can be preformed by a Limelight camera
  */
-public interface LimelightIO extends CameraIO {
+public interface LimelightIO extends CameraIO, Loggable {
 
     class VisionPoseEstimation {
         public Pose2d latencyCompensatedRobotFieldPose; // Robot field pose compensating for camera latency
@@ -71,12 +72,6 @@ public interface LimelightIO extends CameraIO {
      * @return True on success false on failure
      */
     public boolean setThrottle(int throttle);
-
-    /**
-     * Set the prefix that logs should prepended with
-     * @param prefix Logging prefix
-     */
-    public void setLoggingPrefix(String prefix) ;
 
     // --- '2910 Style' Trigonometric Robot Pose Computation ---
 

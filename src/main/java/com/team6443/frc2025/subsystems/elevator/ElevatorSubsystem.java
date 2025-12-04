@@ -11,8 +11,8 @@ import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
 import com.team6443.lib.motors.MotorInputs;
 import com.team6443.lib.motors.interfaces.MotorIO;
 import com.team6443.lib.subsystems.ServoMotorFollowerSubsystem;
+import com.team6443.lib.subsystems.elevator.ElevatorIO;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ElevatorSubsystem extends ServoMotorFollowerSubsystem<
@@ -21,26 +21,24 @@ public class ElevatorSubsystem extends ServoMotorFollowerSubsystem<
                                         ServoMotorFollowerConfiguration<TalonFXConfiguration>
                                       >
 {
-
-  private String logPrefix;
+  private final ElevatorIO elevator;
 
   /** Creates a new ElevatorSubsystem. */
   public ElevatorSubsystem(
     ServoMotorFollowerConfiguration<TalonFXConfiguration> config,
-    MotorIO leadMotor,
-    MotorIO[] followerMotors
+    ElevatorIO elevator
   ) {
 
     // Create instance of the servo motor follower subsystem
     super(
       new MotorInputs(), 
-      leadMotor, 
-      generateDefaultFollowerInputs(followerMotors), 
-      followerMotors,
+      elevator.getLeadMotor(), 
+      generateDefaultFollowerInputs(elevator.getFollowerMotors()), 
+      elevator.getFollowerMotors(),
       config
     );
 
-    this.logPrefix = "Subsystems/" + config.kConfigurationName;
+    this.elevator = elevator;
 
     // Zero the encoders, set the default command to effectively "hold position"
     zeroEncoderPosition();
@@ -56,6 +54,11 @@ public class ElevatorSubsystem extends ServoMotorFollowerSubsystem<
     return smartPositionSetpointCommand(this::getPositionSetpointUnits)
       .withName("HoldPosition")
       .ignoringDisable(true);
+  }
+
+  @Override
+  public void updateLog(String standardPrefix, String inputPrefix) {
+    elevator.updateLog(standardPrefix, inputPrefix);
   }
 
 }

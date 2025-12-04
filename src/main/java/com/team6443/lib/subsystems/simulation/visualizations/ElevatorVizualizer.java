@@ -9,13 +9,15 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
+import com.team6443.lib.logging.interfaces.Loggable;
+
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 
 /**
  * 
  */
-public class ElevatorVizualizer {
+public class ElevatorVizualizer implements Loggable{
     private Color8Bit white = new Color8Bit(Color.kWhite);
     private LoggedMechanism2d viz2d = new LoggedMechanism2d(1.27, 2.032);
     private final LoggedMechanismRoot2d root = viz2d.getRoot("elevatorRoot", 0.75, 0.51);
@@ -27,6 +29,10 @@ public class ElevatorVizualizer {
 
     public void updateViz(double height){
         this.root.setPosition(0.75, 0.51 + height);
-        Logger.recordOutput("Visualizations/ElevatorViz", this.viz2d);
+    }
+
+    @Override
+    public void updateLog(String standardPrefix, String inputPrefix) {
+        Logger.recordOutput(standardPrefix + "/ElevatorViz", this.viz2d);
     }
 }

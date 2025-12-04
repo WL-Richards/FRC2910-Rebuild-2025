@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
  * Drive train interface describing how to interface with some drivetrain
  */
 public interface DrivetrainIO {
-
+    
     /**
      * Update the state of the drive train
      * @param inputs The inputs that are to be updated by the internal state
@@ -58,9 +58,5 @@ public interface DrivetrainIO {
      */
     void setOdometryStdDevs(double xStd, double yStd, double rotStd);
 
-    /**
-     * Set the logging prefix of the drive train to that of the subsystem
-     * @param prefix Prefix to prepend logs with for organization
-     */
-    void setLoggingPrefix(String prefix);
+   
 }

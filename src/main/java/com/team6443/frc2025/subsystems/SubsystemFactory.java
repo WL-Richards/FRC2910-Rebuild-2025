@@ -9,6 +9,8 @@ import com.team6443.frc2025.constants.RobotRuntimeConstants;
 import com.team6443.frc2025.subsystems.drive.DrivetrainIOHardware;
 import com.team6443.frc2025.subsystems.drive.DrivetrainIOSim;
 import com.team6443.frc2025.subsystems.drive.DrivetrainSubsystem;
+import com.team6443.frc2025.subsystems.elevator.ElevatorIOHardware;
+import com.team6443.frc2025.subsystems.elevator.ElevatorIOSim;
 import com.team6443.frc2025.subsystems.elevator.ElevatorSubsystem;
 import com.team6443.frc2025.subsystems.vision.VisionSubsystem;
 import com.team6443.lib.config.camera.CameraConfiguration;
@@ -44,11 +46,13 @@ public class SubsystemFactory {
         switch (RobotRuntimeConstants.kCurrentRuntimeMode) {
             // ---- Simulation instance of elevator ----
             case SIM:
-                SimulatedElevator simElevator = new SimulatedElevator(elevatorConfig, simulatedElevatorConfig);
+                
                 elevator = new ElevatorSubsystem(
                     elevatorConfig,
-                    simElevator.getLeadTalon(), 
-                    simElevator.getFollowerTalons()
+                    new ElevatorIOSim(
+                        elevatorConfig, 
+                        simulatedElevatorConfig
+                    )
                 );
                 break;
 
@@ -58,10 +62,7 @@ public class SubsystemFactory {
             default:
                 elevator = new ElevatorSubsystem(
                     elevatorConfig,
-                    TalonFXFactory.createIO(elevatorConfig), 
-                    new TalonFXIO[] {
-                        TalonFXFactory.createIO(elevatorConfig.followerConfigurations.get(0).config)
-                    }
+                    new ElevatorIOHardware(elevatorConfig)
                 );
                 break;
         }

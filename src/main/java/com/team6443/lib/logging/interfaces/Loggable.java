@@ -13,11 +13,11 @@ public interface Loggable {
      * Default calls the updateLog funtion with no prefix
      */
     public default void updateLog(){
-        updateLog("");    }
+        updateLog("", "");    }
 
     /**
      * Called to log the data from this element
      * @param prefix What comes before this file in the Log path, this should end with a / 
      */
-    public abstract void updateLog(String prefix);
+    public abstract void updateLog(String standardPrefix, String inputPrefix);
 }

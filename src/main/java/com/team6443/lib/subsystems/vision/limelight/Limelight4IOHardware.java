@@ -21,9 +21,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 /** Code of interfacing with a limelight 3A */
 public class Limelight4IOHardware implements LimelightIO {
 
-    // --- Logging ---
-    private String logPrefix;
-
     // --- Network Table Entries ---
     // Network tables that the limelight 4 uses to communicate
     private final NetworkTableEntry kValidTagEntry;
@@ -89,7 +86,7 @@ public class Limelight4IOHardware implements LimelightIO {
             
         }
         inputs.tagCornerPositions = getTagCornerPositions();
-        Logger.recordOutput(this.logPrefix + "/" + kConfiguration.toString() + "/NumberOfTagCorners", kTagCorners.size());
+        
         
        
         // --- Pose Estimation ---
@@ -170,8 +167,7 @@ public class Limelight4IOHardware implements LimelightIO {
     }
 
     @Override
-    public void setLoggingPrefix(String prefix) {
-        this.logPrefix = prefix;
-        
+    public void updateLog(String standardPrefix, String inputPrefix) {
+        Logger.recordOutput(standardPrefix + "/" + kConfiguration.toString() + "/NumberOfTagCorners", kTagCorners.size());
     }
 }

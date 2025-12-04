@@ -31,8 +31,6 @@ import edu.wpi.first.wpilibj.Timer;
  * testing and development.
  */
 public class DrivetrainIOSim extends DrivetrainIOHardware {
-    // What to prepend to logs from this subsystem
-    private String logPrefix;
 
     // Simulation helpers
     private Notifier simulationThread = null;        
@@ -119,14 +117,6 @@ public class DrivetrainIOSim extends DrivetrainIOHardware {
      */
     public MapleSimSwerveDrivetrain getMapleSimDrive() {
         return drivetrainSim;
-    }
-
-    /**
-     * Set the logging prefix for this IO class
-     */
-    @Override
-    public void setLoggingPrefix(String prefix) {
-        this.logPrefix = prefix + "/IO/Sim";
     }
 
 }

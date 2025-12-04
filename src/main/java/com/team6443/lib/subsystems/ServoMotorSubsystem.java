@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.team6443.frc2025.subsystems.AEMSubsystem;
 import com.team6443.lib.config.motors.ServoMotorConfiguration;
 import com.team6443.lib.motors.MotorInputs;
 import com.team6443.lib.motors.interfaces.MotorIO;
@@ -70,7 +71,7 @@ public abstract class ServoMotorSubsystem<
       M extends MotorIO, 
       C extends ServoMotorConfiguration<?>
     > 
-extends SubsystemBase {
+extends AEMSubsystem {
 
   // The motor IO object itself that we are commanding
   protected M motor;
@@ -84,8 +85,6 @@ extends SubsystemBase {
   // The current position in servo motor configuration units of where this motor should be 
   protected double currentPositionSetpoint = 0;
 
-  // Prefix that this motor should ues for logs 
-  private String logPrefix;
 
   /**
    * Create new servo motor subsystem with the desired motor and motor config
@@ -102,8 +101,31 @@ extends SubsystemBase {
     this.config = motorConfiguration;
     this.motorInputs = motorInputs;
     this.motor = motor;
-    this.logPrefix = "Subsystems/" + motorConfiguration.kConfigurationName + "/ServoMotorSubsystem";
 
+    setDefaultCommand(
+      dutyCycleCommand(() -> 0.0)
+        .withName("DefaultNeutral")
+        .ignoringDisable(true)  // Do this even when disabled
+    );
+  }
+
+  /**
+   * Create new servo motor subsystem with the desired motor and motor config
+   * @param motorInputs The motor inputs object that this servo motor is using to track the state
+   * @param motor The MotorIO type that this servo motor subsystem is driving
+   * @param motorConfiguration The ServoMotorConfiguration that is in use with this system
+   */
+  public ServoMotorSubsystem(
+    String name,
+    I motorInputs, 
+    M motor, 
+    C motorConfiguration
+  ){
+    super(name);
+    this.config = motorConfiguration;
+    this.motorInputs = motorInputs;
+    this.motor = motor;
+    
     setDefaultCommand(
       dutyCycleCommand(() -> 0.0)
         .withName("DefaultNeutral")
@@ -114,21 +136,23 @@ extends SubsystemBase {
   @Override
   public void periodic() {
     motor.updateInputs(motorInputs);
-    updateLogs();
+    updateLog();
   }
 
   /**
    * Update the logs for this subsystem
    */
-  private void updateLogs(){
+  @Override
+  public void updateLog(String standardPrefix, String inputPrefix){
     // Log the inputs for this motor
     Logger.processInputs(
-      "RealOutputs/" + logPrefix + "/Inputs", 
+      inputPrefix + "/Inputs", 
       motorInputs
     );
+
     // Record the current command being executed on this motor
     Logger.recordOutput(
-      logPrefix + "/CurrentCommand", 
+      standardPrefix + "/CurrentCommand", 
       (getCurrentCommand() == null) ? "NONE" : getCurrentCommand().getName());
   }
   
@@ -177,35 +201,35 @@ extends SubsystemBase {
   }
 
   protected void setNeutralModeImpl(MotorIO.NeutralMode mode){
-    Logger.recordOutput(logPrefix + "/SetNeutralMode", mode.toString());
+    Logger.recordOutput(kLogPrefixStandard + "/SetNeutralMode", mode.toString());
     motor.setNeutralMode(mode);
   }
 
   // ------  Duty Cycle Control ------
 
   protected void setOpenLoopDutyCycleImpl(double dutyCycle){
-    Logger.recordOutput(logPrefix + "/SetOpenLoopDutyCycle", dutyCycle);
+    Logger.recordOutput(kLogPrefixStandard + "/SetOpenLoopDutyCycle", dutyCycle);
     motor.setOpenLoopDutyCycle(dutyCycle);
   }
 
   // ------  Voltage Control ------
 
   protected void setVoltageImpl(double voltage){
-    Logger.recordOutput(logPrefix + "/SetVoltage", voltage);
+    Logger.recordOutput(kLogPrefixStandard + "/SetVoltage", voltage);
     motor.setVoltageOutput(voltage);
   }
   
   // ------  Torque Control ------
 
   protected void setTorqueCurrentImpl(double current){
-    Logger.recordOutput(logPrefix + "/SetTorqueCurrent", current);
+    Logger.recordOutput(kLogPrefixStandard + "/SetTorqueCurrent", current);
     motor.setTorqueCurrent(current);
   }
 
   // ------  PID Velocity Control ------
 
   protected void setPIDVelocitySetpointImpl(double velocity, int slot){
-    Logger.recordOutput(logPrefix + "/SetPIDVelocitySetpoint", velocity);
+    Logger.recordOutput(kLogPrefixStandard + "/SetPIDVelocitySetpoint", velocity);
     motor.setPIDVelocitySetpoint(velocity, slot);
   }
 
@@ -217,7 +241,7 @@ extends SubsystemBase {
 
   protected void setPIDPositionSetpointImpl(double position, int slot){
     currentPositionSetpoint = position;
-    Logger.recordOutput(logPrefix + "/SetPIDPositionSetpoint", position);
+    Logger.recordOutput(kLogPrefixStandard + "/SetPIDPositionSetpoint", position);
     motor.setPIDPositionSetpoint(position, slot);
   }
 
@@ -233,8 +257,8 @@ extends SubsystemBase {
 
   protected void setSmartPositionSetpointImpl(double position, int slot){
       currentPositionSetpoint = position;
-      Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Position", position);
-      Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Slot", slot);
+      Logger.recordOutput(kLogPrefixStandard + "/SetSmartPositionSetpoint/Position", position);
+      Logger.recordOutput(kLogPrefixStandard + "/SetSmartPositionSetpoint/Slot", slot);
       motor.setSmartPositionSetpoint(position, slot);
   }
 
@@ -271,21 +295,21 @@ extends SubsystemBase {
     int slot
   ){
     currentPositionSetpoint = position;
-    Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Position", position);
-    Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Velocity", velocity);
-    Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Acceleration", acceleration);
+    Logger.recordOutput(kLogPrefixStandard + "/SetSmartPositionSetpoint/Position", position);
+    Logger.recordOutput(kLogPrefixStandard + "/SetSmartPositionSetpoint/Velocity", velocity);
+    Logger.recordOutput(kLogPrefixStandard + "/SetSmartPositionSetpoint/Acceleration", acceleration);
 
-    Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Jerk", jerk);
-    Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Feedforward", feedforward);
-    Logger.recordOutput(logPrefix + "/SetSmartPositionSetpoint/Slot", slot);
+    Logger.recordOutput(kLogPrefixStandard + "/SetSmartPositionSetpoint/Jerk", jerk);
+    Logger.recordOutput(kLogPrefixStandard + "/SetSmartPositionSetpoint/Feedforward", feedforward);
+    Logger.recordOutput(kLogPrefixStandard + "/SetSmartPositionSetpoint/Slot", slot);
     motor.setDynamicSmartPositionSetpoint(position, velocity, acceleration, jerk, feedforward, slot);
   }
 
   // ------ Dynamic Motion Profiled Velocity Control ------
 
   protected void setSmartVelocitySetpointImpl(double velocity, int slot){
-    Logger.recordOutput(logPrefix + "/SetSmartVelocitySetpoint/Velocity", velocity);
-    Logger.recordOutput(logPrefix + "/SetSmartVelocitySetpoint/Slot", slot);
+    Logger.recordOutput(kLogPrefixStandard + "/SetSmartVelocitySetpoint/Velocity", velocity);
+    Logger.recordOutput(kLogPrefixStandard + "/SetSmartVelocitySetpoint/Slot", slot);
     motor.setSmartVelocitySetpoint(velocity, slot);
   }
 

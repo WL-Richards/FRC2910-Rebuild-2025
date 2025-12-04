@@ -9,32 +9,29 @@ import java.util.List;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.team6443.frc2025.subsystems.AEMSubsystem;
 import com.team6443.lib.RobotState;
 import com.team6443.lib.config.camera.CameraConfiguration;
-import com.team6443.lib.config.camera.CameraConfiguration.Location;
+
 import com.team6443.lib.subsystems.vision.VisionInputs;
 import com.team6443.lib.subsystems.vision.VisionInputs.AprilTagObservations;
 import com.team6443.lib.subsystems.vision.limelight.LimelightIO;
 
 
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class VisionSubsystem extends SubsystemBase {
+
+public class VisionSubsystem extends AEMSubsystem {
 
   // Limelight object with its corresponding inputs
   private final List<Pair<LimelightIO, VisionInputs>> limelightsWithInputsList = new ArrayList<>();
 
-  // What to prepend to logs from this subsystem
-  private final String logPrefix;
-
   /** Creates a new VisionSubsystem. */
   public VisionSubsystem(LimelightIO... limelights) {
-    this.logPrefix = "Subsystems/VisionSubsystem";
+    super("VisionSubsystem");
 
     for (LimelightIO limelight : limelights){
       limelightsWithInputsList.add(Pair.of(limelight, new VisionInputs()));
-      limelight.setLoggingPrefix(logPrefix);
     }
   }
 
@@ -50,7 +47,8 @@ public class VisionSubsystem extends SubsystemBase {
       VisionInputs inputs = limelightWithInput.getSecond();
 
       limelight.updateInputs(inputs);
-      Logger.processInputs("RealOutputs/" + logPrefix + "/" + limelight.getConfiguration().toString(), inputs);
+      Logger.processInputs(kLogPrefixInput + "/" + limelight.getConfiguration().toString(), inputs);
+      limelight.updateLog();
 
       // If this input has a valid robot pose we want to add it to our observation list
       if(inputs.hasTag && inputs.robotPoseBasedOffTagLocationLatencyCompensated != null){
@@ -74,8 +72,7 @@ public class VisionSubsystem extends SubsystemBase {
       
       if (observation.cameraLocation == CameraConfiguration.Location.FRONT_LEFT|| observation.cameraLocation == CameraConfiguration.Location.FRONT_RIGHT){
         if(observation.tagID == 18 ){
-          Logger.recordOutput(logPrefix + "/VisionEstimatedRobotPose", RobotState.get().getAprilTagObservations().size() > 0 ? RobotState.get().getAprilTagObservations().get(0).robotPoseFromCamera : null);
-
+          Logger.recordOutput(kLogPrefixStandard + "/VisionEstimatedRobotPose", RobotState.get().getAprilTagObservations().size() > 0 ? RobotState.get().getAprilTagObservations().get(0).robotPoseFromCamera : null);
         }
         break;
       }
@@ -91,5 +88,9 @@ public class VisionSubsystem extends SubsystemBase {
       var io = camera.getFirst();
       io.setThrottle(throttle);
     }
+  }
+
+  @Override
+  public void updateLog(String standardPrefix, String inputPrefix) {
   }
 }

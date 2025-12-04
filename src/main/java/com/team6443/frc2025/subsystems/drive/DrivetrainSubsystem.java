@@ -9,19 +9,17 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.google.flatbuffers.Constants;
-import com.team6443.frc2025.constants.RobotRuntimeConstants;
+
 import com.team6443.frc2025.subsystems.AEMSubsystem;
 import com.team6443.lib.config.odometry.OdometryStandardDevs;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
+import com.team6443.lib.logging.interfaces.Loggable;
 import com.team6443.lib.subsystems.drive.DrivetrainIO;
 import com.team6443.lib.subsystems.drive.DrivetrainInputs;
 import com.team6443.lib.subsystems.simulation.drive.MapleSimSwerveDrivetrain;
 import com.team6443.lib.subsystems.simulation.visualizations.SwerveVisualizer;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -29,7 +27,6 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DrivetrainSubsystem extends AEMSubsystem {
 
@@ -58,7 +55,6 @@ public class DrivetrainSubsystem extends AEMSubsystem {
 
     this.configuration = configuration;
     this.drivetrain = drivetrain;
-    this.drivetrain.setLoggingPrefix(kLogPrefixStandard);
   }
 
   @Override
@@ -67,7 +63,7 @@ public class DrivetrainSubsystem extends AEMSubsystem {
     drivetrain.updateInputs(inputs);
 
     // Log the state of the drive train
-    updateLogs();
+    updateLog();
     drivetrain.logModules(inputs, kLogPrefixStandard);
 
 
@@ -99,13 +95,13 @@ public class DrivetrainSubsystem extends AEMSubsystem {
 
   // ---- Logging ----
   @Override
-  protected void updateLogs() {
-    Logger.processInputs(kLogPrefixStandard + "/Inputs", inputs);
+  public void updateLog(String standardPrefix, String inputPrefix) {
+    Logger.processInputs(inputPrefix + "/Inputs", inputs);
 
-    Logger.recordOutput(kLogPrefixStandard + "/Odometry/Speed", new Translation2d(inputs.Speeds.vxMetersPerSecond, inputs.Speeds.vyMetersPerSecond).getNorm());
-    Logger.recordOutput(kLogPrefixStandard + "/Odometry/VelocityX", inputs.Speeds.vxMetersPerSecond);
-    Logger.recordOutput(kLogPrefixStandard + "/Odometry/VelocityY", inputs.Speeds.vyMetersPerSecond);
-    Logger.recordOutput(kLogPrefixStandard + "/Odometry/OdomPeriod", inputs.OdometryPeriod);
+    Logger.recordOutput(standardPrefix + "/Odometry/Speed", new Translation2d(inputs.Speeds.vxMetersPerSecond, inputs.Speeds.vyMetersPerSecond).getNorm());
+    Logger.recordOutput(standardPrefix + "/Odometry/VelocityX", inputs.Speeds.vxMetersPerSecond);
+    Logger.recordOutput(standardPrefix + "/Odometry/VelocityY", inputs.Speeds.vyMetersPerSecond);
+    Logger.recordOutput(standardPrefix + "/Odometry/OdomPeriod", inputs.OdometryPeriod);
 
     if (DriverStation.isDisabled() || RobotBase.isSimulation()) {
         field.setRobotPose(inputs.Pose);
@@ -113,9 +109,7 @@ public class DrivetrainSubsystem extends AEMSubsystem {
 
     // Update the swerve module states
     swerveViz.updateSwerveState(inputs);
-    Logger.recordOutput(kLogPrefixStandard + "/Modules/States", inputs.ModuleStates);
-    
-
+    Logger.recordOutput(standardPrefix + "/Modules/States", inputs.ModuleStates);
   }
 
   // ---- Odometry updates ----

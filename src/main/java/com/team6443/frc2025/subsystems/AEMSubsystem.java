@@ -4,9 +4,11 @@
 
 package com.team6443.frc2025.subsystems;
 
+import com.team6443.lib.logging.interfaces.Loggable;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public abstract class AEMSubsystem extends SubsystemBase {
+public abstract class AEMSubsystem extends SubsystemBase implements Loggable {
 
   // Name of the subsystem that is in use
   public final String kSubsystemName;
@@ -25,6 +27,8 @@ public abstract class AEMSubsystem extends SubsystemBase {
     this.kLogPrefixInput = "RealOutputs/" + kLogPrefixStandard;
   }
 
-  protected abstract void updateLogs();
-
+  @Override
+  public void updateLog(){
+    this.updateLog(this.kLogPrefixStandard, this.kLogPrefixInput);
+  }
 }
