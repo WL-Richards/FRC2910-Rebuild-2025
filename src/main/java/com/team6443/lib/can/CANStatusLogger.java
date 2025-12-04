@@ -32,6 +32,27 @@ public class CANStatusLogger implements Loggable {
     // ------ Singleton setup ------ 
     private static Map<String, CANStatusLogger> instances = new HashMap<String, CANStatusLogger>();
 
+    // --- Logger update rates ---
+    private static final double StatusUpdateRateDisabledHz = 100;
+    private static final double StatusUpdateRateEnabledHz = 1;        
+
+    private static boolean isRobotEnabled = false;
+    private static int updateAttempts = 0; // when robot is enabled we want to try a few times before updating the logs
+
+    /**
+     * We want to know if we should be updating logs this loop, this will slow log updates when enabled
+     * @return If we can update the logs this loop
+     */
+    private static boolean canUpdateLogs(){
+        if (isRobotEnabled && updateAttempts < 50){
+            updateAttempts++;
+            return false;
+        }
+
+        updateAttempts = 0;
+        return true;
+    }
+
     /**
      * Retrieve the status logger for the desired CAN bus (supports multiple)
      * @return Reference to the desired CAN status logger
@@ -46,15 +67,48 @@ public class CANStatusLogger implements Loggable {
         return logger;
     }
 
+
+
     /**
      * Update the logs for all CAN status loggers
      */
     public static void updateAllLogs(){
-        if(DriverStation.isDisabled()){ // Only update CAN statuses when the robot is disabled
-            for(CANStatusLogger logger : instances.values()){
-                logger.updateLog("", "");
+        if(canUpdateLogs()){
+            if(DriverStation.isDisabled()){ // Only update CAN statuses when the robot is disabled
+                for(CANStatusLogger logger : instances.values()){
+                    logger.updateLog("", "");
+                }
             }
         }
+    }
+
+    private static void updateLoggerFrequency(double frequencyHz){
+        for(CANStatusLogger logger : instances.values()){
+            for (CANDeviceID device : logger.devices){
+                if(device.getCTREStatusSignal() != null){
+                    device.getCTREStatusSignal().setUpdateFrequency(frequencyHz);
+                }
+            }
+        }
+    }
+    
+    /**
+     * The robot is now in an enabled state logging update rates should be drastically reduced
+     */
+    public static void SetRobotEnabled(){
+        isRobotEnabled = true;
+        updateLoggerFrequency(StatusUpdateRateEnabledHz);
+        System.out.println("[CANStatus] Robot now enabled! Update rate has been slowed.");
+    }
+
+    /**
+     * The robot is now in an disabled state logging update rates should be returned to 
+     */
+    public static  void SetRobotDisabled(){
+        isRobotEnabled = false;
+        updateLoggerFrequency(StatusUpdateRateDisabledHz);
+        System.out.println("[CANStatus] Robot now disabled! Update rate has increased.");
+
     }
 
     // ------ Actual class methods below here ------
@@ -126,6 +180,7 @@ public class CANStatusLogger implements Loggable {
         logBusStatus();
         logDeviceStatuses();
     }
+
 
     private void populateCTRESignals(){
 

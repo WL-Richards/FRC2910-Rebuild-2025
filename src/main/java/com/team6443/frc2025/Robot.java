@@ -28,6 +28,9 @@ public class Robot extends LoggedRobot {
     
     // Update the robot state
     RobotState.get().updateLog();
+
+    // CAN updates can be run here, and will be throttled to improve robot performance
+    //CANStatusLogger.updateAllLogs();
   }
 
   @Override
@@ -37,17 +40,21 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    CANStatusLogger.SetRobotDisabled();     // Tell the can logger the robot is now disabled and it can update faster
+  }
 
   @Override
   public void disabledPeriodic() {
 
-    // Only update CAN status logging when disabled to save on performance
+    // But im still just gonna run them here for now
     CANStatusLogger.updateAllLogs();
   }
 
   @Override
-  public void disabledExit() {}
+  public void disabledExit() {
+    CANStatusLogger.SetRobotEnabled();    // Tell the can logger the robot is now enabled and we should update the logs slower
+  }
 
   @Override
   public void autonomousInit() {}
