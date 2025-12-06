@@ -9,6 +9,7 @@ import java.util.List;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.team6443.frc2025.config.robots.nautilus.Nautilus;
+import com.team6443.lib.config.autonomous.ChoreoPathingConfiguration;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
@@ -33,11 +34,27 @@ public abstract class RobotConfig {
     /**
      * Configuration that will be passed into the drivetrain configuration
      * 
-     * @return
+     * @return The current robot drivetrain configuration
      */
     public abstract DrivetrainConfiguration getDrivetrainConfiguration();
+
+    /**
+     * Retrieve the configuration for the swerve modules on the robot
+     * @return List of SwerveModuleConfigurations in FL, FR, BL, BR order
+     */
     public abstract List<SwerveModuleConfiguration<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> getSwerveConfigurations();
+    
+    /**
+     * Get configuration details about the drive train sim for this robot
+     * @return DrivetrainSimConfiguration of the given robot
+     */
     public abstract DrivetrainSimConfiguration getSimulatedDrivetrainConfiguration();
+
+    /**
+     * Retrieve the given ChoreoPathing module for this robot configuration
+     * @return ChoreoPathing module for the given robot configuration
+     */
+    public abstract ChoreoPathingConfiguration getChoreoPathingConfiguration();
 
     /**
      * Get the configuration for the Elevator subsystem on this bot

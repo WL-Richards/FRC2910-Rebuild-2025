@@ -9,8 +9,12 @@ import com.team6443.frc2025.subsystems.SubsystemFactory;
 import com.team6443.frc2025.subsystems.drive.DrivetrainSubsystem;
 import com.team6443.frc2025.subsystems.elevator.ElevatorSubsystem;
 import com.team6443.frc2025.subsystems.vision.VisionSubsystem;
+import com.team6443.lib.autonomous.ChoreoPathing;
 import com.team6443.lib.input.XboxInputImplementation;
 import com.team6443.lib.logging.interfaces.Loggerable;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 public class RobotContainer implements Loggerable {
 
@@ -23,20 +27,19 @@ public class RobotContainer implements Loggerable {
   // --- Drive train system ---
   private final DrivetrainSubsystem drivetrainSubsystem = SubsystemFactory.createDrivetrainSubsystem();
   private final DriveWithHeadingCommand drivetrainDefaultCommand = new DriveWithHeadingCommand(
-    drivetrainSubsystem, 
+    drivetrainSubsystem,
+    RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration(),
     primaryController::getThrottle,   // throttle
     primaryController::getStrafe,     // strafe
-    primaryController::getRotation,   // turn
-    RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kChassisTranslationSpeedThreshold, // Chassis translational speed threshold
-    RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kChassisRotationalSpeedThreshold,  // Chassis rotational speed threshold
-    RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kDriveJoystickDeadband,            // Drive joystick deadband
-    RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kSteerJoystickDeadband,            // Steer joystick deadband
-    RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kMaxDriveSpeed,                    // The max drive speed of the robot
-    RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration().kMaxAngularRate                    // The max angular rate of the robot
+    primaryController::getRotation   // turn
+    
   );
 
   // --- Vision system ---
   private final VisionSubsystem visionSubsystem = SubsystemFactory.createVisionSubsystem();
+
+  // --- Auto Factory ---
+  private final ChoreoPathing choreoPathing = SubsystemFactory.createChoreoPathing(drivetrainSubsystem);
 
   public RobotContainer() {
     configureBindings();
@@ -45,5 +48,12 @@ public class RobotContainer implements Loggerable {
   private void configureBindings() {
     // Set default drive train command
     drivetrainSubsystem.setDefaultCommand(drivetrainDefaultCommand);
+  }
+
+  public Command createTestPath(){
+    return Commands.sequence(
+      choreoPathing.getAutoFactory().resetOdometry("TestPath"),
+      choreoPathing.getAutoFactory().trajectoryCmd("TestPath")
+    );
   }
 }

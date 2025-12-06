@@ -61,14 +61,14 @@ public class NautilusCameraConfiguration {
     public final CameraConfiguration kFrontRightCameraConfiguration = new CameraConfiguration(Location.FRONT_RIGHT)
         .withCameraPose(
             new Translation3d(
-                Units.inchesToMeters(9),    // X (forward)
-                Units.inchesToMeters(-6), // Y (right)
+                Units.inchesToMeters(9),      // X (forward)
+                Units.inchesToMeters(-6),            // Y (right)
                 Units.inchesToMeters(8.479)   // Z (up)
             ),
             new Rotation3d(
-            Units.degreesToRadians(0),    // Roll
-            Units.degreesToRadians(0),            // Pitch
-            Units.degreesToRadians(0)       // Yaw
+            Units.degreesToRadians(0),       // Roll
+            Units.degreesToRadians(0),       // Pitch
+            Units.degreesToRadians(0)        // Yaw
             )
         )
         .withCameraDistanceScalar(1, 1)
