@@ -53,7 +53,9 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    robotContainer.createTestPath().schedule();
+  }
 
   @Override
   public void autonomousPeriodic() {}

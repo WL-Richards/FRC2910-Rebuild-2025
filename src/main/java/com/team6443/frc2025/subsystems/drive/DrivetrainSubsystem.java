@@ -19,6 +19,8 @@ import com.team6443.lib.subsystems.drive.DrivetrainInputs;
 import com.team6443.lib.subsystems.simulation.drive.MapleSimSwerveDrivetrain;
 import com.team6443.lib.subsystems.simulation.visualizations.SwerveVisualizer;
 
+import choreo.trajectory.SwerveSample;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -93,6 +95,7 @@ public class DrivetrainSubsystem extends AEMSubsystem {
     return this;
   }
 
+
   // ---- Logging ----
   @Override
   public void updateLog(String standardPrefix, String inputPrefix) {
@@ -116,8 +119,6 @@ public class DrivetrainSubsystem extends AEMSubsystem {
   public void resetOdometry(Pose2d pose) {
     drivetrain.resetOdometry(pose);
   }
-
-  // --- Drive train commanding ----
 
   /**
    * Start a continuous command to apply new swerve drive requests each loop

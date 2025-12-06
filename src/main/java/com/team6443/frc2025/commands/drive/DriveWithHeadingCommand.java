@@ -10,6 +10,8 @@ import java.util.function.DoubleSupplier;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.team6443.frc2025.subsystems.drive.DrivetrainSubsystem;
+import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -46,15 +48,10 @@ public class DriveWithHeadingCommand extends Command {
 
   public DriveWithHeadingCommand(
     DrivetrainSubsystem subsystem, 
+    DrivetrainConfiguration driveTrainConfiguration,
     DoubleSupplier throttle,
     DoubleSupplier strafe,
-    DoubleSupplier turn,
-    double chassisTranslationSpeedThreshold,
-    double chassisRotationalSpeedThreshold,
-    double throttleDeadband,
-    double turnDeadband,
-    double maxDriveSpeed,
-    double maxAngularRate
+    DoubleSupplier turn
   ) {
      this.drivetrainSubsystem = subsystem;
      addRequirements(this.drivetrainSubsystem);
@@ -64,19 +61,19 @@ public class DriveWithHeadingCommand extends Command {
      this.turnSupplier = turn;
 
      // Fetch once, every loop is slow
-     this.kMaxDriveSpeed = maxDriveSpeed;
-     this.kMaxAngularRate = maxAngularRate;
-     this.kJoystickSteerDeadband = turnDeadband;
-     this.kJoystickDriveDeadband = throttleDeadband;
+     this.kMaxDriveSpeed = driveTrainConfiguration.kMaxDriveSpeed;
+     this.kMaxAngularRate = driveTrainConfiguration.kMaxAngularRate;
+     this.kJoystickSteerDeadband = driveTrainConfiguration.kSteerJoystickDeadband;
+     this.kJoystickDriveDeadband = driveTrainConfiguration.kDriveJoystickDeadband;
 
       // Field centric drive WITHOUT heading lock set
       driveNoHeading =
           new SwerveRequest.FieldCentric()
               .withDeadband(
-                chassisTranslationSpeedThreshold * throttleDeadband
+                driveTrainConfiguration.kChassisTranslationSpeedThreshold * driveTrainConfiguration.kDriveJoystickDeadband
               )
               .withRotationalDeadband(
-                chassisRotationalSpeedThreshold * turnDeadband
+                driveTrainConfiguration.kChassisRotationalSpeedThreshold * driveTrainConfiguration.kSteerJoystickDeadband
               )
               .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
     
@@ -84,7 +81,7 @@ public class DriveWithHeadingCommand extends Command {
       driveWithHeading = 
           new SwerveRequest.FieldCentricFacingAngle()
               .withDeadband(
-                chassisTranslationSpeedThreshold * throttleDeadband
+                driveTrainConfiguration.kChassisTranslationSpeedThreshold * driveTrainConfiguration.kDriveJoystickDeadband
               )
               .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
   }

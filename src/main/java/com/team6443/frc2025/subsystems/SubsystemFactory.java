@@ -13,6 +13,8 @@ import com.team6443.frc2025.subsystems.elevator.ElevatorIOHardware;
 import com.team6443.frc2025.subsystems.elevator.ElevatorIOSim;
 import com.team6443.frc2025.subsystems.elevator.ElevatorSubsystem;
 import com.team6443.frc2025.subsystems.vision.VisionSubsystem;
+import com.team6443.lib.RobotState;
+import com.team6443.lib.autonomous.ChoreoPathing;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
@@ -124,5 +126,16 @@ public class SubsystemFactory {
                     new Limelight4IOHardware(RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(3))
                 );
         }
+    }
+
+    public static ChoreoPathing createChoreoPathing(DrivetrainSubsystem drivetrainSubsystem){
+        return new ChoreoPathing(RobotRuntimeConstants.kRobotConfiguration.getChoreoPathingConfiguration())
+            .withAutoFactory(
+                () -> RobotState.get().getLatestFieldRobotPose(),
+                drivetrainSubsystem::resetOdometry,
+                drivetrainSubsystem::setControl,
+                true,
+                drivetrainSubsystem
+            );   
     }
 }
