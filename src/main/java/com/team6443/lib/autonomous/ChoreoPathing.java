@@ -7,7 +7,6 @@ package com.team6443.lib.autonomous;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.team6443.lib.config.autonomous.ChoreoPathingConfiguration;
@@ -45,6 +44,8 @@ public class ChoreoPathing {
         boolean allianceFlipping,
         Subsystem drivetrainSubsystem
     ){
+
+        // Create new auto factory that will command our drivetrian's swerve modules
         autoFactory = new AutoFactory(
             robotPoseSupplier, 
             resetOdometry, 

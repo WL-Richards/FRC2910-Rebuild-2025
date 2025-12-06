@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 
 /**
- * 
+ * Mechnisim 2D visiaulizer for an elevator subsystem
  */
 public class ElevatorVizualizer implements Loggable{
     private Color8Bit white = new Color8Bit(Color.kWhite);

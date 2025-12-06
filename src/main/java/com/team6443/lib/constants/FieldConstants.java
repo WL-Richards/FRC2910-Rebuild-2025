@@ -27,8 +27,6 @@ public class FieldConstants {
     public static final double APRIL_TAG_HEIGHT_METERS = Units.inchesToMeters(6.5);
     public static final double APRIL_TAG_WIDTH_METERS = Units.inchesToMeters(6.5);
 
-    
-
     // --- April Tags ---
     public static final double MIN_APRIL_TAG_ID = 0;
     public static final double MAX_APRIL_TAG_ID = 22;

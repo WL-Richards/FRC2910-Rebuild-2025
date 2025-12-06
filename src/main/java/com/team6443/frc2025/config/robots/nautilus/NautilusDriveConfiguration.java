@@ -6,6 +6,7 @@ package com.team6443.frc2025.config.robots.nautilus;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import com.team6443.frc2025.config.robots.nautilus.swerve_tunings.NautilusSwerveConstantsComp;
 import com.team6443.lib.config.odometry.OdometryStandardDevs;
 import com.team6443.lib.config.robot.PhysicalConfiguration;
 import com.team6443.lib.config.robot.Pigeon2GyroConfiguration;
@@ -67,7 +68,7 @@ public class NautilusDriveConfiguration {
                         .withPigeon2Id(this.kGyroConfiguration.kCANDevice.getDeviceID())
                         .withPigeon2Configs(this.kGyroConfiguration.kConfiguration)
                 )
-                // .withDrivetrainConstants(NautilusSwerveConstantsComp.DrivetrainConstants) // Phoenix Tuner Supplied Constants
+                //.withDrivetrainConstants(NautilusSwerveConstantsComp.DrivetrainConstants) // Phoenix Tuner Supplied Constants
                 .withModuleConstants(
                     new SwerveModuleConstants<?, ?, ?>[]{
                         this.kSwerveModuleConfigurations.kFrontLeftModule.getModuleConstants(),
@@ -76,7 +77,7 @@ public class NautilusDriveConfiguration {
                         this.kSwerveModuleConfigurations.kBackRightModule.getModuleConstants()
                     }
                 )
-                // .withModuleConstants(NautilusSwerveConstantsComp.kSwerveModuleConstants) // Phoenix Tuner Supplied Constants
+                //.withModuleConstants(NautilusSwerveConstantsComp.kSwerveModuleConstants) // Phoenix Tuner Supplied Constants
                 .withOdometryStandardDevs(
                     Odometry.kEnabledModeStandardDevs,
                     Odometry.kDisabledModeStandardDevs
