@@ -10,11 +10,16 @@ import com.team6443.frc2025.subsystems.drive.DrivetrainSubsystem;
 import com.team6443.frc2025.subsystems.elevator.ElevatorSubsystem;
 import com.team6443.frc2025.subsystems.vision.VisionSubsystem;
 import com.team6443.lib.autonomous.ChoreoPathing;
+import com.team6443.lib.autonomous.ChoreoTrajectoryCommandFactory;
+import com.team6443.lib.autonomous.LoggableAutoTrajectory;
 import com.team6443.lib.input.XboxInputImplementation;
 import com.team6443.lib.logging.interfaces.Loggerable;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import choreo.auto.AutoChooser;
+import choreo.auto.AutoRoutine;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 
 public class RobotContainer implements Loggerable {
 
@@ -50,10 +55,45 @@ public class RobotContainer implements Loggerable {
     drivetrainSubsystem.setDefaultCommand(drivetrainDefaultCommand);
   }
 
-  public Command createTestPath(){
-    return Commands.sequence(
-      choreoPathing.getAutoFactory().resetOdometry("TestPath"),
-      choreoPathing.getAutoFactory().trajectoryCmd("TestPath")
+  /**
+   * Setup the auto chooser with the desired auto paths
+   */
+  public void setupAutoChooser(){
+
+    // Create the auto chooser
+    AutoChooser autoChooser = new AutoChooser();
+
+    // Add all the routines or commands to the chooser
+    this.setupAutos(autoChooser);
+   
+    // Put the auto chooser on the dashboard
+    SmartDashboard.putData("AutoChooser", autoChooser);
+
+    // Schedule the selected auto during the autonomous period
+    RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+  }
+
+  private void setupAutos(AutoChooser autoChooser){
+     // Add options to the chooser
+     autoChooser.addRoutine("Test Auto Routine", this::testAutoRoutine);
+    
+  }
+
+  public AutoRoutine testAutoRoutine(){
+    AutoRoutine routine = choreoPathing.getAutoFactory().newRoutine("testRoutine");
+
+    // Create a new auto trajectory that will update the active trajecotry in the choreoPathing so we can log the current running trajectory
+    LoggableAutoTrajectory testTraj = ChoreoTrajectoryCommandFactory.createTrajectoryForRoutine(
+      choreoPathing, routine, "TestPath");
+
+    // When the routine begins, reset odometry and start the first trajectory 
+    routine.active().onTrue(
+      Commands.sequence(
+          testTraj.resetOdometry(),
+          testTraj.cmd()
+      )
     );
+
+    return routine;
   }
 }

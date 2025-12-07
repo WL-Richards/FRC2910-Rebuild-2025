@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.LoggedRobot;
 import com.team6443.lib.RobotState;
 import com.team6443.lib.SimulatedRobotState;
 import com.team6443.lib.can.CANStatusLogger;
+
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 
@@ -20,6 +21,8 @@ public class Robot extends LoggedRobot {
     // Setup logging to the proper location, and log the metadata for the bot
     robotContainer = new RobotContainer();
     robotContainer.setupLogger();
+    robotContainer.setupAutoChooser();
+
   }
 
   @Override
@@ -54,7 +57,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    robotContainer.createTestPath().schedule();
+    
   }
 
   @Override

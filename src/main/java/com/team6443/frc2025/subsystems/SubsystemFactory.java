@@ -129,13 +129,17 @@ public class SubsystemFactory {
     }
 
     public static ChoreoPathing createChoreoPathing(DrivetrainSubsystem drivetrainSubsystem){
-        return new ChoreoPathing(RobotRuntimeConstants.kRobotConfiguration.getChoreoPathingConfiguration())
+        ChoreoPathing pathing = 
+        new ChoreoPathing(RobotRuntimeConstants.kRobotConfiguration.getChoreoPathingConfiguration())
             .withAutoFactory(
                 () -> RobotState.get().getLatestFieldRobotPose(),
                 drivetrainSubsystem::resetOdometry,
                 drivetrainSubsystem::setControl,
                 true,
                 drivetrainSubsystem
-            );   
+            );  
+
+        drivetrainSubsystem.setChoreoPathingLoggable(pathing);
+        return pathing;
     }
 }
