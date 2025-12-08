@@ -4,7 +4,7 @@
 
 package com.team6443.frc2025.config.robots.nautilus;
 
-import com.team6443.lib.config.autonomous.ChoreoPathingConfiguration;
+import com.team6443.lib.config.autonomous.ChoreoPatherConfiguration;
 import com.team6443.lib.config.wrappers.PIDControllerConstants;
 
 /**
@@ -13,8 +13,8 @@ import com.team6443.lib.config.wrappers.PIDControllerConstants;
 public class NautilusAutonomousConfiguration {
 
     // --- Choreo pathing configuration ---
-    public final ChoreoPathingConfiguration kChoreoPathingConfiguration = 
-        new ChoreoPathingConfiguration()
+    public final ChoreoPatherConfiguration kChoreoPatherConfiguration = 
+        new ChoreoPatherConfiguration()
             // X Translation PID
             .withXTranslationConfiguration(
                 new PIDControllerConstants()

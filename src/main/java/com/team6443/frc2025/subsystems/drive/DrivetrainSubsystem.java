@@ -40,7 +40,7 @@ public class DrivetrainSubsystem extends AEMSubsystem {
   protected DrivetrainInputs inputs = new DrivetrainInputs();
 
   // Loggable interface representation of the choreo pathing, cause we don't really care about the actual object
-  protected Loggable choreoPathingLoggable = null;
+  protected Loggable ChoreoPatherLoggable = null;
 
   // Configuration of this given drivetrain
   protected final DrivetrainConfiguration configuration;
@@ -118,13 +118,13 @@ public class DrivetrainSubsystem extends AEMSubsystem {
     Logger.recordOutput(standardPrefix + "/Modules/States", inputs.ModuleStates);
 
     // If a loggable is configured for choreo pathing with this drivetrain we want to update the logs related to it
-    if (this.choreoPathingLoggable != null){
-      this.choreoPathingLoggable.updateLog(standardPrefix, inputPrefix);
+    if (this.ChoreoPatherLoggable != null){
+      this.ChoreoPatherLoggable.updateLog(standardPrefix, inputPrefix);
     }
   }
 
-  public void setChoreoPathingLoggable(Loggable choreoPathing){
-    this.choreoPathingLoggable = choreoPathing;
+  public void setChoreoPatherLoggable(Loggable ChoreoPather){
+    this.ChoreoPatherLoggable = ChoreoPather;
   }
 
   // ---- Odometry updates ----

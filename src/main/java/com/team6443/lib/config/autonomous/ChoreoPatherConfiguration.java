@@ -9,7 +9,7 @@ import com.team6443.lib.config.wrappers.PIDControllerConstants;
 /** 
  * Configuration used to power Choreo path following
  */
-public class ChoreoPathingConfiguration {
+public class ChoreoPatherConfiguration {
     // --- Configurations for XY Robot Translation ---
     public PIDControllerConstants kXTranslationConfiguration;
     public PIDControllerConstants kYTranslationConfiguration;
@@ -22,9 +22,9 @@ public class ChoreoPathingConfiguration {
     /**
      * Updates the X-axis translation configuration on this instance.
      * @param xTranslationConfiguration The new PID constants for X translation.
-     * @return This ChoreoPathingConfiguration instance for chaining.
+     * @return This ChoreoPatherConfiguration instance for chaining.
      */
-    public ChoreoPathingConfiguration withXTranslationConfiguration(PIDControllerConstants xTranslationConfiguration) {
+    public ChoreoPatherConfiguration withXTranslationConfiguration(PIDControllerConstants xTranslationConfiguration) {
         this.kXTranslationConfiguration = xTranslationConfiguration; // Update value
         return this;
     }
@@ -32,9 +32,9 @@ public class ChoreoPathingConfiguration {
     /**
      * Updates the Y-axis translation configuration on this instance.
      * @param yTranslationConfiguration The new PID constants for Y translation.
-     * @return This ChoreoPathingConfiguration instance for chaining.
+     * @return This ChoreoPatherConfiguration instance for chaining.
      */
-    public ChoreoPathingConfiguration withYTranslationConfiguration(PIDControllerConstants yTranslationConfiguration) {
+    public ChoreoPatherConfiguration withYTranslationConfiguration(PIDControllerConstants yTranslationConfiguration) {
         this.kYTranslationConfiguration = yTranslationConfiguration; // Update value
         return this;
     }
@@ -42,9 +42,9 @@ public class ChoreoPathingConfiguration {
     /**
      * Updates the yaw rotation configuration on this instance.
      * @param yawRotationConfiguration The new PID constants for yaw rotation.
-     * @return This ChoreoPathingConfiguration instance for chaining.
+     * @return This ChoreoPatherConfiguration instance for chaining.
      */
-    public ChoreoPathingConfiguration withYawRotationConfiguration(PIDControllerConstants yawRotationConfiguration) {
+    public ChoreoPatherConfiguration withYawRotationConfiguration(PIDControllerConstants yawRotationConfiguration) {
         this.kYawRotationConfiguration = yawRotationConfiguration; // Update value
         return this;
     }

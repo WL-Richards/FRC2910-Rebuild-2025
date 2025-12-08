@@ -19,7 +19,7 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.team6443.frc2025.config.RobotConfig;
 import com.team6443.frc2025.config.robots.nautilus.swerve_tunings.NautilusSwerveConstantsComp;
 import com.team6443.lib.can.CANDeviceID;
-import com.team6443.lib.config.autonomous.ChoreoPathingConfiguration;
+import com.team6443.lib.config.autonomous.ChoreoPatherConfiguration;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
 import com.team6443.lib.config.camera.CameraConfiguration.Location;
@@ -141,8 +141,8 @@ public class Nautilus extends RobotConfig {
     }
  
     @Override
-    public ChoreoPathingConfiguration getChoreoPathingConfiguration() {
-        return kAutonomousConfiguration.kChoreoPathingConfiguration;
+    public ChoreoPatherConfiguration getChoreoPatherConfiguration() {
+        return kAutonomousConfiguration.kChoreoPatherConfiguration;
     }
     
     @Override

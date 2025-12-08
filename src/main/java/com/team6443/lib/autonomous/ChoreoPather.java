@@ -11,12 +11,16 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.team6443.lib.config.autonomous.ChoreoPathingConfiguration;
+import com.team6443.lib.config.autonomous.ChoreoPatherConfiguration;
+import com.team6443.lib.autonomous.wrappers.LoggableAutoTrajectory;
+import com.team6443.lib.autonomous.wrappers.LoggableChoreoCommand;
 import com.team6443.lib.logging.interfaces.Loggable;
 
 import choreo.auto.AutoFactory;
+import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import choreo.trajectory.SwerveSample;
+import choreo.trajectory.Trajectory;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -27,7 +31,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 /** 
  * Handle Choreo path planning for a given robot
 */
-public class ChoreoPathing implements Loggable {
+public class ChoreoPather implements Loggable {
     private final PIDController xTranslationController;
     private final PIDController yTranslationController;
     private final PIDController yawRotationController;
@@ -35,13 +39,13 @@ public class ChoreoPathing implements Loggable {
     private AutoFactory autoFactory;
 
     // The trajectory that is currently being run on the bot
-    private AutoTrajectory currentRunningTrajectory = null;
+    private Trajectory<?> currentRunningTrajectory = null;
 
     // --- Log info ---
     private SwerveSample latestSample = null;
 
-    public ChoreoPathing(
-        ChoreoPathingConfiguration configuration
+    public ChoreoPather(
+        ChoreoPatherConfiguration configuration
     ){
         xTranslationController = configuration.kXTranslationConfiguration.generateController();
         yTranslationController = configuration.kYTranslationConfiguration.generateController();
@@ -49,7 +53,7 @@ public class ChoreoPathing implements Loggable {
         yawRotationController = configuration.kYawRotationConfiguration.generateController();
     }
 
-    public ChoreoPathing withAutoFactory(
+    public ChoreoPather withAutoFactory(
         Supplier<Pose2d> robotPoseSupplier,
         Consumer<Pose2d> resetOdometry,
         Consumer<SwerveRequest> consumeDriveTrainRequest,
@@ -87,7 +91,7 @@ public class ChoreoPathing implements Loggable {
         );
     }
 
-    public void setActiveTrajectory(AutoTrajectory trajectory){
+    public void setActiveTrajectory(Trajectory<?> trajectory){
         this.currentRunningTrajectory = trajectory;
     }
 
@@ -103,14 +107,42 @@ public class ChoreoPathing implements Loggable {
 
         // Log the current running trajecroy if it exists
         if(currentRunningTrajectory != null){
-            Logger.recordOutput(standardPrefix + "/Choreo/TrajectoryName", currentRunningTrajectory.getRawTrajectory().name());
-            Logger.recordOutput(standardPrefix + "/Choreo/DesiredTrajectory", 
-
-            // Handle flipping the trajectory depending on the alliance
-            DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue 
-                ? currentRunningTrajectory.getRawTrajectory().getPoses() 
-                : currentRunningTrajectory.getRawTrajectory().flipped().getPoses()
+            Logger.recordOutput(standardPrefix + "/Choreo/TrajectoryName", currentRunningTrajectory.name());
+            Logger.recordOutput(standardPrefix + "/Choreo/DesiredTrajectory",
+                // Handle flipping the trajectory depending on the alliance, all trajectories are made for blue and flipped to red
+                DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue 
+                    ? currentRunningTrajectory.getPoses()
+                    : currentRunningTrajectory.flipped().getPoses()
             );
         }
     }
+
+    // --- Trajectory Factories ---
+    /**
+     * Create a trajectory in a provided auto routine
+     * @param routine The AutoRoutine that the trajectory is being created for
+     * @param trajectoryName The name of the trajectory we are using 
+     * @return The loggable auto trajectory object that represents this trajectory
+     */
+    public LoggableAutoTrajectory createTrajectory(
+        AutoRoutine routine, 
+        String trajectoryName
+    ){
+        return new LoggableAutoTrajectory(routine.trajectory(trajectoryName), this);
+    }
+
+    /**
+     * Create a trajectory in a provided auto routine
+     * @param factory The AutoFactory that is to be used to generate the command
+     * @param trajectoryName The name of the trajectory we are using 
+     * @return The loggable auto trajectory object that represents this trajectory
+     */
+    public LoggableChoreoCommand createTrajectory(
+        AutoFactory factory, 
+        String trajectoryName
+    ){
+        return new LoggableChoreoCommand(factory, trajectoryName, this);
+    }
+
+
 }

@@ -14,7 +14,7 @@ import com.team6443.frc2025.subsystems.elevator.ElevatorIOSim;
 import com.team6443.frc2025.subsystems.elevator.ElevatorSubsystem;
 import com.team6443.frc2025.subsystems.vision.VisionSubsystem;
 import com.team6443.lib.RobotState;
-import com.team6443.lib.autonomous.ChoreoPathing;
+import com.team6443.lib.autonomous.ChoreoPather;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
@@ -128,9 +128,9 @@ public class SubsystemFactory {
         }
     }
 
-    public static ChoreoPathing createChoreoPathing(DrivetrainSubsystem drivetrainSubsystem){
-        ChoreoPathing pathing = 
-        new ChoreoPathing(RobotRuntimeConstants.kRobotConfiguration.getChoreoPathingConfiguration())
+    public static ChoreoPather createChoreoPather(DrivetrainSubsystem drivetrainSubsystem){
+        ChoreoPather pathing = 
+        new ChoreoPather(RobotRuntimeConstants.kRobotConfiguration.getChoreoPatherConfiguration())
             .withAutoFactory(
                 () -> RobotState.get().getLatestFieldRobotPose(),
                 drivetrainSubsystem::resetOdometry,
@@ -139,7 +139,7 @@ public class SubsystemFactory {
                 drivetrainSubsystem
             );  
 
-        drivetrainSubsystem.setChoreoPathingLoggable(pathing);
+        drivetrainSubsystem.setChoreoPatherLoggable(pathing);
         return pathing;
     }
 }
