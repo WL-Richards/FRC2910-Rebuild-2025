@@ -166,7 +166,7 @@ public class TalonFXIO implements MotorIO, CANable{
      * @param motor The TalonFX to use with this wrapper
      */
     public TalonFXIO(TalonFX motor){
-        this(motor, new ServoMotorConfiguration<>());
+        this(motor, null);
     }
 
     /**
