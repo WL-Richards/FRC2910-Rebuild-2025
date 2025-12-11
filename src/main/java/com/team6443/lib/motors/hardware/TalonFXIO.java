@@ -99,36 +99,11 @@ public class TalonFXIO implements MotorIO, CANable{
     private final BaseStatusSignal[] signals;
 
     private TalonFXIO(
-        CANDeviceID device, 
         TalonFX talonFX,
-        TalonFXConfiguration motorConfig, 
         ServoMotorConfiguration<TalonFXConfiguration> servoMotorConfig
     ){
-
-        // If an actual talon is passed in
-        if (talonFX != null){
-            this.config = new ServoMotorConfiguration<TalonFXConfiguration>();
-            talon = talonFX;
-        }
-        // If servo motor configuration is supplied use that to create the motor
-        else if(servoMotorConfig != null){
-            this.config = servoMotorConfig;
-            talon = TalonFXFactory.createRawWithConfig(device, servoMotorConfig.getMotorConfig());
-        }
-
-        // If raw motor configuration then create new servo motor configuration supplying our motor config
-        else if(motorConfig != null){
-            this.config = new ServoMotorConfiguration<TalonFXConfiguration>().withConfig(motorConfig);
-            talon = TalonFXFactory.createRawWithConfig(device, motorConfig);
-        }
-
-        // This is kinda undefined case, so we throw some errors, it will still work as it creates a talon as expected but default configuration is used
-        else{
-            this.config = new ServoMotorConfiguration<TalonFXConfiguration>().withConfig(TalonFXFactory.getDefaultConfig());
-            talon = TalonFXFactory.createRawDefault(device);
-            DriverStation.reportError("!!!!! Talon FX IO Created with no Explicit ServoMotorConfiguration or TalonFXConfiguration !!!!!", false);
-        }
-        
+        this.talon = talonFX;
+        this.config = servoMotorConfig;
 
         // Set signal sources
         positionSignal = talon.getPosition();
@@ -165,8 +140,7 @@ public class TalonFXIO implements MotorIO, CANable{
      * @param servoMotorConfig The configuration used to determine how the motor should be driven outside the context of just the motor
      */
     public TalonFXIO(CANDeviceID device, ServoMotorConfiguration<TalonFXConfiguration> servoMotorConfig){
-        this(device, null, null, servoMotorConfig);
-        
+        this(TalonFXFactory.createRawWithConfig(device, servoMotorConfig.getMotorConfig()), servoMotorConfig);
     }
 
     /**
@@ -175,16 +149,35 @@ public class TalonFXIO implements MotorIO, CANable{
      * @param motorConfiguration The TalonFXConfiguration config used to determine how the motor should be driven
      */
     public TalonFXIO(CANDeviceID device, TalonFXConfiguration motorConfiguration){
-        this(device, null, motorConfiguration, null);
+        this(device, new ServoMotorConfiguration<TalonFXConfiguration>().withConfig(motorConfiguration));
     }
 
     /**
-     * Construct a new instance of the TalonFXIO device with a TalonFX configuration
+     * Construct a new instance of the TalonFXIO device with default config values
      * @param device The CAN device that represents this motor
      * @param motor The TalonFX to use with this wrapper
      */
     public TalonFXIO(CANDeviceID device, TalonFX motor){
-        this(device, motor, null, null);
+        this(device, new ServoMotorConfiguration<>());
+    }
+
+    /**
+     * Construct a new instance of the TalonFXIO around talon fx with preconfigured configurations
+     * @param motor The TalonFX to use with this wrapper
+     */
+    public TalonFXIO(TalonFX motor){
+        this(motor, new ServoMotorConfiguration<>());
+    }
+
+    /**
+     * Throws an exception if a function that relies on this.config is used when a configuration is not set
+     * 
+     * @throws NullPointerException If action that relies on a servo motor configuration is run and the config is not set for this object
+     */
+    private void checkServoMotorConfig(){
+        if(this.config == null){
+            throw new NullPointerException("Servo motor configuration is null, it is likely the improper constructor is in use.");
+        }
     }
 
     /**
@@ -209,6 +202,7 @@ public class TalonFXIO implements MotorIO, CANable{
      * @return The rotations converted into some units as defined in the config
      */
     private double getRotorRotationsToUnits(double rotorRotations){
+        checkServoMotorConfig();
         return this.config.getRotorRotationsToUnits(rotorRotations);
     }
 
@@ -218,6 +212,7 @@ public class TalonFXIO implements MotorIO, CANable{
      * @return The resulting rotor rotations 
      */
     public double getUnitsToRotorRotations(double units){
+        checkServoMotorConfig();
         return this.config.getUnitsToRotorRotations(units);
     }
 
@@ -227,6 +222,7 @@ public class TalonFXIO implements MotorIO, CANable{
      * @return Clamped rotor rotation
      */
     private double clampPosition(double units){
+        checkServoMotorConfig();
         return getUnitsToRotorRotations(
             MathUtil.clamp(units, this.config.kMinPositionUnits, this.config.kMaxPositionUnits)
         );
@@ -256,6 +252,7 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public CANDeviceID getCANDevice() {
+        checkServoMotorConfig();
         return this.config.kCANDevice;
     }
 
@@ -267,6 +264,8 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public boolean setNeutralMode(NeutralMode mode) {
+        checkServoMotorConfig();
+
         // Update the motor configuration
         switch(mode){
             case BRAKE:
@@ -289,6 +288,8 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public boolean setEnableSoftwareLimits(boolean forwardLimitEnabled, boolean reverseLimitEnabled) {
+        checkServoMotorConfig();
+
         this.config.getMotorConfig().SoftwareLimitSwitch.ForwardSoftLimitEnable = forwardLimitEnabled;
         this.config.getMotorConfig().SoftwareLimitSwitch.ReverseSoftLimitEnable = reverseLimitEnabled;
         return CTREUtil.Configuration.Motors.applyConfiguration(talon, config) == StatusCode.OK;
@@ -300,6 +301,8 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public Pair<Boolean, Boolean> getEnableSoftwareLimits() {
+        checkServoMotorConfig();
+
         return new Pair<Boolean,Boolean>(
             this.config.getMotorConfig().SoftwareLimitSwitch.ForwardSoftLimitEnable, 
             this.config.getMotorConfig().SoftwareLimitSwitch.ReverseSoftLimitEnable
@@ -314,6 +317,8 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public boolean setEnableHardwareLimits(boolean forwardLimitEnabled, boolean reverseLimitEnabled) {
+        checkServoMotorConfig();
+
         this.config.getMotorConfig().HardwareLimitSwitch.ForwardLimitEnable = forwardLimitEnabled;
         this.config.getMotorConfig().HardwareLimitSwitch.ReverseLimitEnable = reverseLimitEnabled;
         return CTREUtil.Configuration.Motors.applyConfiguration(talon, config) == StatusCode.OK;
@@ -327,6 +332,8 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public boolean setZeroOnHardwareLimit(boolean forwardLimitEnabled, boolean reverseLimitEnabled) {
+        checkServoMotorConfig();
+
         this.config.getMotorConfig().HardwareLimitSwitch.ForwardLimitAutosetPositionEnable = forwardLimitEnabled;
         this.config.getMotorConfig().HardwareLimitSwitch.ReverseLimitAutosetPositionEnable = reverseLimitEnabled;
         this.config.getMotorConfig().HardwareLimitSwitch.ForwardLimitEnable = forwardLimitEnabled;
@@ -341,8 +348,10 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public void setSmartMotorConfig(MotionMagicConfigs config) {
-       this.config.getMotorConfig().MotionMagic = config;
-       CTREUtil.Configuration.Motors.applyConfiguration(talon, config);
+        checkServoMotorConfig();
+
+        this.config.getMotorConfig().MotionMagic = config;
+        CTREUtil.Configuration.Motors.applyConfiguration(talon, config);
     }
 
     /**
@@ -352,6 +361,8 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public void setVoltageConfig(VoltageConfigs config) {
+        checkServoMotorConfig();
+
         this.config.getMotorConfig().Voltage = config;
         CTREUtil.Configuration.Motors.applyConfigurationNonBlocking(talon, config);
     }
@@ -373,6 +384,7 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public boolean setOpenLoopDutyCycle(double dutyCycle) {
+        
         return talon.setControl(dutyCycleControl.withOutput(dutyCycle)) == StatusCode.OK;
     }
 
@@ -427,6 +439,8 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public boolean follow(CANDeviceID masterDevice, FollowDirection direction) {
+        checkServoMotorConfig();
+
         this.getCANDevice().setMasterCANDevice(masterDevice);
         return talon.setControl(
             followerControl
@@ -458,6 +472,8 @@ public class TalonFXIO implements MotorIO, CANable{
      */
     @Override
     public boolean setSmartPositionSetpoint(double position, int slot) {
+        checkServoMotorConfig();
+
         MotionMagicVoltage mmVoltage = motionMagicPositionControl
                                         .withPosition(
                                             clampPosition(position)
@@ -509,6 +525,8 @@ public class TalonFXIO implements MotorIO, CANable{
      */ 
     @Override
     public boolean setSmartVelocitySetpoint(double velocity, int slot) {
+        checkServoMotorConfig();
+
         return talon.setControl(
             motionMagicVelocityControl
                 .withVelocity(

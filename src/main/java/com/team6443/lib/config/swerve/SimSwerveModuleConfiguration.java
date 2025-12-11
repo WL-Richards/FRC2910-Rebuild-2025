@@ -37,7 +37,6 @@ public class SimSwerveModuleConfiguration {
         // Configure drive motor controller to use a talon FX Sim IO
         this.moduleSimulation.useDriveMotorController(
             new TalonFXSimIO(
-                moduleConfig.kDriveMotorID,
                 module.getDriveMotor()
             )
         );
@@ -45,7 +44,6 @@ public class SimSwerveModuleConfiguration {
         // Configure steer motor controller to use a Talon FX wth Sim CAN coder
         this.moduleSimulation.useSteerMotorController(
             new TalonFXWithCANcoderSimIO(
-                moduleConfig.kSteerMotorID,
                 module.getSteerMotor(),
                 moduleConfig.kSteerEncoderID,
                 module.getEncoder()

@@ -28,15 +28,6 @@ public class TalonFXSimIO extends TalonFXIO implements SimulatedMotorController 
     // The simulated state of the Talon FX being used 
     protected TalonFXSimState simSate;
 
-    /**
-     * Create a new TalonFX Sim IO using a ServoMotorConfiguration, this should be used pretty much everywhere except on drivetrain
-     * @param device CAN Device representing the Talon Fx
-     * @param motor The motor itself, the TalonFX is just a commonality wrapper
-     */
-    public TalonFXSimIO(CANDeviceID device, TalonFX motor){
-        super(device, motor);
-        simSate = talon.getSimState();
-    }
 
     /**
      * Create a new TalonFX Sim IO using a ServoMotorConfiguration, this should be used pretty much everywhere except on drivetrain
@@ -60,6 +51,15 @@ public class TalonFXSimIO extends TalonFXIO implements SimulatedMotorController 
 
         simSate = talon.getSimState();
         simSate.Orientation = TalonFXSimIO.computeSimMotorOrientation(motorConfig.MotorOutput.Inverted);    
+    }
+
+    /**
+     * Create a new TalonFX Sim IO using a raw motor, this should pretty much ONLY be used on the drivetrain
+     * @param motor The motor itself, the TalonFXIO is just a commonality wrapper
+     */
+    public TalonFXSimIO(TalonFX motor){
+        super(motor);
+        simSate = talon.getSimState();
     }
 
     /**
