@@ -153,20 +153,11 @@ public class TalonFXIO implements MotorIO, CANable{
     }
 
     /**
-     * Construct a new instance of the TalonFXIO device with default config values
-     * @param device The CAN device that represents this motor
-     * @param motor The TalonFX to use with this wrapper
-     */
-    public TalonFXIO(CANDeviceID device, TalonFX motor){
-        this(device, new ServoMotorConfiguration<>());
-    }
-
-    /**
      * Construct a new instance of the TalonFXIO around talon fx with preconfigured configurations
      * @param motor The TalonFX to use with this wrapper
      */
     public TalonFXIO(TalonFX motor){
-        this(motor, new ServoMotorConfiguration<>());
+        this(motor, null);
     }
 
     /**
