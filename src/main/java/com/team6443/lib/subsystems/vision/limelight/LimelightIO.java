@@ -150,16 +150,29 @@ public interface LimelightIO extends CameraIO, Loggable {
 
     }
 
-    static double computeDistanceToTagInMetersSimple(Rotation2d tagHeightRotations) {
+    /**
+     * Computes the horizontal distance to an AprilTag using basic trigonometry based 
+     * on the vertical angle (pitch) to the target.
+     * * <p>The calculation uses the formula: {@code d = h / tan(theta)}
+     * * <p><strong>Note:</strong> This implementation uses the absolute field height of the 
+     * AprilTag as the numerator. This assumes the camera is mounted at ground level 
+     * (height = 0). If the camera is mounted higher, the numerator should be the 
+     * difference in height {@code (tagHeight - cameraHeight)}.
+     *
+     * @param tagHeightRotations The vertical angle (pitch) from the camera center to the 
+     * target. This should include both the camera's mounting 
+     * angle and the target's y-offset.
+     * @return The horizontal distance to the tag in meters. Returns {@link Double#POSITIVE_INFINITY} 
+     * if the angle is effectively zero (parallel to the ground) to prevent division by zero.
+     */
+    static double computeDistanceToTagInMetersSimple(Rotation2d tagHeightRotations, double tagHeight) {
 
         double tanTheta = tagHeightRotations.getTan();
     
         if (Math.abs(tanTheta) < 1e-9) {
             return Double.POSITIVE_INFINITY;
         }
-    
-        double tagHeight = FieldConstants.APRIL_TAG_HEIGHT_METERS;
-    
+        
         return Math.abs(tagHeight / tanTheta);
     }
 

@@ -53,7 +53,9 @@ public class NautilusCameraConfiguration {
         .withFramerate(kSimulatedCameraFPS)
         .withCameraNoise(0, 0)
         .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS)
-        .withCameraDistanceScalar(0.940,1.154);
+        .withCameraDistanceScalar(0.942,0.071);
+
+        //.withCameraDistanceScalar(0.940,1.154);
         //1.272, 1.454
     // -------------------------------
 
@@ -79,7 +81,8 @@ public class NautilusCameraConfiguration {
         .withFramerate(kSimulatedCameraFPS)
         .withCameraNoise(0, 0)
         .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS)
-        .withCameraDistanceScalar(0.950,1.154);
+        .withCameraDistanceScalar(0.950,0.071);
+        //.withCameraDistanceScalar(0.950,1.154);
     // ---------------------------------
 
     // ------ Back Left Camera ------
@@ -105,7 +108,8 @@ public class NautilusCameraConfiguration {
         .withFramerate(kSimulatedCameraFPS)
         .withCameraNoise(0, 0)
         .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS)
-        .withCameraDistanceScalar(0.900,1.090);
+        .withCameraDistanceScalar(0.905,0.074);
+        //.withCameraDistanceScalar(0.900,1.090);
     // -----------------------------
 
     // ------ Back Right Camera  ------
@@ -131,7 +135,9 @@ public class NautilusCameraConfiguration {
         .withFramerate(kSimulatedCameraFPS)
         .withCameraNoise(0, 0)
         .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS)
-        .withCameraDistanceScalar(0.890,1.090);
+        .withCameraDistanceScalar(0.895,0.074);
+
+        //.withCameraDistanceScalar(0.890,1.090);
         
     // --------------------------------
 

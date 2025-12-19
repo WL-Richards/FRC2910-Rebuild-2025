@@ -19,6 +19,8 @@ import com.team6443.lib.autonomous.ChoreoPather;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
+import com.team6443.lib.constants.FieldConstants;
+import com.team6443.lib.constants.interfaces.YearFieldConstantable;
 import com.team6443.lib.factories.motors.TalonFXFactory;
 import com.team6443.lib.motors.hardware.TalonFXIO;
 import com.team6443.lib.subsystems.simulation.elevator.SimulatedElevator;
@@ -34,6 +36,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
  */
 public class SubsystemFactory {
 
+    // Variable to allow one point of updating the field year 
+    private static final YearFieldConstantable kCurrentYear = FieldConstants.k2025FieldConstants;
 
     /**
      * Build the elevator subsystem factor that will be used
@@ -111,22 +115,26 @@ public class SubsystemFactory {
                 return new VisionSubsystem(
                     new LimelightIOSim(
                         RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(0),
+                        kCurrentYear,
                         () -> SimulatedRobotState.get().getLatestFieldRobotPose(),
                         () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed(),
                         (cameraSim, cameraTransform) -> { SimulatedRobotState.get().addCameraToVisionSimulation(cameraSim, cameraTransform); }
                     ),
                     new LimelightIOSim(
                         RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(1),
+                        kCurrentYear,
                         () -> SimulatedRobotState.get().getLatestFieldRobotPose(),
                         () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed(),
                         (cameraSim, cameraTransform) -> { SimulatedRobotState.get().addCameraToVisionSimulation(cameraSim, cameraTransform); }
                     ),
                     new LimelightIOSim(RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(2),
+                        kCurrentYear,
                         () -> SimulatedRobotState.get().getLatestFieldRobotPose(),
                         () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed(),
                         (cameraSim, cameraTransform) -> { SimulatedRobotState.get().addCameraToVisionSimulation(cameraSim, cameraTransform); }
                     ),
                     new LimelightIOSim(RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(3),
+                        kCurrentYear,
                         () -> SimulatedRobotState.get().getLatestFieldRobotPose(),
                         () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed(),
                         (cameraSim, cameraTransform) -> { SimulatedRobotState.get().addCameraToVisionSimulation(cameraSim, cameraTransform); }
@@ -141,21 +149,25 @@ public class SubsystemFactory {
                 return new VisionSubsystem(
                     new Limelight4IOHardware(
                         RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(0), 
+                        kCurrentYear, 
                         () -> RobotState.get().getLatestFieldRobotPose(),
                         () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed()
                     ),
                     new Limelight4IOHardware(
                         RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(1), 
+                        kCurrentYear,
                         () -> RobotState.get().getLatestFieldRobotPose(),
                         () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed()
                     ),
                     new Limelight4IOHardware(
                         RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(2), 
+                        kCurrentYear,
                         () -> RobotState.get().getLatestFieldRobotPose(),
                         () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed()
                     ),
                     new Limelight4IOHardware(
                         RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(3), 
+                        kCurrentYear,
                         () -> RobotState.get().getLatestFieldRobotPose(),
                         () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed()
                     )

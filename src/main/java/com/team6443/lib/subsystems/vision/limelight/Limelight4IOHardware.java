@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.team6443.lib.constants.FieldConstants;
+import com.team6443.lib.constants.interfaces.YearFieldConstantable;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.subsystems.vision.util.AprilTagCornerPosition;
 import com.team6443.lib.subsystems.vision.VisionInputs;
@@ -34,7 +35,8 @@ public class Limelight4IOHardware implements LimelightIO {
     private final NetworkTableEntry kThrottleSetEntry;
 
     // --- Configuration ---
-    private final CameraConfiguration kCameraConfiguration;
+    protected final CameraConfiguration kCameraConfiguration;
+    protected final YearFieldConstantable kFieldConstants;
 
     // --- Data ---
     // Tracks the active tag corners statically
@@ -46,15 +48,17 @@ public class Limelight4IOHardware implements LimelightIO {
     );
 
     // Store suppliers for robot pose and robot speed to reference them without referencing the RobotState
-    private final Supplier<Pose2d> kLatestRobotPoseSupplier;
-    private final Supplier<ChassisSpeeds> kLatestFieldChassisSpeedSupplier;
+    protected final Supplier<Pose2d> kLatestRobotPoseSupplier;
+    protected final Supplier<ChassisSpeeds> kLatestFieldChassisSpeedSupplier;
 
     public Limelight4IOHardware(
         CameraConfiguration config,
+        YearFieldConstantable yearSpecificFieldConstants,
         Supplier<Pose2d> latestFieldPoseSupplier,
         Supplier<ChassisSpeeds> latestFieldChassisSpeedSupplier
     ){
         this.kCameraConfiguration = config;
+        this.kFieldConstants = yearSpecificFieldConstants;
         this.kLatestRobotPoseSupplier = latestFieldPoseSupplier;
         this.kLatestFieldChassisSpeedSupplier = latestFieldChassisSpeedSupplier;
 
@@ -93,65 +97,68 @@ public class Limelight4IOHardware implements LimelightIO {
         // -------------------------------------------------------------------
         inputs.tagCornerPositions = getTagCornerPositions();
 
-        
-
         // --- Pose Estimation ---
-        if(inputs.hasTag && inputs.tagCornerPositions.size() >= 4){
-            inputs.tagHeightPixels = LimelightIO.computeTagHeightInPixels(inputs.tagCornerPositions);
-            
-            inputs.tagHeightRotations = LimelightIO.computeTagHeightInRotations(
-                                                    inputs.tagHeightPixels,                     // Height of tag in pixels
-                                                    this.kCameraConfiguration.CameraFOV.VerticalDegrees,   // Camera vertical FOV
-                                                    this.kCameraConfiguration.CameraResolution.YPixels     // Camera Vertical Resolution
-                                                );
-
-            
-            inputs.tagDistanceMeters = LimelightIO.computeDistanceToTagInMetersSimple(
-                inputs.tagHeightRotations
-            ) * this.kCameraConfiguration.CameraDistanceScalar;    
-        }
-
-        // Nullify inputs
-        else{
-            inputs.tagHeightPixels = -1;
-            inputs.tagHeightRotations = Rotation2d.kZero;
-            inputs.tagDistanceMeters = -1;
-        }
-
-        // Ensure that if we have a tag it is a good solid track, and if so compute the pose
-        if (inputs.hasTag && inputs.tagDistanceMeters != -1 && inputs.tagID > FieldConstants.k2025FieldConstants.getMinAprilTagID() && inputs.tagID < FieldConstants.k2025FieldConstants.getMaxAprilTagID()){
-            Pose3d tagPose = FieldConstants.getTagPose3d(inputs.tagID, FieldConstants.k2025FieldConstants);
-            Rotation2d robotRotation = kLatestRobotPoseSupplier.get().getRotation();
-            Translation2d cameraToRobotCenter = LimelightIO.computeCameraToRobotCenter(
-                this.kCameraConfiguration, 
-                robotRotation, 
-                inputs.horizontalRotationToTag
-            );
-            Translation2d cameraToTag = LimelightIO.computeCameraToTag(
-                this.kCameraConfiguration, 
-                robotRotation,
-                inputs.horizontalRotationToTag,
-                inputs.tagDistanceMeters
-            );
-
-            VisionPoseEstimation poseEstimation = LimelightIO.computeRobotPose(
-                tagPose.toPose2d(), 
-                this.kCameraConfiguration, 
-                inputs.tagDistanceMeters, 
-                inputs.horizontalRotationToTag,
-                robotRotation,
-                cameraToRobotCenter,
-                cameraToTag,
-                kLatestFieldChassisSpeedSupplier.get()
-            );
-
-            // This limelight has a valid robot pose computation
-            inputs.robotPoseBasedOffTagLocationLatencyCompensated = poseEstimation.latencyCompensatedRobotFieldPose;
-            inputs.robotPoseBasedOffTagLocationLatencyUncompensated = poseEstimation.uncompensatedRobotFieldPose;
-        }
-        else{
-            inputs.robotPoseBasedOffTagLocationLatencyCompensated = null;
-            inputs.robotPoseBasedOffTagLocationLatencyUncompensated = null;
+        if (inputs.hasTag){
+            Pose3d tagPose = FieldConstants.getTagPose3d(inputs.tagID, kFieldConstants);
+            if(inputs.tagCornerPositions.size() >= 4){
+                inputs.tagHeightPixels = LimelightIO.computeTagHeightInPixels(inputs.tagCornerPositions);
+                
+                inputs.tagHeightRotations = LimelightIO.computeTagHeightInRotations(
+                                                        inputs.tagHeightPixels,                     // Height of tag in pixels
+                                                        this.kCameraConfiguration.CameraFOV.VerticalDegrees,   // Camera vertical FOV
+                                                        this.kCameraConfiguration.CameraResolution.YPixels     // Camera Vertical Resolution
+                                                    );
+    
+                
+                                                    
+                inputs.tagDistanceMeters = LimelightIO.computeDistanceToTagInMetersSimple(
+                    inputs.tagHeightRotations,
+                    (tagPose.getZ() - FieldConstants.APRIL_TAG_HEIGHT_METERS/2) - this.kCameraConfiguration.CameraLocation.CameraPose.getZ()
+                ) * this.kCameraConfiguration.CameraDistanceScalar;    
+            }
+    
+            // Nullify inputs
+            else{
+                inputs.tagHeightPixels = -1;
+                inputs.tagHeightRotations = Rotation2d.kZero;
+                inputs.tagDistanceMeters = -1;
+            }
+    
+            // Ensure that if we have a tag it is a good solid track, and if so compute the pose
+            if (inputs.tagDistanceMeters != -1 && inputs.tagID > kFieldConstants.getMinAprilTagID() && inputs.tagID < kFieldConstants.getMaxAprilTagID()){
+                
+                Rotation2d robotRotation = kLatestRobotPoseSupplier.get().getRotation();
+                Translation2d cameraToRobotCenter = LimelightIO.computeCameraToRobotCenter(
+                    this.kCameraConfiguration, 
+                    robotRotation, 
+                    inputs.horizontalRotationToTag
+                );
+                Translation2d cameraToTag = LimelightIO.computeCameraToTag(
+                    this.kCameraConfiguration, 
+                    robotRotation,
+                    inputs.horizontalRotationToTag,
+                    inputs.tagDistanceMeters
+                );
+    
+                VisionPoseEstimation poseEstimation = LimelightIO.computeRobotPose(
+                    tagPose.toPose2d(), 
+                    this.kCameraConfiguration, 
+                    inputs.tagDistanceMeters, 
+                    inputs.horizontalRotationToTag,
+                    robotRotation,
+                    cameraToRobotCenter,
+                    cameraToTag,
+                    kLatestFieldChassisSpeedSupplier.get()
+                );
+    
+                // This limelight has a valid robot pose computation
+                inputs.robotPoseBasedOffTagLocationLatencyCompensated = poseEstimation.latencyCompensatedRobotFieldPose;
+                inputs.robotPoseBasedOffTagLocationLatencyUncompensated = poseEstimation.uncompensatedRobotFieldPose;
+            }
+            else{
+                inputs.robotPoseBasedOffTagLocationLatencyCompensated = null;
+                inputs.robotPoseBasedOffTagLocationLatencyUncompensated = null;
+            }
         }
     }
 

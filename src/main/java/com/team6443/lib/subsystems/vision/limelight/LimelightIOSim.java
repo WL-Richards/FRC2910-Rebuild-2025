@@ -17,12 +17,16 @@ import org.photonvision.targeting.TargetCorner;
 
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
+import com.team6443.lib.constants.FieldConstants;
+import com.team6443.lib.constants.interfaces.YearFieldConstantable;
 import com.team6443.lib.subsystems.vision.util.AprilTagCornerPosition;
 import com.team6443.lib.subsystems.vision.VisionInputs;
 
 import edu.wpi.first.math.geometry.Pose2d;
-
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 
@@ -37,6 +41,8 @@ public class LimelightIOSim extends Limelight4IOHardware {
     // Photonvision cameras used for simulation
     private final PhotonCamera camera;
     private final PhotonCameraSim simulatedCamera;
+
+    private double trueCameraDistance = Double.NaN;
 
     // Tracks the active tag corners statically
     private final List<AprilTagCornerPosition> kTagCorners = List.of(
@@ -53,11 +59,12 @@ public class LimelightIOSim extends Limelight4IOHardware {
 
     public LimelightIOSim(
         SimulatedCameraConfiguration config,
+        YearFieldConstantable yearSpecificFieldConstants,
         Supplier<Pose2d> latestFieldPoseSupplier,
         Supplier<ChassisSpeeds> latestFieldChassisSpeedSupplier,
         BiConsumer<PhotonCameraSim, Transform3d> registerVisionSimulationConsumer
     ){
-        super(config.kCameraConfiguration, latestFieldPoseSupplier, latestFieldChassisSpeedSupplier);
+        super(config.kCameraConfiguration, yearSpecificFieldConstants, latestFieldPoseSupplier, latestFieldChassisSpeedSupplier);
         this.kSimulatedCameraConfiguration = config;
 
         // Setup the photon camera and sims
@@ -103,8 +110,16 @@ public class LimelightIOSim extends Limelight4IOHardware {
                         kTagCorners.get(i).y = cornerPositions.get(i).y;
                     }
                 }
+                
+                Pose2d robotPose = kLatestRobotPoseSupplier.get();
+                Translation3d currentCameraFieldPosition = new Translation3d(robotPose.getTranslation().getX(), robotPose.getTranslation().getY(), 0).plus(kSimulatedCameraConfiguration.kCameraConfiguration.CameraLocation.CameraPose.getTranslation().rotateBy(new Rotation3d(robotPose.getRotation())));
+                trueCameraDistance = currentCameraFieldPosition.getDistance(FieldConstants.getTagPose3d(tagID, kFieldConstants).getTranslation());
+            }
+            else{
+                trueCameraDistance = Double.NaN;
             }
         }
+        
         super.updateInputs(inputs);
     }
 
@@ -137,6 +152,7 @@ public class LimelightIOSim extends Limelight4IOHardware {
     @Override
     public void updateLog(String standardPrefix, String inputPrefix) {
         Logger.recordOutput(standardPrefix + "/" + kSimulatedCameraConfiguration.toString() + "/NumberOfTagCorners", kTagCorners.size());
+        Logger.recordOutput(standardPrefix + "/" + kSimulatedCameraConfiguration.toString() + "/TrueDistanceToTarget", trueCameraDistance);
     }
 
 }
