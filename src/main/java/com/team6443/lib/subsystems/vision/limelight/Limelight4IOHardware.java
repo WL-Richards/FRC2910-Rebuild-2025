@@ -5,6 +5,7 @@
 package com.team6443.lib.subsystems.vision.limelight;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -13,8 +14,11 @@ import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.subsystems.vision.util.AprilTagCornerPosition;
 import com.team6443.lib.subsystems.vision.VisionInputs;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
@@ -30,7 +34,7 @@ public class Limelight4IOHardware implements LimelightIO {
     private final NetworkTableEntry kThrottleSetEntry;
 
     // --- Configuration ---
-    private final CameraConfiguration kConfiguration;
+    private final CameraConfiguration kCameraConfiguration;
 
     // --- Data ---
     // Tracks the active tag corners statically
@@ -41,22 +45,27 @@ public class Limelight4IOHardware implements LimelightIO {
         new AprilTagCornerPosition()
     );
 
-    // Number of corners that are actively seen by the camera
-    private int tagCornerCount = 0;
+    // Store suppliers for robot pose and robot speed to reference them without referencing the RobotState
+    private final Supplier<Pose2d> kLatestRobotPoseSupplier;
+    private final Supplier<ChassisSpeeds> kLatestFieldChassisSpeedSupplier;
 
     public Limelight4IOHardware(
-        CameraConfiguration config
+        CameraConfiguration config,
+        Supplier<Pose2d> latestFieldPoseSupplier,
+        Supplier<ChassisSpeeds> latestFieldChassisSpeedSupplier
     ){
-        this.kConfiguration = config;
+        this.kCameraConfiguration = config;
+        this.kLatestRobotPoseSupplier = latestFieldPoseSupplier;
+        this.kLatestFieldChassisSpeedSupplier = latestFieldChassisSpeedSupplier;
 
         // --- Retrieve the network table entries ---
         NetworkTableInstance ntInstance = NetworkTableInstance.getDefault();
 
-        kValidTagEntry = ntInstance.getTable(this.kConfiguration.CameraType.Name).getEntry("tv");
-        kXOffsetEntry = ntInstance.getTable(this.kConfiguration.CameraType.Name).getEntry("tx");
-        kTagIDEntry = ntInstance.getTable(this.kConfiguration.CameraType.Name).getEntry("tid");
-        kTagCornerPositionsEntry = ntInstance.getTable(this.kConfiguration.CameraType.Name).getEntry("tcornxy");
-        kThrottleSetEntry = ntInstance.getTable(this.kConfiguration.CameraType.Name).getEntry("throttle_set");
+        kValidTagEntry = ntInstance.getTable(this.kCameraConfiguration.CameraType.Name).getEntry("tv");
+        kXOffsetEntry = ntInstance.getTable(this.kCameraConfiguration.CameraType.Name).getEntry("tx");
+        kTagIDEntry = ntInstance.getTable(this.kCameraConfiguration.CameraType.Name).getEntry("tid");
+        kTagCornerPositionsEntry = ntInstance.getTable(this.kCameraConfiguration.CameraType.Name).getEntry("tcornxy");
+        kThrottleSetEntry = ntInstance.getTable(this.kCameraConfiguration.CameraType.Name).getEntry("throttle_set");
 
     }
 
@@ -67,45 +76,39 @@ public class Limelight4IOHardware implements LimelightIO {
         // --- Tag Information ---
         inputs.hasTag = hasTarget();
         inputs.tagID = getTagID();
-
         inputs.horizontalRotationToTag = getXRotationOffset();
 
+        // ------ This will only do anything if we are on real hardware ------
         // Update april tag corner positions
         double[] cornerPositions = kTagCornerPositionsEntry.getDoubleArray(new double[0]);
 
-        // Divide by 2 to get corner count instead of the x y counts
-        tagCornerCount = cornerPositions.length/2;
-
         // ensure >= 8 because array like [x0, y0, x1, y1, etc.]
         if (cornerPositions.length >= 8) {
-            // Then only 4 here cause we move by 2 
-            for (int i = 0; i < 4; i++) {
-                kTagCorners.get(i).x = cornerPositions[i * 2];
-                kTagCorners.get(i).y = cornerPositions[i * 2 + 1];
-            }
-            
+             // Then only 4 here cause we move by 2 
+             for (int i = 0; i < 4; i++) {
+                 kTagCorners.get(i).x = cornerPositions[i * 2];
+                 kTagCorners.get(i).y = cornerPositions[i * 2 + 1];
+             }
         }
+        // -------------------------------------------------------------------
         inputs.tagCornerPositions = getTagCornerPositions();
+
         
-        
-       
+
         // --- Pose Estimation ---
-        Pose3d tagPose = FieldConstants.getTagPose3d(inputs.tagID);
-        if(inputs.hasTag && tagCornerCount >= 4){
-            inputs.tagHeightPixels = LimelightIO.computeTagHeightInPixels(kTagCorners);
+        if(inputs.hasTag && inputs.tagCornerPositions.size() >= 4){
+            inputs.tagHeightPixels = LimelightIO.computeTagHeightInPixels(inputs.tagCornerPositions);
+            
             inputs.tagHeightRotations = LimelightIO.computeTagHeightInRotations(
-                                                        inputs.tagHeightPixels,                     // Height of tag in pixels
-                                                        kConfiguration.CameraFOV.VerticalDegrees,   // Camera vertical FOV
-                                                        kConfiguration.CameraResolution.YPixels     // Camera Vertical Resolution
-                                                    );
+                                                    inputs.tagHeightPixels,                     // Height of tag in pixels
+                                                    this.kCameraConfiguration.CameraFOV.VerticalDegrees,   // Camera vertical FOV
+                                                    this.kCameraConfiguration.CameraResolution.YPixels     // Camera Vertical Resolution
+                                                );
 
             
-            inputs.tagDistanceMeters = LimelightIO.computeDistanceToTagInMeters(
-                inputs.tagHeightRotations, 
-
-                // Height of april tag - limelight height from floor
-                (tagPose.getZ() - FieldConstants.APRIL_TAG_HEIGHT_METERS/2) - kConfiguration.CameraLocation.CameraPose.getZ()
-            ) * kConfiguration.CameraDistanceScalar;                                        
+            inputs.tagDistanceMeters = LimelightIO.computeDistanceToTagInMetersSimple(
+                inputs.tagHeightRotations
+            ) * this.kCameraConfiguration.CameraDistanceScalar;    
         }
 
         // Nullify inputs
@@ -116,17 +119,35 @@ public class Limelight4IOHardware implements LimelightIO {
         }
 
         // Ensure that if we have a tag it is a good solid track, and if so compute the pose
-        if (inputs.hasTag && inputs.tagDistanceMeters != -1 && inputs.tagID > FieldConstants.MIN_APRIL_TAG_ID && inputs.tagID < FieldConstants.MAX_APRIL_TAG_ID){
-            // VisionPoseEstimation poseEstimation = LimelightIO.calculateRobotPose(
-            //     tagPose.toPose2d(), 
-            //     kConfiguration, 
-            //     inputs.tagDistanceMeters, 
-            //     inputs.horizontalRotationToTag
-            // );
+        if (inputs.hasTag && inputs.tagDistanceMeters != -1 && inputs.tagID > FieldConstants.k2025FieldConstants.getMinAprilTagID() && inputs.tagID < FieldConstants.k2025FieldConstants.getMaxAprilTagID()){
+            Pose3d tagPose = FieldConstants.getTagPose3d(inputs.tagID, FieldConstants.k2025FieldConstants);
+            Rotation2d robotRotation = kLatestRobotPoseSupplier.get().getRotation();
+            Translation2d cameraToRobotCenter = LimelightIO.computeCameraToRobotCenter(
+                this.kCameraConfiguration, 
+                robotRotation, 
+                inputs.horizontalRotationToTag
+            );
+            Translation2d cameraToTag = LimelightIO.computeCameraToTag(
+                this.kCameraConfiguration, 
+                robotRotation,
+                inputs.horizontalRotationToTag,
+                inputs.tagDistanceMeters
+            );
+
+            VisionPoseEstimation poseEstimation = LimelightIO.computeRobotPose(
+                tagPose.toPose2d(), 
+                this.kCameraConfiguration, 
+                inputs.tagDistanceMeters, 
+                inputs.horizontalRotationToTag,
+                robotRotation,
+                cameraToRobotCenter,
+                cameraToTag,
+                kLatestFieldChassisSpeedSupplier.get()
+            );
 
             // This limelight has a valid robot pose computation
-            // inputs.robotPoseBasedOffTagLocationLatencyCompensated = poseEstimation.latencyCompensatedRobotFieldPose;
-            // inputs.robotPoseBasedOffTagLocationLatencyUncompensated = poseEstimation.uncompensatedRobotFieldPose;
+            inputs.robotPoseBasedOffTagLocationLatencyCompensated = poseEstimation.latencyCompensatedRobotFieldPose;
+            inputs.robotPoseBasedOffTagLocationLatencyUncompensated = poseEstimation.uncompensatedRobotFieldPose;
         }
         else{
             inputs.robotPoseBasedOffTagLocationLatencyCompensated = null;
@@ -136,11 +157,11 @@ public class Limelight4IOHardware implements LimelightIO {
 
     @Override
     public CameraConfiguration getConfiguration() {
-        return this.kConfiguration;
+        return this.kCameraConfiguration;
     }
     
 
-    // --- LimelightIO Implementation ---
+    // --- LimelightIOHardware Implementation ---
     @Override
     public boolean hasTarget() {
         return kValidTagEntry.getInteger(0) == 1;
@@ -168,6 +189,6 @@ public class Limelight4IOHardware implements LimelightIO {
 
     @Override
     public void updateLog(String standardPrefix, String inputPrefix) {
-        Logger.recordOutput(standardPrefix + "/" + kConfiguration.toString() + "/NumberOfTagCorners", kTagCorners.size());
+        Logger.recordOutput(standardPrefix + "/" + kCameraConfiguration.toString() + "/NumberOfTagCorners", kTagCorners.size());
     }
 }

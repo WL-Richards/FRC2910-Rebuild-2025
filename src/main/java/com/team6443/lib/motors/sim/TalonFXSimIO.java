@@ -34,8 +34,8 @@ public class TalonFXSimIO extends TalonFXIO implements SimulatedMotorController 
      * @param device CAN Device representing the Talon Fx
      * @param servoMotorConfig The servo motor configuration to create the new TalonFXIO with
      */
-    public TalonFXSimIO(CANDeviceID device, ServoMotorConfiguration<TalonFXConfiguration> servoMotorConfig){
-        super(device, servoMotorConfig);
+    public TalonFXSimIO(ServoMotorConfiguration<TalonFXConfiguration> servoMotorConfig){
+        super(servoMotorConfig);
 
         simSate = talon.getSimState();
         simSate.Orientation =TalonFXSimIO.computeSimMotorOrientation(servoMotorConfig.kMotorConfig.MotorOutput.Inverted);

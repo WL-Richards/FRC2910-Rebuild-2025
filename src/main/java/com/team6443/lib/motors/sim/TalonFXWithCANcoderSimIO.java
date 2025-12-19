@@ -32,11 +32,10 @@ public class TalonFXWithCANcoderSimIO extends TalonFXSimIO {
      * @param cancoder CANcoder object itself that we are able to rip the sim state from
      */
     public TalonFXWithCANcoderSimIO(
-        CANDeviceID motorDevice, 
         ServoMotorConfiguration<TalonFXConfiguration> servoMotorConfig, 
         CANDeviceID encoderDevice,
         CANcoder cancoder){
-        super(motorDevice, servoMotorConfig);
+        super(servoMotorConfig);
     
         this.remoteCancoderSimState = cancoder.getSimState();
         this.encoderCANDevice = encoderDevice;

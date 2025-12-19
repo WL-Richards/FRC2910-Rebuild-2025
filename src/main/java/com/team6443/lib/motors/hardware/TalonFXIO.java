@@ -139,8 +139,11 @@ public class TalonFXIO implements MotorIO, CANable{
      * @param device The CAN device that represents this motor
      * @param servoMotorConfig The configuration used to determine how the motor should be driven outside the context of just the motor
      */
-    public TalonFXIO(CANDeviceID device, ServoMotorConfiguration<TalonFXConfiguration> servoMotorConfig){
-        this(TalonFXFactory.createRawWithConfig(device, servoMotorConfig.getMotorConfig()), servoMotorConfig);
+    public TalonFXIO(ServoMotorConfiguration<TalonFXConfiguration> servoMotorConfig){
+        this(
+            TalonFXFactory.createRawWithConfig(servoMotorConfig.kCANDevice, servoMotorConfig.getMotorConfig()), 
+            servoMotorConfig
+        );
     }
 
     /**
@@ -149,7 +152,11 @@ public class TalonFXIO implements MotorIO, CANable{
      * @param motorConfiguration The TalonFXConfiguration config used to determine how the motor should be driven
      */
     public TalonFXIO(CANDeviceID device, TalonFXConfiguration motorConfiguration){
-        this(device, new ServoMotorConfiguration<TalonFXConfiguration>().withConfig(motorConfiguration));
+        this(
+            new ServoMotorConfiguration<TalonFXConfiguration>()
+                .withConfig(motorConfiguration)
+                .withCANDevice(device)
+        );
     }
 
     /**

@@ -10,7 +10,6 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.team6443.frc2025.subsystems.AEMSubsystem;
 import com.team6443.lib.config.motors.ServoMotorConfiguration;
 import com.team6443.lib.motors.MotorInputs;
 import com.team6443.lib.motors.interfaces.MotorIO;

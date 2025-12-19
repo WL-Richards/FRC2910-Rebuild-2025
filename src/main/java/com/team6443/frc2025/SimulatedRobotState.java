@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package com.team6443.lib;
+package com.team6443.frc2025;
 
 import java.util.Map.Entry;
 
@@ -74,7 +74,7 @@ public final class SimulatedRobotState implements Loggable {
 
     private SimulatedRobotState(){
         // Add the april tags to the simulation
-        visionSimulation.addAprilTags(FieldConstants.APRIL_TAG_FIELD_LAYOUT);
+        visionSimulation.addAprilTags(FieldConstants.k2025FieldConstants.getFieldLayout());
     }
 
     public static SimulatedRobotState get(){

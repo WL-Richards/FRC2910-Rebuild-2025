@@ -85,13 +85,12 @@ public class SimulatedElevator implements Loggable{
         );
 
         // Setup lead talon
-        leadTalonSimulation = new TalonFXSimIO(config.kCANDevice, config);
+        leadTalonSimulation = new TalonFXSimIO(config);
 
         // Create instances of the simulated elevator talon for all the followers
         followerTalonSimulations = new TalonFXSimIO[config.followerConfigurations.size()];
         for(int i = 0; i < config.followerConfigurations.size(); i++){
             followerTalonSimulations[i] = new TalonFXSimIO(
-                config.followerConfigurations.get(i).config.kCANDevice,
                 config.followerConfigurations.get(i).config
             );
         }

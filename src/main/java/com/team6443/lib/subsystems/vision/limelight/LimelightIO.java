@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.team6443.lib.constants.FieldConstants;
 import com.team6443.lib.logging.interfaces.Loggable;
-import com.team6443.lib.RobotState;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.subsystems.vision.util.AprilTagCornerPosition;
 import com.team6443.lib.subsystems.vision.interfaces.CameraIO;
@@ -222,7 +221,8 @@ public interface LimelightIO extends CameraIO, Loggable {
         Rotation2d cameraRotationToTarget,
         Rotation2d robotRotation,
         Translation2d cameraToRobotCenter,
-        Translation2d cameraToTag
+        Translation2d cameraToTag,
+        ChassisSpeeds latestFieldChassisSpeeds
     ){
 
         // Compute the field location of the camera relative to the tag
@@ -232,7 +232,7 @@ public interface LimelightIO extends CameraIO, Loggable {
         Translation2d robotFieldPosition = cameraFieldPosition.minus(cameraToRobotCenter);
 
         // Based on current robot speed we can infer where the robot is on the field at this given moment of time if we know how much latency occurred
-        ChassisSpeeds fieldRelativeChassisSpeeds  = RobotState.get().getLatestDesiredFieldRelativeChassisSpeed();
+        ChassisSpeeds fieldRelativeChassisSpeeds  = latestFieldChassisSpeeds;
         Translation2d latencyCompensatedRobotFieldPosition = new Translation2d(
                         robotFieldPosition.getX()
                         + (fieldRelativeChassisSpeeds.vxMetersPerSecond * 0 /* latency */),
