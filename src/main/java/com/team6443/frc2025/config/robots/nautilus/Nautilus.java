@@ -7,40 +7,22 @@ package com.team6443.frc2025.config.robots.nautilus;
 import java.util.List;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.GyroTrimConfigs;
-import com.ctre.phoenix6.configs.MountPoseConfigs;
-import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.team6443.frc2025.config.RobotConfig;
-import com.team6443.frc2025.config.robots.nautilus.swerve_tunings.NautilusSwerveConstantsComp;
 import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.config.autonomous.ChoreoPatherConfiguration;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
-import com.team6443.lib.config.camera.CameraConfiguration.Location;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
-import com.team6443.lib.config.motors.factories.TalonFXConfigurationFactory;
-import com.team6443.lib.config.odometry.OdometryStandardDevs;
 import com.team6443.lib.config.robot.PhysicalConfiguration;
 import com.team6443.lib.config.robot.Pigeon2GyroConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
 import com.team6443.lib.config.subsystems.drive.simulation.DrivetrainSimConfiguration;
 import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
-import com.team6443.lib.config.swerve.TalonFXSwerveModuleConfiguration;
-import com.team6443.lib.config.wrappers.ConfigureSlot0Gains;
-import com.team6443.lib.mechanics.MultistageGearBox;
-import com.team6443.lib.motors.interfaces.MotorIO.FollowDirection;
-import com.team6443.lib.motors.interfaces.MotorIO.NeutralMode;
 import com.team6443.lib.subsystems.simulation.elevator.SimulatedElevator.SimulatedElevatorConfiguration;
+import com.team6443.lib.superstructure.config.BaseSuperstructureConfiguration;
 
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -53,6 +35,10 @@ public class Nautilus extends RobotConfig {
 
     private static final String kElevatorSubsystemName = "ElevatorSubsystem";
     private static final String kDriveSubsystemName = "DriveSubsystem";
+
+    // --- Superstructure Config ---
+    private static final NautilusSuperstructureConfiguration kSuperstructureConfiguration = 
+        new NautilusSuperstructureConfiguration(kRobotName + "_DefaultConfiguration");
 
     // ---  CAN Bus Config  --- 
     // (Note IDs can be the same for different device types (TalonFX, Pigeon2, etc), ie gyro and front left drive motor have the same ID)
@@ -117,8 +103,6 @@ public class Nautilus extends RobotConfig {
     // --- Autonomous Config ---
     private static final NautilusAutonomousConfiguration kAutonomousConfiguration = new NautilusAutonomousConfiguration();
 
-    
-
     // --- RobotConfig override functions ---
     @Override
     public String getRobotName() {
@@ -168,5 +152,10 @@ public class Nautilus extends RobotConfig {
     @Override
     public SimulatedElevatorConfiguration getSimulatedElevatorConfiguration() {
         return kElevatorConfiguration.kSimulatedElevatorConfiguration;
+    }
+
+    @Override
+    public BaseSuperstructureConfiguration<?> getSuperstructureConfiguration() {
+        return kSuperstructureConfiguration;
     }
 }

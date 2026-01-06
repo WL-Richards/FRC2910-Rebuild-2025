@@ -54,7 +54,12 @@ public class RobotContainer implements Loggerable {
   private final AutoRoutineFactory autoRoutineFactory = new AutoRoutineFactory(choreoPather);
   
   public RobotContainer() {
+    setupLogger();
     configureBindings();
+    setupAutoChooser();
+
+    RobotRuntimeConstants.kRobotConfiguration.getSuperstructureConfiguration().generateSuperstructureGraphTemplate();
+    RobotRuntimeConstants.kRobotConfiguration.getSuperstructureConfiguration().loadGraph();
   }
 
   /**

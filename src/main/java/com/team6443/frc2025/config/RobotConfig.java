@@ -17,6 +17,7 @@ import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
 import com.team6443.lib.config.subsystems.drive.simulation.DrivetrainSimConfiguration;
 import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
 import com.team6443.lib.subsystems.simulation.elevator.SimulatedElevator;
+import com.team6443.lib.superstructure.config.BaseSuperstructureConfiguration;
 
 /**
  * Define the basis for what needs to be provided for the robot to be controlled to its fullest.
@@ -63,6 +64,11 @@ public abstract class RobotConfig {
     public abstract ServoMotorFollowerConfiguration<TalonFXConfiguration> getElevatorConfiguration();
     public abstract SimulatedElevator.SimulatedElevatorConfiguration getSimulatedElevatorConfiguration();
 
+    /**
+     * Pure abstract method, retrieves the configuration for the superstructure on this robot
+     * @return Current configuration of superstructure state machine
+     */
+    public abstract BaseSuperstructureConfiguration<?> getSuperstructureConfiguration();
 
     /**
      * Pure abstract method, retrieves how all the cameras on the bot are configured

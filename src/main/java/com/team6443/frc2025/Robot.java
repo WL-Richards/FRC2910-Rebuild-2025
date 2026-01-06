@@ -18,7 +18,6 @@ public class Robot extends LoggedRobot {
     // SHOULD ALWAYS BE CALLED FIRST TO NOT MISS ANY LOGS
     // Setup logging to the proper location, and log the metadata for the bot
     robotContainer = new RobotContainer();
-    robotContainer.setupLogger();
     robotContainer.setupAutoChooser();
 
   }
