@@ -9,9 +9,9 @@ import java.util.List;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.team6443.frc2025.config.robots.nautilus.swerve_tunings.NautilusSwerveConstantsComp;
-import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
 import com.team6443.lib.config.swerve.TalonFXSwerveModuleConfiguration;
+import com.team6443.lib.core.can.CANDeviceID;
 
 /** Configurations for the nautilus robot swerve modules */
 public class NautilusSwerveModuleConfigurations {

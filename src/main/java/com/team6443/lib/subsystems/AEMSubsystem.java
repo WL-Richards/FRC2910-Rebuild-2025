@@ -4,7 +4,7 @@
 
 package com.team6443.lib.subsystems;
 
-import com.team6443.lib.logging.interfaces.Loggable;
+import com.team6443.lib.core.logging.Loggable;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 

@@ -7,10 +7,10 @@ package com.team6443.lib.subsystems;
 import org.littletonrobotics.junction.Logger;
 
 import com.team6443.lib.config.motors.ServoMotorCANCoderConfiguration;
-import com.team6443.lib.encoders.CANCoderInputs;
-import com.team6443.lib.encoders.interfaces.CANCoderIO;
-import com.team6443.lib.motors.MotorInputs;
-import com.team6443.lib.motors.interfaces.MotorIO;
+import com.team6443.lib.core.encoders.CANCoderInputs;
+import com.team6443.lib.core.encoders.interfaces.CANCoderIO;
+import com.team6443.lib.core.motors.MotorInputs;
+import com.team6443.lib.core.motors.interfaces.MotorIO;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;

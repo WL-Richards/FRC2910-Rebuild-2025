@@ -11,8 +11,8 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.team6443.lib.config.motors.ServoMotorConfiguration;
-import com.team6443.lib.motors.MotorInputs;
-import com.team6443.lib.motors.interfaces.MotorIO;
+import com.team6443.lib.core.motors.MotorInputs;
+import com.team6443.lib.core.motors.interfaces.MotorIO;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;

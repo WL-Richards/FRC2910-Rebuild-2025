@@ -9,8 +9,8 @@ import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
-import com.team6443.lib.motors.MotorInputs;
-import com.team6443.lib.motors.interfaces.MotorIO;
+import com.team6443.lib.core.motors.MotorInputs;
+import com.team6443.lib.core.motors.interfaces.MotorIO;
 
 /**
  * A servo motor subsystem that manages a leader motor with one or more follower motors.

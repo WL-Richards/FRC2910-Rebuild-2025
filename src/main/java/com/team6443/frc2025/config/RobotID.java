@@ -6,14 +6,36 @@ package com.team6443.frc2025.config;
 
 import java.util.Map;
 
-import com.team6443.lib.network.NetworkUtils;
+import org.littletonrobotics.junction.Logger;
+
+import com.team6443.lib.core.network.NetworkUtils;
 
 /**
  * Enum (basically a class here) to facilitate the identification and proper configuration selection between different robots
  */
 public enum RobotID {
-    NAUTILUS,
+    NAUTILUS("Nautilus"),
     ;   
+
+    private final String kName;
+    private String macAddress = null;
+    private RobotID(String name){
+        this.kName = name;
+    }
+
+    public RobotID withMACAddress(String mac){
+        macAddress = mac;
+        return this;
+    }
+
+    public String getName(){
+        return this.kName;
+    }
+
+    public String getMACAddress(){
+        return this.macAddress;
+    }
+
     // ---After this point we can define class properties in the enum ---
 
     /* Define mappings of robot types to the MAC address they are associated with */
@@ -27,11 +49,10 @@ public enum RobotID {
     public static RobotID getIdentification(){
         String macAddress = NetworkUtils.MAC.getMACAddress();
         if (macAddress == null){
-            return RobotID.NAUTILUS;
+            return RobotID.NAUTILUS.withMACAddress("NULL MAC ADDRESS");
         }
-        RobotID id = RobotToMAC.get(macAddress);
-
+        RobotID id = RobotToMAC.get(macAddress).withMACAddress(macAddress);
         // Default to the main robot if MAC was unable to be retrieved
-        return  (id != null) ? id : RobotID.NAUTILUS;
+        return  (id != null) ? id : RobotID.NAUTILUS.withMACAddress(macAddress);
     }
 }

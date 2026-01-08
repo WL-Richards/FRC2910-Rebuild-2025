@@ -4,8 +4,8 @@
 
 package com.team6443.lib.config.motors;
 
-import com.team6443.lib.can.CANDeviceID;
-import com.team6443.lib.motors.interfaces.MotorIO.NeutralMode;
+import com.team6443.lib.core.can.CANDeviceID;
+import com.team6443.lib.core.motors.interfaces.MotorIO.NeutralMode;
 
 /** 
  * Configuration for treating a motor as effectively a servo

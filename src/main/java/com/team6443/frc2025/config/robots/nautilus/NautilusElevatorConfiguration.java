@@ -9,12 +9,12 @@ import java.util.List;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
 import com.team6443.lib.config.motors.factories.TalonFXConfigurationFactory;
+import com.team6443.lib.config.subsystems.elevator.simulation.SimulatedElevatorConfiguration;
 import com.team6443.lib.config.wrappers.ConfigureSlot0Gains;
-import com.team6443.lib.motors.interfaces.MotorIO.FollowDirection;
-import com.team6443.lib.subsystems.simulation.elevator.SimulatedElevator.SimulatedElevatorConfiguration;
+import com.team6443.lib.core.can.CANDeviceID;
+import com.team6443.lib.core.motors.interfaces.MotorIO.FollowDirection;
 
 import edu.wpi.first.math.util.Units;
 

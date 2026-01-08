@@ -12,9 +12,9 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.team6443.lib.config.autonomous.ChoreoPatherConfiguration;
+import com.team6443.lib.core.logging.Loggable;
 import com.team6443.lib.autonomous.wrappers.LoggableAutoTrajectory;
 import com.team6443.lib.autonomous.wrappers.LoggableChoreoCommand;
-import com.team6443.lib.logging.interfaces.Loggable;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;

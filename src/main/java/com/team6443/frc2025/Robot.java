@@ -6,7 +6,9 @@ package com.team6443.frc2025;
 
 import org.littletonrobotics.junction.LoggedRobot;
 
-import com.team6443.lib.can.CANStatusLogger;
+import com.team6443.frc2025.state.RobotState;
+import com.team6443.frc2025.state.SimulatedRobotState;
+import com.team6443.lib.core.can.CANStatusLogger;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 

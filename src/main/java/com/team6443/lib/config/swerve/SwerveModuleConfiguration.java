@@ -6,17 +6,17 @@ package com.team6443.lib.config.swerve;
 
 import com.ctre.phoenix6.configs.ParentConfiguration;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.config.wrappers.ConfigureSlot0Gains;
-import com.team6443.lib.mechanics.MultistageGearBox;
-import com.team6443.lib.motors.interfaces.MotorIO.NeutralMode;
+import com.team6443.lib.core.can.CANDeviceID;
+import com.team6443.lib.core.motors.interfaces.MotorIO.NeutralMode;
+import com.team6443.lib.math.mechanics.MultistageGearBox;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
 /**
- * Base configuration class used to describe a 
+ * Base configuration class used to describe the configuration for one swerve module
  */
 public abstract class SwerveModuleConfiguration<DC extends ParentConfiguration, SC extends ParentConfiguration, SE extends ParentConfiguration> {
 

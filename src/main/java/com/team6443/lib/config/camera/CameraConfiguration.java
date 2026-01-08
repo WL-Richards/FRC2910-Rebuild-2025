@@ -172,9 +172,6 @@ public class CameraConfiguration {
      */
     public double CameraXRotationScalar = 1.0;
 
-
-    // TODO: ADD SCALAR FOR GYRO TO TX RATE OF CHANGE
-
     /**
      * Pass in a location when the camera is configured
      * @param location Location of the camera on the robot

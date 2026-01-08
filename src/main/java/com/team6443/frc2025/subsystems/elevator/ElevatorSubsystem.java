@@ -8,8 +8,8 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
-import com.team6443.lib.motors.MotorInputs;
-import com.team6443.lib.motors.interfaces.MotorIO;
+import com.team6443.lib.core.motors.MotorInputs;
+import com.team6443.lib.core.motors.interfaces.MotorIO;
 import com.team6443.lib.subsystems.ServoMotorFollowerSubsystem;
 import com.team6443.lib.subsystems.elevator.ElevatorIO;
 

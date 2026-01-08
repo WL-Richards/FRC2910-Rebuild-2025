@@ -5,14 +5,14 @@
 package com.team6443.lib.constants;
 
 import com.team6443.lib.constants.fields.Field2025;
-import com.team6443.lib.constants.interfaces.YearFieldConstantable;
+import com.team6443.lib.constants.fields.interfaces.YearFieldConstantable;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.util.Units;
 
 /** 
- * Constants specific to the current game year in this case 2025 Reefscape
+ * Constants that are agnostic to the year
  */
 public class FieldConstants {
 

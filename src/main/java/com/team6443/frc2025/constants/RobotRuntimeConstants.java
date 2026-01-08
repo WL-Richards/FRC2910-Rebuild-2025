@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 /**
  * Common functionality that every robot every year will need to have if this pattern is followed
  */
-public abstract class RobotRuntimeConstants {
+public class RobotRuntimeConstants {
 
     /**
      * Tracks the current runtime state of the robot

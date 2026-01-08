@@ -5,7 +5,7 @@
 package com.team6443.lib.config.encoders;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.team6443.lib.can.CANDeviceID;
+import com.team6443.lib.core.can.CANDeviceID;
 
 /**
  * Configuration describing the setup of the CAN coder

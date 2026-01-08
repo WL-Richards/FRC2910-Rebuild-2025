@@ -9,7 +9,6 @@ import java.util.List;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.team6443.frc2025.config.RobotConfig;
-import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.config.autonomous.ChoreoPatherConfiguration;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
@@ -18,8 +17,9 @@ import com.team6443.lib.config.robot.PhysicalConfiguration;
 import com.team6443.lib.config.robot.Pigeon2GyroConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
 import com.team6443.lib.config.subsystems.drive.simulation.DrivetrainSimConfiguration;
+import com.team6443.lib.config.subsystems.elevator.simulation.SimulatedElevatorConfiguration;
 import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
-import com.team6443.lib.subsystems.simulation.elevator.SimulatedElevator.SimulatedElevatorConfiguration;
+import com.team6443.lib.core.can.CANDeviceID;
 import com.team6443.lib.superstructure.config.BaseSuperstructureConfiguration;
 
 import edu.wpi.first.math.geometry.Rotation3d;

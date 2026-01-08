@@ -5,9 +5,9 @@
 package com.team6443.lib.config.motors.factories;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.config.motors.ServoMotorConfiguration;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
+import com.team6443.lib.core.can.CANDeviceID;
 
 /** 
  * Factory for creating Talon FX configs

@@ -1,6 +1,7 @@
 package com.team6443.lib.constants.fields;
 
-import com.team6443.lib.constants.interfaces.YearFieldConstantable;
+import com.team6443.lib.constants.fields.interfaces.YearFieldConstantable;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 

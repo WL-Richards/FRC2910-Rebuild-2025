@@ -4,8 +4,8 @@
 
 package com.team6443.lib.subsystems.elevator;
 
-import com.team6443.lib.logging.interfaces.Loggable;
-import com.team6443.lib.motors.interfaces.MotorIO;
+import com.team6443.lib.core.logging.Loggable;
+import com.team6443.lib.core.motors.interfaces.MotorIO;
 
 /** Elevator IO interface */
 public interface ElevatorIO  extends Loggable {

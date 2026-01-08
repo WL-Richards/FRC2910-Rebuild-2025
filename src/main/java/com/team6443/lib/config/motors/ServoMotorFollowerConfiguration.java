@@ -6,7 +6,7 @@ package com.team6443.lib.config.motors;
 
 import java.util.List;
 
-import com.team6443.lib.motors.interfaces.MotorIO.FollowDirection;
+import com.team6443.lib.core.motors.interfaces.MotorIO.FollowDirection;
 
 /**
  * Represents the configuration for a servo motor that has one or more follower motors.

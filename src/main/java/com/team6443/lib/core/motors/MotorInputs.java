@@ -1,0 +1,43 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
+package com.team6443.lib.core.motors;
+
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
+
+/** 
+ * Defines generic inputs to be passed to a motor
+ */
+
+public class MotorInputs implements LoggableInputs{
+
+    public double velocityUnitsPerSecond = 0.0;
+    public double unitPosition = 0.0;
+    public double appliedVolts = 0.0;
+    public double currentStatorAmps = 0.0;
+    public double currentSupplyAmps = 0.0;
+    public double rawRotorPosition = 0.0;
+
+    @Override
+    public void toLog(LogTable table) {
+        table.put("VelocityUnitsPerSecond", velocityUnitsPerSecond);
+        table.put("UnitPosition", unitPosition);
+        table.put("AppliedVolts", appliedVolts);
+        table.put("CurrentStatorAmps", currentStatorAmps);
+        table.put("CurrentSupplyAmps", currentSupplyAmps);
+        table.put("RawRotorPosition", rawRotorPosition); 
+    }
+
+    @Override
+    public void fromLog(LogTable table) {
+        velocityUnitsPerSecond = table.get("VelocityUnitsPerSecond", velocityUnitsPerSecond);
+        unitPosition = table.get("UnitPosition", unitPosition);
+        appliedVolts = table.get("AppliedVolts", appliedVolts);
+        currentStatorAmps = table.get("CurrentStatorAmps", currentStatorAmps);
+        currentSupplyAmps = table.get("CurrentSupplyAmps", currentSupplyAmps);
+        rawRotorPosition = table.get("RawRotorPosition", rawRotorPosition);
+    }
+
+}

@@ -10,8 +10,8 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import com.team6443.lib.can.CANDeviceID;
 import com.team6443.lib.config.odometry.OdometryStandardDevs;
+import com.team6443.lib.core.can.CANDeviceID;
 
 /** 
  * Defines how a given drive subsystem is setup

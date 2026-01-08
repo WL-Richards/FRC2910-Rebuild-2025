@@ -5,28 +5,28 @@
 package com.team6443.frc2025.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.team6443.frc2025.RobotState;
-import com.team6443.frc2025.SimulatedRobotState;
+
 import com.team6443.frc2025.constants.RobotRuntimeConstants;
-import com.team6443.frc2025.subsystems.drive.DrivetrainIOHardware;
-import com.team6443.frc2025.subsystems.drive.DrivetrainIOSim;
+import com.team6443.frc2025.state.RobotState;
+import com.team6443.frc2025.state.SimulatedRobotState;
 import com.team6443.frc2025.subsystems.drive.DrivetrainSubsystem;
-import com.team6443.frc2025.subsystems.elevator.ElevatorIOHardware;
-import com.team6443.frc2025.subsystems.elevator.ElevatorIOSim;
+import com.team6443.frc2025.subsystems.drive.io.DrivetrainHardwareIO;
+import com.team6443.frc2025.subsystems.drive.io.DrivetrainSimIO;
+
 import com.team6443.frc2025.subsystems.elevator.ElevatorSubsystem;
+import com.team6443.frc2025.subsystems.elevator.io.ElevatorHardwareIO;
+import com.team6443.frc2025.subsystems.elevator.io.ElevatorSimIO;
+
 import com.team6443.frc2025.subsystems.vision.VisionSubsystem;
 import com.team6443.lib.autonomous.ChoreoPather;
-import com.team6443.lib.config.camera.CameraConfiguration;
-import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
+
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
+import com.team6443.lib.config.subsystems.elevator.simulation.SimulatedElevatorConfiguration;
+
 import com.team6443.lib.constants.FieldConstants;
-import com.team6443.lib.constants.interfaces.YearFieldConstantable;
-import com.team6443.lib.factories.motors.TalonFXFactory;
-import com.team6443.lib.motors.hardware.TalonFXIO;
-import com.team6443.lib.subsystems.simulation.elevator.SimulatedElevator;
-import com.team6443.lib.subsystems.simulation.elevator.SimulatedElevator.SimulatedElevatorConfiguration;
-import com.team6443.lib.subsystems.vision.limelight.Limelight4IOHardware;
-import com.team6443.lib.subsystems.vision.limelight.LimelightIOSim;
+import com.team6443.lib.constants.fields.interfaces.YearFieldConstantable;
+import com.team6443.lib.subsystems.vision.io.limelight.Limelight4HardwareIO;
+import com.team6443.lib.subsystems.vision.io.limelight.Limelight4SimIO;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -56,7 +56,7 @@ public class SubsystemFactory {
                 
                 elevator = new ElevatorSubsystem(
                     elevatorConfig,
-                    new ElevatorIOSim(
+                    new ElevatorSimIO(
                         elevatorConfig, 
                         simulatedElevatorConfig
                     )
@@ -69,7 +69,7 @@ public class SubsystemFactory {
             default:
                 elevator = new ElevatorSubsystem(
                     elevatorConfig,
-                    new ElevatorIOHardware(elevatorConfig)
+                    new ElevatorHardwareIO(elevatorConfig)
                 );
                 break;
         }
@@ -85,7 +85,7 @@ public class SubsystemFactory {
             case SIM:
                 return new DrivetrainSubsystem(
                         RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration(),
-                        new DrivetrainIOSim(
+                        new DrivetrainSimIO(
                             RobotRuntimeConstants.kRobotConfiguration.getSimulatedDrivetrainConfiguration(),
                             RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration(),
                             RobotRuntimeConstants.kRobotConfiguration.getSwerveConfigurations()
@@ -99,7 +99,7 @@ public class SubsystemFactory {
             default:
                 return new DrivetrainSubsystem(
                     RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration(),
-                    new DrivetrainIOHardware(
+                    new DrivetrainHardwareIO(
                             RobotRuntimeConstants.kRobotConfiguration.getDrivetrainConfiguration(),
                             RobotRuntimeConstants.kRobotConfiguration.getSwerveConfigurations()
                         )
@@ -113,27 +113,27 @@ public class SubsystemFactory {
             // ---- Simulation instance of drivetrain ----
             case SIM:
                 return new VisionSubsystem(
-                    new LimelightIOSim(
+                    new Limelight4SimIO(
                         RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(0),
                         kCurrentYear,
                         () -> SimulatedRobotState.get().getLatestFieldRobotPose(),
                         () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed(),
                         (cameraSim, cameraTransform) -> { SimulatedRobotState.get().addCameraToVisionSimulation(cameraSim, cameraTransform); }
                     ),
-                    new LimelightIOSim(
+                    new Limelight4SimIO(
                         RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(1),
                         kCurrentYear,
                         () -> SimulatedRobotState.get().getLatestFieldRobotPose(),
                         () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed(),
                         (cameraSim, cameraTransform) -> { SimulatedRobotState.get().addCameraToVisionSimulation(cameraSim, cameraTransform); }
                     ),
-                    new LimelightIOSim(RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(2),
+                    new Limelight4SimIO(RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(2),
                         kCurrentYear,
                         () -> SimulatedRobotState.get().getLatestFieldRobotPose(),
                         () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed(),
                         (cameraSim, cameraTransform) -> { SimulatedRobotState.get().addCameraToVisionSimulation(cameraSim, cameraTransform); }
                     ),
-                    new LimelightIOSim(RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(3),
+                    new Limelight4SimIO(RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(3),
                         kCurrentYear,
                         () -> SimulatedRobotState.get().getLatestFieldRobotPose(),
                         () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed(),
@@ -147,25 +147,25 @@ public class SubsystemFactory {
             case REAL:
             default:
                 return new VisionSubsystem(
-                    new Limelight4IOHardware(
+                    new Limelight4HardwareIO(
                         RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(0), 
                         kCurrentYear, 
                         () -> RobotState.get().getLatestFieldRobotPose(),
                         () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed()
                     ),
-                    new Limelight4IOHardware(
+                    new Limelight4HardwareIO(
                         RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(1), 
                         kCurrentYear,
                         () -> RobotState.get().getLatestFieldRobotPose(),
                         () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed()
                     ),
-                    new Limelight4IOHardware(
+                    new Limelight4HardwareIO(
                         RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(2), 
                         kCurrentYear,
                         () -> RobotState.get().getLatestFieldRobotPose(),
                         () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed()
                     ),
-                    new Limelight4IOHardware(
+                    new Limelight4HardwareIO(
                         RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(3), 
                         kCurrentYear,
                         () -> RobotState.get().getLatestFieldRobotPose(),

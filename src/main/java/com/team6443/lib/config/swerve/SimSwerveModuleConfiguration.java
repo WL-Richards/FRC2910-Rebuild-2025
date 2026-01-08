@@ -13,8 +13,8 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import com.team6443.lib.motors.sim.TalonFXSimIO;
-import com.team6443.lib.motors.sim.TalonFXWithCANcoderSimIO;
+import com.team6443.lib.core.motors.io.TalonFXCANcoderSimIO;
+import com.team6443.lib.core.motors.io.TalonFXSimIO;
 
 /** 
  * Handles basic swerve module configuration wrapper for simulated swerve modules when using MapleSim drivetrain
@@ -43,7 +43,7 @@ public class SimSwerveModuleConfiguration {
 
         // Configure steer motor controller to use a Talon FX wth Sim CAN coder
         this.moduleSimulation.useSteerMotorController(
-            new TalonFXWithCANcoderSimIO(
+            new TalonFXCANcoderSimIO(
                 module.getSteerMotor(),
                 moduleConfig.kSteerEncoderID,
                 module.getEncoder()

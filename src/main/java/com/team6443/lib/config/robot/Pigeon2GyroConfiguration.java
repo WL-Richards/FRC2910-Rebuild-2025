@@ -4,13 +4,10 @@
 
 package com.team6443.lib.config.robot;
 
-import java.util.function.Supplier;
-
 import com.ctre.phoenix6.configs.GyroTrimConfigs;
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
-import com.team6443.lib.can.CANDeviceID;
-import com.team6443.lib.can.CANStatusLogger;
+import com.team6443.lib.core.can.CANDeviceID;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 

@@ -9,17 +9,16 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.team6443.frc2025.subsystems.drive.io.DrivetrainSimIO;
 import com.team6443.lib.config.odometry.OdometryStandardDevs;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
-import com.team6443.lib.logging.interfaces.Loggable;
+import com.team6443.lib.core.logging.Loggable;
 import com.team6443.lib.subsystems.AEMSubsystem;
 import com.team6443.lib.subsystems.drive.DrivetrainIO;
 import com.team6443.lib.subsystems.drive.DrivetrainInputs;
-import com.team6443.lib.subsystems.simulation.drive.MapleSimSwerveDrivetrain;
-import com.team6443.lib.subsystems.simulation.visualizations.SwerveVisualizer;
+import com.team6443.lib.subsystems.drive.simulation.MapleSimSwerveDrivetrain;
+import com.team6443.lib.subsystems.drive.visualizations.SwerveVisualizer;
 
-import choreo.trajectory.SwerveSample;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -184,8 +183,8 @@ public class DrivetrainSubsystem extends AEMSubsystem {
 
   // Attempt to get the sim drive train
   public MapleSimSwerveDrivetrain getSimDrivetrain(){
-    if (drivetrain instanceof DrivetrainIOSim){
-      return ((DrivetrainIOSim) drivetrain).getMapleSimDrive();
+    if (drivetrain instanceof DrivetrainSimIO){
+      return ((DrivetrainSimIO) drivetrain).getMapleSimDrive();
     }
 
     return null;
