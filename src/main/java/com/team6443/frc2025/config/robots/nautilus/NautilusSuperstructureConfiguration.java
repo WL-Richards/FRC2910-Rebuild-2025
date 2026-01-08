@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
+import com.team6443.lib.config.superstructure.BaseSuperstructureConfiguration;
+import com.team6443.lib.config.superstructure.BaseSuperstructureStateCollisionStateable;
 import com.team6443.lib.superstructure.SuperstructureStateable;
-import com.team6443.lib.superstructure.config.BaseSuperstructureConfiguration;
-import com.team6443.lib.superstructure.config.BaseSuperstructureStateCollisionStateable;
 
 /**
  * Enum to represent the different collision states that can be encountered when attempting to transiton between staes

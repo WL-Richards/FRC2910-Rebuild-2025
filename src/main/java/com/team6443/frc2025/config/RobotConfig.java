@@ -16,8 +16,8 @@ import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
 import com.team6443.lib.config.subsystems.drive.simulation.DrivetrainSimConfiguration;
 import com.team6443.lib.config.subsystems.elevator.simulation.SimulatedElevatorConfiguration;
+import com.team6443.lib.config.superstructure.BaseSuperstructureConfiguration;
 import com.team6443.lib.config.swerve.SwerveModuleConfiguration;
-import com.team6443.lib.superstructure.config.BaseSuperstructureConfiguration;
 
 /**
  * Define the basis for what needs to be provided for the robot to be controlled to its fullest.

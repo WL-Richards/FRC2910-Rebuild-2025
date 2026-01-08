@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package com.team6443.lib.superstructure.config;
+package com.team6443.lib.config.superstructure;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 
-/** Base class for superstructure configures */
+/** Basis for the client specific superstructure configuration, handles loading graphs and precomputing possible routes */
 public abstract class BaseSuperstructureConfiguration<SS extends SuperstructureStateable> {
 
     // If kValidNextStates is empty then all next states are valid

@@ -6,7 +6,7 @@ package com.team6443.lib.superstructure;
 
 import java.util.List;
 
-import com.team6443.lib.superstructure.config.BaseSuperstructureStateCollisionStateable;
+import com.team6443.lib.config.superstructure.BaseSuperstructureStateCollisionStateable;
 
 /** 
  * Interface to be used with a super structure state to provide basic information

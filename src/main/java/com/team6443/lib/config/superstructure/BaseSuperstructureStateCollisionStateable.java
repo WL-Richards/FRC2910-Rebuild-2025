@@ -1,7 +1,10 @@
-package com.team6443.lib.superstructure.config;
+package com.team6443.lib.config.superstructure;
 
 import java.util.function.BooleanSupplier;
 
+/**
+ * Defines the basis for a collision state that could occur with in the superstructure system
+ */
 public interface BaseSuperstructureStateCollisionStateable<T> {
 
     public T withColliderSupplier(BooleanSupplier isCollidingSupplier);
