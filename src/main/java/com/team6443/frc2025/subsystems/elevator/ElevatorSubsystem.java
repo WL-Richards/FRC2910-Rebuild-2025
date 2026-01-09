@@ -7,25 +7,25 @@ package com.team6443.frc2025.subsystems.elevator;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
+import com.team6443.lib.config.motors.MotorFollowerConfiguration;
 import com.team6443.lib.core.motors.MotorInputs;
 import com.team6443.lib.core.motors.interfaces.MotorIO;
-import com.team6443.lib.subsystems.ServoMotorFollowerSubsystem;
+import com.team6443.lib.subsystems.MotorFollowerSubsystem;
 import com.team6443.lib.subsystems.elevator.ElevatorIO;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class ElevatorSubsystem extends ServoMotorFollowerSubsystem<
+public class ElevatorSubsystem extends MotorFollowerSubsystem<
                                         MotorInputs, 
                                         MotorIO, 
-                                        ServoMotorFollowerConfiguration<TalonFXConfiguration>
+                                        MotorFollowerConfiguration<TalonFXConfiguration>
                                       >
 {
   private final ElevatorIO elevator;
 
   /** Creates a new ElevatorSubsystem. */
   public ElevatorSubsystem(
-    ServoMotorFollowerConfiguration<TalonFXConfiguration> config,
+    MotorFollowerConfiguration<TalonFXConfiguration> config,
     ElevatorIO elevator
   ) {
 

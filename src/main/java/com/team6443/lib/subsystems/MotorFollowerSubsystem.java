@@ -8,16 +8,16 @@ import java.util.List;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
+import com.team6443.lib.config.motors.MotorFollowerConfiguration;
 import com.team6443.lib.core.motors.MotorInputs;
 import com.team6443.lib.core.motors.interfaces.MotorIO;
 
 /**
  * A servo motor subsystem that manages a leader motor with one or more follower motors.
  * <p>
- * This class extends {@link ServoMotorSubsystem} and adds support for synchronized
+ * This class extends {@link MotorSubsystem} and adds support for synchronized
  * follower motors that mirror the leader's movement. The follower motors are automatically
- * configured and updated each cycle based on their individual {@link ServoMotorFollowerConfiguration.FollowerConfiguration}
+ * configured and updated each cycle based on their individual {@link MotorFollowerConfiguration.FollowerConfiguration}
  * definitions.
  * <p>
  * Typical use case: multi-motor mechanisms such as elevators, or shooters,
@@ -62,13 +62,13 @@ import com.team6443.lib.core.motors.interfaces.MotorIO;
  *
  * @param <MI> The type of {@link MotorInputs} used to capture sensor/state data for each motor.
  * @param <M>  The type of {@link MotorIO} implementation controlling the motor hardware.
- * @param <C>  The type of {@link ServoMotorFollowerConfiguration} defining motor relationships.
+ * @param <C>  The type of {@link MotorFollowerConfiguration} defining motor relationships.
  */
-public abstract class ServoMotorFollowerSubsystem<
+public abstract class MotorFollowerSubsystem<
                 MI extends MotorInputs,
                 M extends MotorIO,
-                C extends ServoMotorFollowerConfiguration<?>
-            > extends ServoMotorSubsystem<MI, M, C> {
+                C extends MotorFollowerConfiguration<?>
+            > extends MotorSubsystem<MI, M, C> {
 
     /** Configuration object defining leader and follower setup. */
     protected C leaderConfig;
@@ -90,7 +90,7 @@ public abstract class ServoMotorFollowerSubsystem<
      *
      * @throws AssertionError if the number of follower inputs does not match the number of follower motors.
      */
-    public ServoMotorFollowerSubsystem(
+    public MotorFollowerSubsystem(
         MI leaderMotorInputs,
         M leaderMotor,
         MI[] followerMotorInputs,

@@ -10,7 +10,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.sim.CANcoderSimState;
-import com.team6443.lib.config.motors.ServoMotorConfiguration;
+import com.team6443.lib.config.motors.MotorConfiguration;
 import com.team6443.lib.core.can.CANDeviceID;
 
 import edu.wpi.first.units.measure.Angle;
@@ -18,7 +18,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 
 /** Add your docs here. */
-public class TalonFXCANcoderSimIO extends TalonFXSimIO {
+public class TalonFXCANCoderSimIO extends TalonFXSimIO {
     private final CANcoderSimState remoteCancoderSimState;
     private final CANDeviceID encoderCANDevice;
 
@@ -29,8 +29,8 @@ public class TalonFXCANcoderSimIO extends TalonFXSimIO {
      * @param encoderDevice CAN Device representing the encoder
      * @param cancoder CANcoder object itself that we are able to rip the sim state from
      */
-    public TalonFXCANcoderSimIO(
-        ServoMotorConfiguration<TalonFXConfiguration> servoMotorConfig, 
+    public TalonFXCANCoderSimIO(
+        MotorConfiguration<TalonFXConfiguration> servoMotorConfig, 
         CANDeviceID encoderDevice,
         CANcoder cancoder){
         super(servoMotorConfig);
@@ -46,7 +46,7 @@ public class TalonFXCANcoderSimIO extends TalonFXSimIO {
      * @param encoderDevice CAN Device representing the encoder
      * @param cancoder CANcoder object itself that we are able to rip the sim state from
      */
-    public TalonFXCANcoderSimIO(
+    public TalonFXCANCoderSimIO(
         CANDeviceID motorDevice, 
         TalonFXConfiguration motorConfig, 
         CANDeviceID encoderDevice,
@@ -64,7 +64,7 @@ public class TalonFXCANcoderSimIO extends TalonFXSimIO {
      * @param encoderDevice CAN Device representing the encoder
      * @param cancoder CANcoder object itself that we are able to rip the sim state from
      */
-    public TalonFXCANcoderSimIO(
+    public TalonFXCANCoderSimIO(
         TalonFX motor, 
         CANDeviceID encoderDevice,
         CANcoder cancoder){

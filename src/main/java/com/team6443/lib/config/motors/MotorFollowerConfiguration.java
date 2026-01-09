@@ -17,7 +17,7 @@ import com.team6443.lib.core.motors.interfaces.MotorIO.FollowDirection;
  *
  * @param <C> The type of the configuration object used for each motor.
  */
-public class ServoMotorFollowerConfiguration<C> extends ServoMotorConfiguration<C>{
+public class MotorFollowerConfiguration<C> extends MotorConfiguration<C>{
 
     /**
      * Defines how an individual follower motor is configured relative to a leader motor.
@@ -38,19 +38,19 @@ public class ServoMotorFollowerConfiguration<C> extends ServoMotorConfiguration<
          * Configuration of the follower motor, containing its setup details
          * such as motor ID, PID constants, and other parameters.
          */
-        public ServoMotorConfiguration<C> config = null;
+        public MotorConfiguration<C> config = null;
 
-        public FollowerConfiguration(ServoMotorConfiguration<C> config){
+        public FollowerConfiguration(MotorConfiguration<C> config){
             this.config = config;
         }
 
         /**
          * Sets the configuration for this follower motor.
          *
-         * @param config The {@link ServoMotorConfiguration} object containing the follower's settings.
+         * @param config The {@link MotorConfiguration} object containing the follower's settings.
          * @return This {@link FollowerConfiguration} instance, for chaining.
          */
-        public FollowerConfiguration<C> withConfig(ServoMotorConfiguration<C> config) {
+        public FollowerConfiguration<C> withConfig(MotorConfiguration<C> config) {
             this.config = config;
             return this;
         }
@@ -73,19 +73,19 @@ public class ServoMotorFollowerConfiguration<C> extends ServoMotorConfiguration<
      */
     public List<FollowerConfiguration<C>> followerConfigurations;
 
-    public ServoMotorFollowerConfiguration(C config){
+    public MotorFollowerConfiguration(C config){
         super.withConfig(config);
     }
 
-    public ServoMotorFollowerConfiguration(){}
+    public MotorFollowerConfiguration(){}
 
     /**
      * Sets the follower motor configurations for the follower servo motors.
      *
      * @param motors An array of {@link FollowerConfiguration} objects defining each follower motor.
-     * @return This {@link ServoMotorFollowerConfiguration} instance, for chaining.
+     * @return This {@link MotorFollowerConfiguration} instance, for chaining.
      */
-    public ServoMotorFollowerConfiguration<C> withFollowerConfigs(List<FollowerConfiguration<C>> configs) {
+    public MotorFollowerConfiguration<C> withFollowerConfigs(List<FollowerConfiguration<C>> configs) {
         this.followerConfigurations = configs;
         return this;
     }

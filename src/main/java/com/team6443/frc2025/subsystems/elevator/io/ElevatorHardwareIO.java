@@ -5,25 +5,25 @@
 package com.team6443.frc2025.subsystems.elevator.io;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
+import com.team6443.lib.config.motors.MotorFollowerConfiguration;
 import com.team6443.lib.core.motors.factories.TalonFXFactory;
 import com.team6443.lib.core.motors.interfaces.MotorIO;
-import com.team6443.lib.core.motors.io.TalonFXIO;
+import com.team6443.lib.core.motors.io.TalonFXHardwareIO;
 import com.team6443.lib.subsystems.elevator.ElevatorIO;
 
 /** Hardware IO implementation for an elevator */
 public class ElevatorHardwareIO implements ElevatorIO{
-    private final TalonFXIO leadMotor;
-    private final TalonFXIO[] followerMotors;
+    private final TalonFXHardwareIO leadMotor;
+    private final TalonFXHardwareIO[] followerMotors;
 
     public ElevatorHardwareIO(
-       ServoMotorFollowerConfiguration<TalonFXConfiguration> elevatorConfig
+       MotorFollowerConfiguration<TalonFXConfiguration> elevatorConfig
     ){
         // Setup our leader motor based on the configuration 
         leadMotor = TalonFXFactory.createIO(elevatorConfig);
 
         // Setup our follower motors based on the configuration
-        followerMotors = new TalonFXIO[] {
+        followerMotors = new TalonFXHardwareIO[] {
             TalonFXFactory.createIO(elevatorConfig.followerConfigurations.get(0).config)
         };
     }

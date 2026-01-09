@@ -14,8 +14,8 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.team6443.lib.config.motors.ServoMotorConfiguration;
-import com.team6443.lib.core.motors.io.TalonFXIO;
+import com.team6443.lib.config.motors.MotorConfiguration;
+import com.team6443.lib.core.motors.io.TalonFXHardwareIO;
 
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -123,42 +123,42 @@ public final class CTREUtil {
             // ------ TalonFXIO ------
 
             // --- Configuration ---
-            public static StatusCode applyConfiguration(TalonFXIO motor, ServoMotorConfiguration<TalonFXConfiguration> config) {
+            public static StatusCode applyConfiguration(TalonFXHardwareIO motor, MotorConfiguration<TalonFXConfiguration> config) {
                 return applyConfiguration(motor.getTalon(), config);
             }
 
-            public static StatusCode applyConfiguration(TalonFXIO motor, TalonFXConfiguration config) {
+            public static StatusCode applyConfiguration(TalonFXHardwareIO motor, TalonFXConfiguration config) {
                 return applyConfiguration(motor.getTalon(), config);
             }
 
-            public static StatusCode applyConfigurationNonBlocking(TalonFXIO motor, VoltageConfigs config) {
+            public static StatusCode applyConfigurationNonBlocking(TalonFXHardwareIO motor, VoltageConfigs config) {
                 return applyConfigurationNonBlocking(motor.getTalon(), config);
             }
 
-            public static StatusCode applyConfiguration(TalonFXIO motor, HardwareLimitSwitchConfigs config) {
+            public static StatusCode applyConfiguration(TalonFXHardwareIO motor, HardwareLimitSwitchConfigs config) {
                 return applyConfiguration(motor.getTalon(), config);
 
             }
 
-            public static StatusCode applyConfiguration(TalonFXIO motor, MotionMagicConfigs config) {
+            public static StatusCode applyConfiguration(TalonFXHardwareIO motor, MotionMagicConfigs config) {
                 return applyConfiguration(motor.getTalon(), config);
 
             }
 
-            public static StatusCode applyConfiguration(TalonFXIO motor, CurrentLimitsConfigs config) {
+            public static StatusCode applyConfiguration(TalonFXHardwareIO motor, CurrentLimitsConfigs config) {
                 return applyConfiguration(motor.getTalon(), config);
             }
 
-            public static StatusCode getConfiguration(TalonFXIO motor, TalonFXConfiguration config) {
+            public static StatusCode getConfiguration(TalonFXHardwareIO motor, TalonFXConfiguration config) {
                 return getConfiguration(motor.getTalon(), config);
             }
 
             // --- Error Checking ---
-            public static void checkAndLogFaults(TalonFXIO motor){
+            public static void checkAndLogFaults(TalonFXHardwareIO motor){
                 checkAndLogFaults(motor.getTalon(), motor.getCANDeviceName());
             }
 
-            public static List<FaultState> checkFaults(TalonFXIO motor){
+            public static List<FaultState> checkFaults(TalonFXHardwareIO motor){
                 return checkFaults(motor.getTalon());
             }
 
@@ -209,7 +209,7 @@ public final class CTREUtil {
                 );
             }
 
-            public static StatusCode applyConfiguration(TalonFX motor, ServoMotorConfiguration<TalonFXConfiguration> config) {
+            public static StatusCode applyConfiguration(TalonFX motor, MotorConfiguration<TalonFXConfiguration> config) {
                 return applyConfiguration(motor, config.getMotorConfig());
             }
  

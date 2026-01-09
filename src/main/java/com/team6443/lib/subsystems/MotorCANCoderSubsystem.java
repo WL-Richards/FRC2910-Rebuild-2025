@@ -6,7 +6,7 @@ package com.team6443.lib.subsystems;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.team6443.lib.config.motors.ServoMotorCANCoderConfiguration;
+import com.team6443.lib.config.motors.MotorCANCoderConfiguration;
 import com.team6443.lib.core.encoders.CANCoderInputs;
 import com.team6443.lib.core.encoders.interfaces.CANCoderIO;
 import com.team6443.lib.core.motors.MotorInputs;
@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 /**
- * Extension of {@link ServoMotorSubsystem} that fuses an external {@link CANCoderIO}
+ * Extension of {@link MotorSubsystem} that fuses an external {@link CANCoderIO}
  * with a servo-controlled motor. Many FRC mechanisms prefer absolute feedback to
  * guarantee a known zero on boot; this subsystem automatically mirrors a CANcoder's
  * angle into the motor encoder so all of the base class commands "just work".
@@ -50,16 +50,16 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
  * @param <M>  {@link MotorIO} controller implementation.
  * @param <EI> CANcoder inputs container used for logging and offset calculations.
  * @param <E>  {@link CANCoderIO} hardware interface.
- * @param <C>  {@link ServoMotorCANCoderConfiguration} applied to this subsystem.
+ * @param <C>  {@link MotorCANCoderConfiguration} applied to this subsystem.
  */
-public abstract class ServoMotorCANCoderSubsystem<
+public abstract class MotorCANCoderSubsystem<
               MI extends MotorInputs,                         // Motor inputs class to be used, eg. MotorInputs
               M extends MotorIO,                              // Motor interface to be used within the subsystem, eg. TalonFXIO
               EI extends CANCoderInputs,                      // CANCoder inputs class to be used, eg. CANCoderInputs
               E extends CANCoderIO,                           // Interface of the CAN coder object that we are using
-              C extends ServoMotorCANCoderConfiguration<?>    // What servo motor configuration to be using, eg. S
+              C extends MotorCANCoderConfiguration<?>    // What servo motor configuration to be using, eg. S
             >
- extends ServoMotorSubsystem<MI, M, C> {
+ extends MotorSubsystem<MI, M, C> {
   
   // Inputs to be used for this CANcoder
   protected EI canCoderInputs;
@@ -72,7 +72,7 @@ public abstract class ServoMotorCANCoderSubsystem<
 
   
   /** Creates a new ServoMotorSubsystemCanCoder. */
-  public ServoMotorCANCoderSubsystem(
+  public MotorCANCoderSubsystem(
     MI motorInputs, 
     M motor, 
     EI canCoderInputs,

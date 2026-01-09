@@ -13,7 +13,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import com.team6443.lib.core.motors.io.TalonFXCANcoderSimIO;
+import com.team6443.lib.core.motors.io.TalonFXCANCoderSimIO;
 import com.team6443.lib.core.motors.io.TalonFXSimIO;
 
 /** 
@@ -43,7 +43,7 @@ public class SimSwerveModuleConfiguration {
 
         // Configure steer motor controller to use a Talon FX wth Sim CAN coder
         this.moduleSimulation.useSteerMotorController(
-            new TalonFXCANcoderSimIO(
+            new TalonFXCANCoderSimIO(
                 module.getSteerMotor(),
                 moduleConfig.kSteerEncoderID,
                 module.getEncoder()

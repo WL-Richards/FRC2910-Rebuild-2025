@@ -14,7 +14,7 @@ import com.team6443.lib.core.motors.interfaces.MotorIO.NeutralMode;
  * 
  * T in this case is the underlying configuration for the motor
  */
-public class ServoMotorConfiguration<T> {
+public class MotorConfiguration<T> {
 
     // The actual configuration being used internally by the motor
     public T kMotorConfig = null;
@@ -72,7 +72,7 @@ public class ServoMotorConfiguration<T> {
      * @param config What motor configuration should we use under the hood
      * @return Reference to this servo motor configuration for chaining
      */
-    public ServoMotorConfiguration<T> withConfig(T config){
+    public MotorConfiguration<T> withConfig(T config){
         this.kMotorConfig = config;
         return this;
     }
@@ -82,7 +82,7 @@ public class ServoMotorConfiguration<T> {
      * @param name The new name to be set
      * @return Reference to this servo motor configuration for chaining
      */
-    public ServoMotorConfiguration<T> withName(String name){
+    public MotorConfiguration<T> withName(String name){
         this.kConfigurationName = name;
         return this;
     }
@@ -92,7 +92,7 @@ public class ServoMotorConfiguration<T> {
      * @param device The CANDeviceID to set
      * @return Reference to this servo motor configuration for chaining
      */
-    public ServoMotorConfiguration<T> withCANDevice(CANDeviceID device){
+    public MotorConfiguration<T> withCANDevice(CANDeviceID device){
         this.kCANDevice = device;
         return this;
     }

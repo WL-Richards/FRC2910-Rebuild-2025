@@ -19,10 +19,10 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.ReverseLimitSourceValue;
 import com.ctre.phoenix6.signals.ReverseLimitTypeValue;
-import com.team6443.lib.config.motors.ServoMotorConfiguration;
+import com.team6443.lib.config.motors.MotorConfiguration;
 import com.team6443.lib.core.can.CANDeviceID;
 import com.team6443.lib.core.can.CANStatusLogger;
-import com.team6443.lib.core.motors.io.TalonFXIO;
+import com.team6443.lib.core.motors.io.TalonFXHardwareIO;
 import com.team6443.lib.core.phoenix6.CTREUtil;
 
 /** 
@@ -40,8 +40,8 @@ public class TalonFXFactory {
      * @param config ServoMotorConfiguration for this TalonFXIO
      * @return The newly created TalonFXIO
      */
-    public static TalonFXIO createIO(ServoMotorConfiguration<TalonFXConfiguration> config) {
-        return new TalonFXIO(config);
+    public static TalonFXHardwareIO createIO(MotorConfiguration<TalonFXConfiguration> config) {
+        return new TalonFXHardwareIO(config);
     }
 
     // ------ Raw TalonFX Factory Functions ------

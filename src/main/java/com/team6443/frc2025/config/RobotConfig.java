@@ -12,7 +12,7 @@ import com.team6443.frc2025.config.robots.nautilus.Nautilus;
 import com.team6443.lib.config.autonomous.ChoreoPatherConfiguration;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
-import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
+import com.team6443.lib.config.motors.MotorFollowerConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
 import com.team6443.lib.config.subsystems.drive.simulation.DrivetrainSimConfiguration;
 import com.team6443.lib.config.subsystems.elevator.simulation.SimulatedElevatorConfiguration;
@@ -61,7 +61,7 @@ public abstract class RobotConfig {
      * Get the configuration for the Elevator subsystem on this bot
      * @return The elevator subsystem configuration
      */
-    public abstract ServoMotorFollowerConfiguration<TalonFXConfiguration> getElevatorConfiguration();
+    public abstract MotorFollowerConfiguration<TalonFXConfiguration> getElevatorConfiguration();
     public abstract SimulatedElevatorConfiguration getSimulatedElevatorConfiguration();
 
     /**

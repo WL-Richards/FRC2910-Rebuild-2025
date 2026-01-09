@@ -10,11 +10,11 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
-import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
+import com.team6443.lib.config.motors.MotorFollowerConfiguration;
 import com.team6443.lib.config.subsystems.elevator.simulation.SimulatedElevatorConfiguration;
 import com.team6443.lib.core.logging.Loggable;
 import com.team6443.lib.core.motors.interfaces.MotorIO.FollowDirection;
-import com.team6443.lib.core.motors.io.TalonFXIO;
+import com.team6443.lib.core.motors.io.TalonFXHardwareIO;
 import com.team6443.lib.core.motors.io.TalonFXSimIO;
 import com.team6443.lib.subsystems.elevator.visualizations.ElevatorVizualizer;
 
@@ -44,7 +44,7 @@ public class SimulatedElevator implements Loggable{
     protected SimulatedElevatorInputs inputs = new SimulatedElevatorInputs();
 
     // Setup our instances of our simulated talons and elevator configs
-    protected ServoMotorFollowerConfiguration<TalonFXConfiguration> config;
+    protected MotorFollowerConfiguration<TalonFXConfiguration> config;
     protected SimulatedElevatorConfiguration elevatorSimulationConfiguration;
 
     protected TalonFXSimIO leadTalonSimulation;
@@ -55,7 +55,7 @@ public class SimulatedElevator implements Loggable{
     protected Notifier simNotifier = null;
     protected double lastUpdateTimestamp = 0.0;
 
-    public SimulatedElevator(ServoMotorFollowerConfiguration<TalonFXConfiguration> config, SimulatedElevatorConfiguration simConfig){
+    public SimulatedElevator(MotorFollowerConfiguration<TalonFXConfiguration> config, SimulatedElevatorConfiguration simConfig){
         this.config = config;
         this.elevatorSimulationConfiguration = simConfig;
        
@@ -153,11 +153,11 @@ public class SimulatedElevator implements Loggable{
         
     }
 
-    public TalonFXIO getLeadTalon() {
+    public TalonFXHardwareIO getLeadTalon() {
         return leadTalonSimulation;
     }
 
-    public TalonFXIO[] getFollowerTalons() {
+    public TalonFXHardwareIO[] getFollowerTalons() {
         return followerTalonSimulations;
     }
 }

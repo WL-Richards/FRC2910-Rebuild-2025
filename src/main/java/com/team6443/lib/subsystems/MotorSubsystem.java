@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.team6443.lib.config.motors.ServoMotorConfiguration;
+import com.team6443.lib.config.motors.MotorConfiguration;
 import com.team6443.lib.core.motors.MotorInputs;
 import com.team6443.lib.core.motors.interfaces.MotorIO;
 
@@ -63,12 +63,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  *
  * @param <I> {@link MotorInputs} implementation capturing feedback for this motor.
  * @param <M> {@link MotorIO} implementation that issues hardware commands.
- * @param <C> {@link ServoMotorConfiguration} describing units, limits, and tuning.
+ * @param <C> {@link MotorConfiguration} describing units, limits, and tuning.
  */
-public abstract class ServoMotorSubsystem<
+public abstract class MotorSubsystem<
       I extends MotorInputs, 
       M extends MotorIO, 
-      C extends ServoMotorConfiguration<?>
+      C extends MotorConfiguration<?>
     > 
 extends AEMSubsystem {
 
@@ -91,7 +91,7 @@ extends AEMSubsystem {
    * @param motor The MotorIO type that this servo motor subsystem is driving
    * @param motorConfiguration The ServoMotorConfiguration that is in use with this system
    */
-  public ServoMotorSubsystem(
+  public MotorSubsystem(
     I motorInputs, 
     M motor, 
     C motorConfiguration
@@ -114,7 +114,7 @@ extends AEMSubsystem {
    * @param motor The MotorIO type that this servo motor subsystem is driving
    * @param motorConfiguration The ServoMotorConfiguration that is in use with this system
    */
-  public ServoMotorSubsystem(
+  public MotorSubsystem(
     String name,
     I motorInputs, 
     M motor, 

@@ -12,7 +12,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
-import com.team6443.lib.config.motors.ServoMotorConfiguration;
+import com.team6443.lib.config.motors.MotorConfiguration;
 import com.team6443.lib.core.can.CANDeviceID;
 
 import edu.wpi.first.units.measure.Angle;
@@ -22,7 +22,7 @@ import edu.wpi.first.units.measure.Voltage;
 /** 
  * Talon FX used to handle simulated variants of talons
  */
-public class TalonFXSimIO extends TalonFXIO implements SimulatedMotorController {
+public class TalonFXSimIO extends TalonFXHardwareIO implements SimulatedMotorController {
 
     // The simulated state of the Talon FX being used 
     protected TalonFXSimState simSate;
@@ -33,7 +33,7 @@ public class TalonFXSimIO extends TalonFXIO implements SimulatedMotorController 
      * @param device CAN Device representing the Talon Fx
      * @param servoMotorConfig The servo motor configuration to create the new TalonFXIO with
      */
-    public TalonFXSimIO(ServoMotorConfiguration<TalonFXConfiguration> servoMotorConfig){
+    public TalonFXSimIO(MotorConfiguration<TalonFXConfiguration> servoMotorConfig){
         super(servoMotorConfig);
 
         simSate = talon.getSimState();

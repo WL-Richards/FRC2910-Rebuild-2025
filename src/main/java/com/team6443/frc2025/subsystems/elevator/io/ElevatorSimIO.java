@@ -5,7 +5,7 @@
 package com.team6443.frc2025.subsystems.elevator.io;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
+import com.team6443.lib.config.motors.MotorFollowerConfiguration;
 import com.team6443.lib.config.subsystems.elevator.simulation.SimulatedElevatorConfiguration;
 import com.team6443.lib.core.motors.interfaces.MotorIO;
 import com.team6443.lib.subsystems.elevator.simulation.SimulatedElevator;
@@ -16,7 +16,7 @@ public class ElevatorSimIO extends ElevatorHardwareIO {
     private final SimulatedElevator simElevator;
     
     public ElevatorSimIO(
-        ServoMotorFollowerConfiguration<TalonFXConfiguration> elevatorConfig,
+        MotorFollowerConfiguration<TalonFXConfiguration> elevatorConfig,
         SimulatedElevatorConfiguration simulatedElevatorConfig
     ){
         super(elevatorConfig);

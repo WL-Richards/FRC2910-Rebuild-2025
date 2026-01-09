@@ -11,7 +11,7 @@ import com.team6443.lib.config.encoders.CANCoderConfiguration;
  * 
  * C is the motor configuration intended to be used, eg. TalonFXConfiguration, etc.
  */
-public class ServoMotorCANCoderConfiguration<C> extends ServoMotorConfiguration<C> {
+public class MotorCANCoderConfiguration<C> extends MotorConfiguration<C> {
     public CANCoderConfiguration canCoderConfig = new CANCoderConfiguration();
 
     // This is the ratio from cancoder to units.
@@ -45,7 +45,7 @@ public class ServoMotorCANCoderConfiguration<C> extends ServoMotorConfiguration<
         return units / this.kUnitToRotorRotationRatio;
     }
 
-    public ServoMotorCANCoderConfiguration<C> withConfig(C config){
+    public MotorCANCoderConfiguration<C> withConfig(C config){
         super.withConfig(config);
         return this;
     }

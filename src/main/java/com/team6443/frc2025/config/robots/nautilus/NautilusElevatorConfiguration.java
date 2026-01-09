@@ -9,7 +9,7 @@ import java.util.List;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
+import com.team6443.lib.config.motors.MotorFollowerConfiguration;
 import com.team6443.lib.config.motors.factories.TalonFXConfigurationFactory;
 import com.team6443.lib.config.subsystems.elevator.simulation.SimulatedElevatorConfiguration;
 import com.team6443.lib.config.wrappers.ConfigureSlot0Gains;
@@ -68,7 +68,7 @@ public class NautilusElevatorConfiguration {
     .withGravityType(GravityTypeValue.Elevator_Static);
 
     public final SimulatedElevatorConfiguration kSimulatedElevatorConfiguration;
-    public final ServoMotorFollowerConfiguration<TalonFXConfiguration> kElevatorMotorSubsystemConfiguration;
+    public final MotorFollowerConfiguration<TalonFXConfiguration> kElevatorMotorSubsystemConfiguration;
     
     public NautilusElevatorConfiguration(
         String elevatorSubsystemName, 
@@ -84,7 +84,7 @@ public class NautilusElevatorConfiguration {
 
 
         // ------------------------- Elevator Follower Motor Configuration----------------------------
-        ServoMotorFollowerConfiguration.FollowerConfiguration<TalonFXConfiguration> followerConfig = TalonFXConfigurationFactory.generateFollowerTalonFXConfiguration();
+        MotorFollowerConfiguration.FollowerConfiguration<TalonFXConfiguration> followerConfig = TalonFXConfigurationFactory.generateFollowerTalonFXConfiguration();
 
         followerConfig.config.kConfigurationName = "BottomMotorFollower";
         followerConfig.config.kCANDevice = new CANDeviceID(
@@ -107,7 +107,7 @@ public class NautilusElevatorConfiguration {
 
         // ------------------------- Elevator Subsystem Configuration -------------------------
         kElevatorMotorSubsystemConfiguration = 
-        new ServoMotorFollowerConfiguration<>(
+        new MotorFollowerConfiguration<>(
             new TalonFXConfiguration()
         );
 

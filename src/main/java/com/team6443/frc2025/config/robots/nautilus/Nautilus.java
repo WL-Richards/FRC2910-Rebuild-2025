@@ -12,7 +12,7 @@ import com.team6443.frc2025.config.RobotConfig;
 import com.team6443.lib.config.autonomous.ChoreoPatherConfiguration;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
-import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
+import com.team6443.lib.config.motors.MotorFollowerConfiguration;
 import com.team6443.lib.config.robot.PhysicalConfiguration;
 import com.team6443.lib.config.robot.Pigeon2GyroConfiguration;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
@@ -145,7 +145,7 @@ public class Nautilus extends RobotConfig {
     }
 
     @Override
-    public ServoMotorFollowerConfiguration<TalonFXConfiguration> getElevatorConfiguration() {
+    public MotorFollowerConfiguration<TalonFXConfiguration> getElevatorConfiguration() {
         return kElevatorConfiguration.kElevatorMotorSubsystemConfiguration;
     }
 

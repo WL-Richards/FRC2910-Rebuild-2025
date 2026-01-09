@@ -20,7 +20,7 @@ import com.team6443.frc2025.subsystems.elevator.io.ElevatorSimIO;
 import com.team6443.frc2025.subsystems.vision.VisionSubsystem;
 import com.team6443.lib.autonomous.ChoreoPather;
 
-import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
+import com.team6443.lib.config.motors.MotorFollowerConfiguration;
 import com.team6443.lib.config.subsystems.elevator.simulation.SimulatedElevatorConfiguration;
 
 import com.team6443.lib.subsystems.vision.io.limelight.Limelight4HardwareIO;
@@ -43,7 +43,7 @@ public class SubsystemFactory {
      */
     public static ElevatorSubsystem createElevatorSubsystem(){
         ElevatorSubsystem elevator = null;
-        ServoMotorFollowerConfiguration<TalonFXConfiguration> elevatorConfig = RobotRuntimeConstants.kRobotConfiguration.getElevatorConfiguration();
+        MotorFollowerConfiguration<TalonFXConfiguration> elevatorConfig = RobotRuntimeConstants.kRobotConfiguration.getElevatorConfiguration();
         SimulatedElevatorConfiguration simulatedElevatorConfig  = RobotRuntimeConstants.kRobotConfiguration.getSimulatedElevatorConfiguration();
        
 
