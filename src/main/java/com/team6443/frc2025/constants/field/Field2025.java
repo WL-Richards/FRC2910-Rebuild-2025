@@ -1,4 +1,4 @@
-package com.team6443.lib.constants.fields;
+package com.team6443.frc2025.constants.field;
 
 import com.team6443.lib.constants.fields.interfaces.YearFieldConstantable;
 
@@ -7,6 +7,12 @@ import edu.wpi.first.apriltag.AprilTagFields;
 
 
 public class Field2025 implements YearFieldConstantable{
+
+    private static Field2025 kInstance = new Field2025();
+    public static Field2025 getInstance(){
+        return kInstance;
+    }
+
     /**
      * Define layout of the april tags on the given field
      */

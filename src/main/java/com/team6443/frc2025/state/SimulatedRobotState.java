@@ -10,6 +10,7 @@ import org.littletonrobotics.junction.Logger;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.VisionSystemSim;
 
+import com.team6443.frc2025.constants.field.Field2025;
 import com.team6443.lib.constants.FieldConstants;
 import com.team6443.lib.constants.RobotStateConstants;
 import com.team6443.lib.core.logging.Loggable;
@@ -74,7 +75,7 @@ public final class SimulatedRobotState implements Loggable {
 
     private SimulatedRobotState(){
         // Add the april tags to the simulation
-        visionSimulation.addAprilTags(FieldConstants.k2025FieldConstants.getFieldLayout());
+        visionSimulation.addAprilTags(Field2025.getInstance().getFieldLayout());
     }
 
     public static SimulatedRobotState get(){

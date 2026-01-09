@@ -3,10 +3,10 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package com.team6443.frc2025.subsystems;
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import com.team6443.frc2025.constants.RobotRuntimeConstants;
+import com.team6443.frc2025.constants.field.Field2025;
 import com.team6443.frc2025.state.RobotState;
 import com.team6443.frc2025.state.SimulatedRobotState;
 import com.team6443.frc2025.subsystems.drive.DrivetrainSubsystem;
@@ -23,8 +23,6 @@ import com.team6443.lib.autonomous.ChoreoPather;
 import com.team6443.lib.config.motors.ServoMotorFollowerConfiguration;
 import com.team6443.lib.config.subsystems.elevator.simulation.SimulatedElevatorConfiguration;
 
-import com.team6443.lib.constants.FieldConstants;
-import com.team6443.lib.constants.fields.interfaces.YearFieldConstantable;
 import com.team6443.lib.subsystems.vision.io.limelight.Limelight4HardwareIO;
 import com.team6443.lib.subsystems.vision.io.limelight.Limelight4SimIO;
 
@@ -37,7 +35,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public class SubsystemFactory {
 
     // Variable to allow one point of updating the field year 
-    private static final YearFieldConstantable kCurrentYear = FieldConstants.k2025FieldConstants;
+    private static final Field2025 kCurrentYear = Field2025.getInstance();
 
     /**
      * Build the elevator subsystem factor that will be used

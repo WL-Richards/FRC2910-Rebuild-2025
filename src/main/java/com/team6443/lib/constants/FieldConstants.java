@@ -4,7 +4,7 @@
 
 package com.team6443.lib.constants;
 
-import com.team6443.lib.constants.fields.Field2025;
+
 import com.team6443.lib.constants.fields.interfaces.YearFieldConstantable;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -19,9 +19,6 @@ public class FieldConstants {
     // The height and width of the april tag itself 
     public static final double APRIL_TAG_HEIGHT_METERS = Units.inchesToMeters(6.5); 
     public static final double APRIL_TAG_WIDTH_METERS = Units.inchesToMeters(6.5);
-
-    // Field constants for the 2025 game field "Reefscape"
-    public static final Field2025 k2025FieldConstants = new Field2025();
     
     public static Pose3d getTagPose3d(int id, YearFieldConstantable fieldConstants) {
         if (id < fieldConstants.getMinAprilTagID() || id > fieldConstants.getMaxAprilTagID()) {
