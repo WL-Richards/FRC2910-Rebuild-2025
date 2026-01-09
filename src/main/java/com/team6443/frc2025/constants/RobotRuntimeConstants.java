@@ -33,7 +33,7 @@ public class RobotRuntimeConstants {
     }
 
     // Determine the runtime mode of this bot, real bot, simulated bot or replaying log file
-    public static final RuntimeMode kCurrentRuntimeMode = RobotBase.isReal() ? RuntimeMode.REAL : RuntimeMode.SIM;
+    public static final RuntimeMode kCurrentRuntimeMode = RobotBase.isReal() ? RuntimeMode.REAL : Boolean.getBoolean("robot.replay") ? RuntimeMode.REPLAY : RuntimeMode.SIM;
 
     // What robot is this code currently running on
     public static final RobotID kRobotIdentification = RobotID.getIdentification();

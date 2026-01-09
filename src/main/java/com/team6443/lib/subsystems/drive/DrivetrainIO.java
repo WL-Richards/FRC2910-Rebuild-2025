@@ -10,6 +10,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
@@ -57,6 +58,12 @@ public interface DrivetrainIO {
      * @param rotStd +/- theta standard deviation in radians
      */
     void setOdometryStdDevs(double xStd, double yStd, double rotStd);
+
+    /**
+     * Retrieve the swerve drive kinematics for this swerve drivetrain
+     * @return The SwerveDriveKinematics object that represents this swerve drive train
+     */
+    SwerveDriveKinematics getSwerveKinematics();
 
    
 }

@@ -19,7 +19,6 @@ import com.team6443.frc2025.subsystems.elevator.io.ElevatorSimIO;
 
 import com.team6443.frc2025.subsystems.vision.VisionSubsystem;
 import com.team6443.lib.autonomous.ChoreoPather;
-
 import com.team6443.lib.config.motors.MotorFollowerConfiguration;
 import com.team6443.lib.config.subsystems.elevator.simulation.SimulatedElevatorConfiguration;
 

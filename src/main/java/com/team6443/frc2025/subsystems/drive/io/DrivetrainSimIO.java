@@ -20,6 +20,7 @@ import com.team6443.lib.subsystems.drive.DrivetrainInputs;
 import com.team6443.lib.subsystems.drive.simulation.MapleSimSwerveDrivetrain;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Notifier;
@@ -87,11 +88,16 @@ public class DrivetrainSimIO extends DrivetrainHardwareIO {
                         getModules(),                                                               // Get the representation of the swerve modules themselves
                         moduleConstants,                                                            // Get the swerve module constants values
                         moduleConfigurations);                                                      // List of configurations of the swerve modules
-
+        new SwerveDriveKinematics(getModuleLocations());
         // Create and start simulation thread
         simulationThread = new Notifier(drivetrainSim::update);
         simulationThread.setName("DrivetrainSimNotifier");
         simulationThread.startPeriodic(simConfig.kSimLoopPeriodS);
+    }
+
+    @Override
+    public SwerveDriveKinematics getSwerveKinematics() {
+        return new SwerveDriveKinematics(getModuleLocations());
     }
 
     /**

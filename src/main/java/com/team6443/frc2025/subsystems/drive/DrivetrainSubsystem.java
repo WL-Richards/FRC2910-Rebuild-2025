@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.team6443.frc2025.state.RobotState;
 import com.team6443.frc2025.subsystems.drive.io.DrivetrainSimIO;
 import com.team6443.lib.config.odometry.OdometryStandardDevs;
 import com.team6443.lib.config.subsystems.drive.DrivetrainConfiguration;
@@ -22,6 +23,7 @@ import com.team6443.lib.subsystems.drive.visualizations.SwerveVisualizer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
@@ -67,6 +69,7 @@ public class DrivetrainSubsystem extends AEMSubsystem {
 
     // Log the state of the drive train
     updateLog();
+    updateRobotState();
     drivetrain.logModules(inputs, kLogPrefixStandard);
 
 
@@ -88,6 +91,50 @@ public class DrivetrainSubsystem extends AEMSubsystem {
     Logger.recordOutput(
             kLogPrefixStandard + "/CurrentCommand",
             (getCurrentCommand() == null) ? "Default" : getCurrentCommand().getName()
+    );
+  }
+
+  private void updateRobotState(){
+    // ------ Update Robot State ------
+    // Extract values from inputs
+    double timestamp = inputs.Timestamp; // Use the timestamp logged with the data!
+        
+    // Convert units (Logic previously in HardwareIO)
+    double rollRadsPerS = Units.degreesToRadians(inputs.rollAngularVelocity);
+    double pitchRadsPerS = Units.degreesToRadians(inputs.pitchAngularVelocity);
+    double yawRadsPerS = Units.degreesToRadians(inputs.Speeds.omegaRadiansPerSecond); // Or derive from gyro diff
+    double pitchRads = Units.degreesToRadians(inputs.pitch);
+    double rollRads = Units.degreesToRadians(inputs.roll);
+
+    // Calculate Chassis Speeds (Logic previously in HardwareIO)
+    // We can trust inputs.Speeds (Field Relative) and inputs.Pose which come from the SwerveDriveState
+    ChassisSpeeds actualRobotRelative = ChassisSpeeds.fromFieldRelativeSpeeds(
+        inputs.Speeds, 
+        inputs.Pose.getRotation()
+    );
+    
+    // We can construct the "Gyro Fused" speed if we want to trust gyro rate over odometry rate
+    ChassisSpeeds gyroFusedFieldRelative = new ChassisSpeeds(
+        inputs.Speeds.vxMetersPerSecond,
+        inputs.Speeds.vyMetersPerSecond,
+        yawRadsPerS
+    );
+
+    // Update RobotState
+    RobotState.get().addChassisMotionMeasurements(
+        timestamp, 
+        rollRadsPerS, 
+        pitchRadsPerS, 
+        yawRadsPerS, 
+        pitchRads, 
+        rollRads, 
+        inputs.accelX, 
+        inputs.accelY, 
+        actualRobotRelative, 
+        inputs.Speeds, // Actual Field Relative
+        drivetrain.getSwerveKinematics().toChassisSpeeds(inputs.ModuleTargets), // Desired Robot Relative
+        new ChassisSpeeds(), // Desired Field Relative (Calculable if needed)
+        gyroFusedFieldRelative
     );
   }
 

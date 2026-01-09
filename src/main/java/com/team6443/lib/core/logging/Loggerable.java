@@ -4,8 +4,11 @@
 
 package com.team6443.lib.core.logging;
 
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.team6443.frc2025.constants.RobotRuntimeConstants;
@@ -22,7 +25,7 @@ public interface Loggerable {
     /**
      * Sets up the logger to log to the correct source and then starts it
      */
-    default public void setupLogger() {
+    default public void setupLogger(LoggedRobot robot) {
 
         // Update the metadata prior to starting the logger, THIS IS A REQUIREMENT
         updateMetadata();
@@ -37,8 +40,24 @@ public interface Loggerable {
         
         /* --- On simulated bot log to both advantage kit --- */
         else if(RobotBase.isSimulation()){
-            Logger.addDataReceiver(new WPILOGWriter());
-            Logger.addDataReceiver(new NT4Publisher());
+
+            // Check if running in replay mode 
+            if (RobotRuntimeConstants.kCurrentRuntimeMode == RobotRuntimeConstants.RuntimeMode.REPLAY) {
+                // REPLAY MODE: Read from a log file
+                robot.setUseTiming(false); // Run as fast as possible
+                
+                // Prompt the user to select a log file (or look in default folders)
+                String logPath = LogFileUtil.findReplayLog(); 
+                Logger.setReplaySource(new WPILOGReader(logPath));
+
+                // Save the outputs to a new log file (e.g. "MyLog_sim.wpilog")
+                Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+            }
+            else{
+                Logger.addDataReceiver(new WPILOGWriter());
+                Logger.addDataReceiver(new NT4Publisher());
+            }
+            
         }
 
         /* --- On replay bot do other stuff TODO: Implement --- */

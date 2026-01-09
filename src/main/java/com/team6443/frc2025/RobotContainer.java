@@ -3,6 +3,8 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package com.team6443.frc2025;
+import org.littletonrobotics.junction.LoggedRobot;
+
 import com.team6443.frc2025.autonomous.AutoCommandFactory;
 import com.team6443.frc2025.autonomous.AutoRoutineFactory;
 import com.team6443.frc2025.constants.RobotRuntimeConstants;
@@ -53,8 +55,8 @@ public class RobotContainer implements Loggerable {
   private final AutoCommandFactory autoCommandFactory = new AutoCommandFactory(choreoPather);
   private final AutoRoutineFactory autoRoutineFactory = new AutoRoutineFactory(choreoPather);
   
-  public RobotContainer() {
-    setupLogger();
+  public RobotContainer(LoggedRobot robot) {
+    setupLogger(robot);
     configureBindings();
     setupAutoChooser();
 

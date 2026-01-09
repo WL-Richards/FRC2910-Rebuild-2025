@@ -32,6 +32,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -138,33 +139,13 @@ public class DrivetrainHardwareIO extends SwerveDrivetrain<TalonFX, TalonFX, CAN
 
     @Override
     public void updateInputs(DrivetrainInputs inputs) {
-        // If we can't get the reference then just return and we will try again next loop
+        // If we can't get the reference then just return and we will try again next loop, this could mean that CAN is not running and we are in REPLAY mode
         if(swerveTelemetryCache.get() == null) return;
+
         inputs.fromSwerveDriveState(swerveTelemetryCache.get());
 
-        // Get the top down rotation of the robot
-        Rotation2d gyroRotation = inputs.Pose.getRotation();
-        inputs.gyroYawAngle = gyroRotation.getDegrees();
-
-        // --- True robot chassis speeds (or atleast true to what it knows)
-        // Derive the robots chassis speed from the state of each of the swerve modules within the drive train
-        ChassisSpeeds actualRobotRelativeChassisSpeeds = getKinematics().toChassisSpeeds(inputs.ModuleStates);
-
-        // Convert our robot relative speeds into speeds relative to the game field relative speeds
-        ChassisSpeeds actualFieldRelativeChassisSpeeds = ChassisSpeeds
-            .fromRobotRelativeSpeeds(
-                actualRobotRelativeChassisSpeeds, 
-                gyroRotation
-            );
         
-        // --- Desired chassis speeds based on input
-        ChassisSpeeds desiredRobotRelativeChassisSpeeds = getKinematics().toChassisSpeeds(inputs.ModuleTargets);
-        ChassisSpeeds desiredFieldRelativeChassisSpeeds = ChassisSpeeds
-            .fromRobotRelativeSpeeds(
-                desiredRobotRelativeChassisSpeeds, 
-                gyroRotation
-            );
-        
+
         // Update all gyro signals
         BaseStatusSignal.refreshAll(
             angularRollVelocity,
@@ -176,42 +157,14 @@ public class DrivetrainHardwareIO extends SwerveDrivetrain<TalonFX, TalonFX, CAN
             accelerationY
         );
 
-        // ------ Update Robot State ------
-        double timestamp = Timer.getFPGATimestamp();
-        double rollRadsPerS = Units.degreesToRadians(angularRollVelocity.getValueAsDouble());
-        double pitchRadsPerS = Units.degreesToRadians(angularPitchVelocity.getValueAsDouble());
-        double yawRadsPerS = Units.degreesToRadians(angularYawVelocity.getValueAsDouble());
-
-        double pitchRads = Units.degreesToRadians(pitch.getValueAsDouble());
-        double rollRads = Units.degreesToRadians(roll.getValueAsDouble());
-
-        double accelX = accelerationX.getValueAsDouble();
-        double accelY = accelerationY.getValueAsDouble();
-        
-        // Only use the translational information from the odometry because the gyro is more trustworthy for rotational rate
-        ChassisSpeeds gyroFusedFieldRelativeChassisSpeeds = new ChassisSpeeds(
-            actualFieldRelativeChassisSpeeds.vxMetersPerSecond,
-            actualFieldRelativeChassisSpeeds.vyMetersPerSecond,
-            yawRadsPerS
-        );
-
-        // Add all the speed measurements to our robot state
-        RobotState.get().addChassisMotionMeasurements(
-            timestamp, 
-            rollRadsPerS, 
-            pitchRadsPerS, 
-            yawRadsPerS, 
-            pitchRads, 
-            rollRads, 
-            accelX, 
-            accelY, 
-            actualRobotRelativeChassisSpeeds, 
-            actualFieldRelativeChassisSpeeds, 
-            desiredRobotRelativeChassisSpeeds, 
-            desiredFieldRelativeChassisSpeeds, 
-            gyroFusedFieldRelativeChassisSpeeds
-        );
-
+        inputs.gyroYawAngle = inputs.Pose.getRotation().getDegrees();
+        inputs.yawAngularVelocity = angularYawVelocity.getValueAsDouble();
+        inputs.rollAngularVelocity = angularRollVelocity.getValueAsDouble();
+        inputs.pitchAngularVelocity = angularPitchVelocity.getValueAsDouble();
+        inputs.pitch = pitch.getValueAsDouble();
+        inputs.roll = roll.getValueAsDouble();
+        inputs.accelX = accelerationX.getValueAsDouble();
+        inputs.accelY = accelerationY.getValueAsDouble();
     }
 
     @Override
@@ -238,6 +191,11 @@ public class DrivetrainHardwareIO extends SwerveDrivetrain<TalonFX, TalonFX, CAN
                     moduleNames[i] + " Target Drive Velocity",
                     state.ModuleTargets[i].speedMetersPerSecond);
         }
+    }
+
+    @Override
+    public SwerveDriveKinematics getSwerveKinematics() {
+        return getKinematics();
     }
 
     @Override
