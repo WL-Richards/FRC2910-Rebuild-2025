@@ -48,11 +48,7 @@ public enum RobotID {
      */
     public static RobotID getIdentification(){
         String macAddress = NetworkUtils.MAC.getMACAddress();
-        if (macAddress == null){
-            return RobotID.NAUTILUS.withMACAddress("NULL MAC ADDRESS");
-        }
-        RobotID id = RobotToMAC.get(macAddress).withMACAddress(macAddress);
-        // Default to the main robot if MAC was unable to be retrieved
-        return  (id != null) ? id : RobotID.NAUTILUS.withMACAddress(macAddress);
+        
+        return RobotToMAC.getOrDefault(macAddress, RobotID.NAUTILUS).withMACAddress(macAddress);
     }
 }
