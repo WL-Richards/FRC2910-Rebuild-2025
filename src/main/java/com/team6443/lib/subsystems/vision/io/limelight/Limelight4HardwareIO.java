@@ -13,43 +13,63 @@ import com.team6443.lib.constants.FieldConstants;
 import com.team6443.lib.constants.fields.interfaces.YearFieldConstantable;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.subsystems.vision.util.AprilTagCornerPosition;
+import com.team6443.lib.subsystems.vision.util.limelight.LimelightHelpers;
 import com.team6443.lib.subsystems.vision.VisionInputs;
+import com.team6443.lib.subsystems.vision.interfaces.CameraIO;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
-/** Code of interfacing with a limelight 3A */
-public class Limelight4HardwareIO implements LimelightIO {
-
-    // --- Network Table Entries ---
-    // Network tables that the limelight 4 uses to communicate
-    private final NetworkTableEntry kValidTagEntry;
-    private final NetworkTableEntry kXOffsetEntry;
-    private final NetworkTableEntry kTagIDEntry;
-    private final NetworkTableEntry kTagCornerPositionsEntry;
-    private final NetworkTableEntry kThrottleSetEntry;
+/** 
+ * Code for interfacing with a Limelight 4 
+ */
+public class Limelight4HardwareIO implements CameraIO {
 
     // --- Configuration ---
     protected final CameraConfiguration kCameraConfiguration;
     protected final YearFieldConstantable kFieldConstants;
 
-    // --- Data ---
-    // Tracks the active tag corners statically
-    private final List<AprilTagCornerPosition> kTagCorners = List.of(
-        new AprilTagCornerPosition(), 
-        new AprilTagCornerPosition(), 
-        new AprilTagCornerPosition(), 
-        new AprilTagCornerPosition()
-    );
-
     // Store suppliers for robot pose and robot speed to reference them without referencing the RobotState
-    protected final Supplier<Pose2d> kLatestRobotPoseSupplier;
-    protected final Supplier<ChassisSpeeds> kLatestFieldChassisSpeedSupplier;
+    protected final Supplier<Pose2d> kLatestFieldRobotPoseSupplier;
+    protected final Supplier<ChassisSpeeds> kLatestRobotChassisVelocitySupplier;
+
+    // Allow an optional supplier to be passed in to specify the rotation of this camera (eg. used if this camera is on a turret and rotates)
+    protected final Supplier<Rotation2d> kLatestRobotCameraRotationSupplier;
+    protected final Supplier<Double> kLatestRobotCameraAngularVelocitySupplier;
+
+    // --- Network Table Config ---
+    // Table that contains all the limelight data 
+    protected final NetworkTable networkTable;
+
+    public Limelight4HardwareIO(
+        CameraConfiguration config,
+        YearFieldConstantable yearSpecificFieldConstants,
+        Supplier<Pose2d> latestFieldPoseSupplier,
+        Supplier<ChassisSpeeds> latestRobotChassisVelocitySupplier,
+        Supplier<Rotation2d> latestRobotCameraRotationSupplier,
+        Supplier<Double> latestRobotCameraAngularVelocitySupplier
+    ){
+        this.kCameraConfiguration = config;
+        this.kFieldConstants = yearSpecificFieldConstants;
+        this.kLatestFieldRobotPoseSupplier = latestFieldPoseSupplier;
+        this.kLatestRobotChassisVelocitySupplier = latestRobotChassisVelocitySupplier;
+        this.kLatestRobotCameraRotationSupplier = latestRobotCameraRotationSupplier;
+        this.kLatestRobotCameraAngularVelocitySupplier = latestRobotCameraAngularVelocitySupplier;
+
+        if(this.kCameraConfiguration.NetworkTableName == null){
+            throw new IllegalArgumentException(String.format("CameraConfiguration.NetworkTableName not set for limelight: %s!", this.kCameraConfiguration.CameraLocation.toString()));
+        }
+
+        // --- Retrieve the network table entries ---
+        this.networkTable = NetworkTableInstance.getDefault().getTable(this.kCameraConfiguration.NetworkTableName);
+    }
 
     public Limelight4HardwareIO(
         CameraConfiguration config,
@@ -57,20 +77,48 @@ public class Limelight4HardwareIO implements LimelightIO {
         Supplier<Pose2d> latestFieldPoseSupplier,
         Supplier<ChassisSpeeds> latestFieldChassisSpeedSupplier
     ){
-        this.kCameraConfiguration = config;
-        this.kFieldConstants = yearSpecificFieldConstants;
-        this.kLatestRobotPoseSupplier = latestFieldPoseSupplier;
-        this.kLatestFieldChassisSpeedSupplier = latestFieldChassisSpeedSupplier;
+        this(config, yearSpecificFieldConstants, latestFieldPoseSupplier, latestFieldChassisSpeedSupplier, null, null);
+    }
 
-        // --- Retrieve the network table entries ---
-        NetworkTableInstance ntInstance = NetworkTableInstance.getDefault();
+    /**
+     * Update the pose of the camera based on the current state of the robot
+     */
+    private void updateCameraPose(){
+        // Update the camera pose with the configuration set for this camera
+        LimelightHelpers.setCameraPose_RobotSpace(
+            kCameraConfiguration.NetworkTableName, 
+            kCameraConfiguration.CameraLocation.CameraPose.getX(), 
+            kCameraConfiguration.CameraLocation.CameraPose.getY(), 
+            kCameraConfiguration.CameraLocation.CameraPose.getZ(), 
+            Units.radiansToDegrees(kCameraConfiguration.CameraLocation.CameraPose.getRotation().getX()), 
+            Units.radiansToDegrees(kCameraConfiguration.CameraLocation.CameraPose.getRotation().getY()), 
+            Units.radiansToDegrees(kCameraConfiguration.CameraLocation.CameraPose.getRotation().getZ())
+        );
 
-        kValidTagEntry = ntInstance.getTable(this.kCameraConfiguration.CameraType.Name).getEntry("tv");
-        kXOffsetEntry = ntInstance.getTable(this.kCameraConfiguration.CameraType.Name).getEntry("tx");
-        kTagIDEntry = ntInstance.getTable(this.kCameraConfiguration.CameraType.Name).getEntry("tid");
-        kTagCornerPositionsEntry = ntInstance.getTable(this.kCameraConfiguration.CameraType.Name).getEntry("tcornxy");
-        kThrottleSetEntry = ntInstance.getTable(this.kCameraConfiguration.CameraType.Name).getEntry("throttle_set");
+        // Standard camera just needs this information below to handle tracking the robot orientation
+        Rotation2d cameraHeading = kLatestFieldRobotPoseSupplier.get().getRotation();
+        double cameraYawVelocity = Units.radiansToDegrees(kLatestRobotChassisVelocitySupplier.get().omegaRadiansPerSecond);
 
+        // If there is a robot camera rotation supplier specified for this camera then we want to factor that information into it as well
+        if (kLatestRobotCameraRotationSupplier != null && kLatestRobotCameraAngularVelocitySupplier != null){
+
+            // Rotate the camera heading by the additional supplied rotation
+            cameraHeading = cameraHeading.rotateBy(kLatestRobotCameraRotationSupplier.get());
+
+            // Add the yaw velocity of the camera to the yaw velocity of the robot
+            cameraYawVelocity = cameraYawVelocity + Units.radiansToDegrees(kLatestRobotCameraAngularVelocitySupplier.get());
+        }
+
+        // Populate the robot orientation with the correct values
+        LimelightHelpers.SetRobotOrientation(
+            kCameraConfiguration.NetworkTableName, 
+            cameraHeading.getDegrees(),
+            cameraYawVelocity, 
+            0, 
+            0, 
+            0, 
+            0
+        );
     }
 
     // --- CameraIO Implementation ---
@@ -127,7 +175,7 @@ public class Limelight4HardwareIO implements LimelightIO {
             // Ensure that if we have a tag it is a good solid track, and if so compute the pose
             if (inputs.tagDistanceMeters != -1 && inputs.tagID > kFieldConstants.getMinAprilTagID() && inputs.tagID < kFieldConstants.getMaxAprilTagID()){
                 
-                Rotation2d robotRotation = kLatestRobotPoseSupplier.get().getRotation();
+                Rotation2d robotRotation = kLatestFieldRobotPoseSupplier.get().getRotation();
                 Translation2d cameraToRobotCenter = LimelightIO.computeCameraToRobotCenter(
                     this.kCameraConfiguration, 
                     robotRotation, 
@@ -167,33 +215,7 @@ public class Limelight4HardwareIO implements LimelightIO {
         return this.kCameraConfiguration;
     }
     
-
-    // --- LimelightIOHardware Implementation ---
-    @Override
-    public boolean hasTarget() {
-        return kValidTagEntry.getInteger(0) == 1;
-    }
-
-    @Override
-    public double getXOffset() {
-        return kXOffsetEntry.getDouble(0.0);
-    }
-
-    @Override
-    public int getTagID() {
-        return (int)kTagIDEntry.getInteger(-1);
-    }
-
-    @Override
-    public List<AprilTagCornerPosition> getTagCornerPositions() {
-        return kTagCorners;
-    }
-
-    @Override
-    public boolean setThrottle(int throttle) {
-        return kThrottleSetEntry.setNumber(throttle);
-    }
-
+    // --- Loggable Implementation ---
     @Override
     public void updateLog(String standardPrefix, String inputPrefix) {
         Logger.recordOutput(standardPrefix + "/" + kCameraConfiguration.toString() + "/NumberOfTagCorners", kTagCorners.size());

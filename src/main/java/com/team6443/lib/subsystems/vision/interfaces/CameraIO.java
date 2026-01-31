@@ -4,13 +4,15 @@
 
 package com.team6443.lib.subsystems.vision.interfaces;
 
+import com.team6443.lib.core.logging.Loggable;
+
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.subsystems.vision.VisionInputs;
 
 /** 
  * Basic camera object
  */
-public interface CameraIO {
+public interface CameraIO extends Loggable {
 
     /**
      * Get the configuration for this camera

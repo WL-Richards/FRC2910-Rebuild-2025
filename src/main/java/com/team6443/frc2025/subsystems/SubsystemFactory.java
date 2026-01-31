@@ -114,26 +114,26 @@ public class SubsystemFactory {
                         RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(0),
                         kCurrentYear,
                         () -> SimulatedRobotState.get().getLatestFieldRobotPose(),
-                        () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed(),
+                        () -> RobotState.get().getLatestDesiredRobotRelativeChassisSpeeds(),
                         (cameraSim, cameraTransform) -> { SimulatedRobotState.get().addCameraToVisionSimulation(cameraSim, cameraTransform); }
                     ),
                     new Limelight4SimIO(
                         RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(1),
                         kCurrentYear,
                         () -> SimulatedRobotState.get().getLatestFieldRobotPose(),
-                        () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed(),
+                        () -> RobotState.get().getLatestDesiredRobotRelativeChassisSpeeds(),
                         (cameraSim, cameraTransform) -> { SimulatedRobotState.get().addCameraToVisionSimulation(cameraSim, cameraTransform); }
                     ),
                     new Limelight4SimIO(RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(2),
                         kCurrentYear,
                         () -> SimulatedRobotState.get().getLatestFieldRobotPose(),
-                        () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed(),
+                        () -> RobotState.get().getLatestDesiredRobotRelativeChassisSpeeds(),
                         (cameraSim, cameraTransform) -> { SimulatedRobotState.get().addCameraToVisionSimulation(cameraSim, cameraTransform); }
                     ),
                     new Limelight4SimIO(RobotRuntimeConstants.kRobotConfiguration.getSimulatedCameraConfigurations().get(3),
                         kCurrentYear,
                         () -> SimulatedRobotState.get().getLatestFieldRobotPose(),
-                        () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed(),
+                        () -> RobotState.get().getLatestDesiredRobotRelativeChassisSpeeds(),
                         (cameraSim, cameraTransform) -> { SimulatedRobotState.get().addCameraToVisionSimulation(cameraSim, cameraTransform); }
                     )
                 );
@@ -148,25 +148,25 @@ public class SubsystemFactory {
                         RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(0), 
                         kCurrentYear, 
                         () -> RobotState.get().getLatestFieldRobotPose(),
-                        () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed()
+                        () -> RobotState.get().getLatestDesiredRobotRelativeChassisSpeeds()
                     ),
                     new Limelight4HardwareIO(
                         RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(1), 
                         kCurrentYear,
                         () -> RobotState.get().getLatestFieldRobotPose(),
-                        () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed()
+                        () -> RobotState.get().getLatestDesiredRobotRelativeChassisSpeeds()
                     ),
                     new Limelight4HardwareIO(
                         RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(2), 
                         kCurrentYear,
                         () -> RobotState.get().getLatestFieldRobotPose(),
-                        () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed()
+                        () -> RobotState.get().getLatestDesiredRobotRelativeChassisSpeeds()
                     ),
                     new Limelight4HardwareIO(
                         RobotRuntimeConstants.kRobotConfiguration.getCameraConfigurations().get(3), 
                         kCurrentYear,
                         () -> RobotState.get().getLatestFieldRobotPose(),
-                        () -> RobotState.get().getLatestDesiredFieldRelativeChassisSpeed()
+                        () -> RobotState.get().getLatestDesiredRobotRelativeChassisSpeeds()
                     )
                 );
         }

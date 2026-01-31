@@ -173,6 +173,11 @@ public class CameraConfiguration {
     public double CameraXRotationScalar = 1.0;
 
     /**
+     * Name of the network table that this camera is uploading data to (typically a limelight)
+     */
+    public String NetworkTableName = null;
+
+    /**
      * Pass in a location when the camera is configured
      * @param location Location of the camera on the robot
      */
@@ -246,6 +251,17 @@ public class CameraConfiguration {
      */
     public CameraConfiguration withXRotationScalar(double gryoChange, double cameraChange){
         this.CameraXRotationScalar = gryoChange / cameraChange;
+        return this;
+    }
+
+
+    /**
+     * Configure the name of the network table to point to where this camera is uploading its data
+     * @param name Name of the network table where data is being uploaded to
+     * @return Reference to this camera configuration object
+     */
+    public CameraConfiguration withNetworkTableName(String name){
+        this.NetworkTableName = name;
         return this;
     }
 
