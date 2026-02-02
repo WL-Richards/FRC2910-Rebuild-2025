@@ -126,32 +126,8 @@ public final class RobotState implements Loggable {
     /* Normal class properties */
     private final RobotState.Odometry odometryState = new RobotState.Odometry();
 
-    // The current list of april tag observations
-    private final List<VisionInputs.AprilTagObservations> aprilTagObservations = new ArrayList<>();
-
     public void addOdometryMeasurement(double timestamp, Pose2d pose){
         odometryState.TimeInterpolatableEstimatedRobotPose.addSample(timestamp, pose);
-    }
-
-    /**
-     * Adds a valid vision observation into our overall robot state
-     * @param observations The observations to add 
-     */
-    public void addVisionObservation(VisionInputs.AprilTagObservations... observations){
-        aprilTagObservations.clear();
-
-        
-        for(VisionInputs.AprilTagObservations observation : observations){
-            aprilTagObservations.add(observation);
-        }
-    }
-
-    /**
-     * Get the current valid april tag observations
-     * @return The list of valid april tag observations
-     */
-    public List<VisionInputs.AprilTagObservations> getAprilTagObservations() {
-        return aprilTagObservations;
     }
 
     /**

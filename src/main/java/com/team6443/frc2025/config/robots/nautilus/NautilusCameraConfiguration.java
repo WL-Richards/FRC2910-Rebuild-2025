@@ -44,19 +44,15 @@ public class NautilusCameraConfiguration {
                 Units.degreesToRadians(0)           // Yaw
             )
         )
-        .withCameraDistanceScalar(1,1)
         .withCameraType(CameraConfiguration.Type.LIMELIGHT)
-        .withCameraResolution(Resolution._1280x960);
+        .withCameraResolution(Resolution._1280x960)
+        .withNetworkTableName("limelight-frontleft");
 
 
     public final SimulatedCameraConfiguration kFrontLeftSimulatedCameraConfiguration = new SimulatedCameraConfiguration(kFrontLeftCameraConfiguration)
         .withFramerate(kSimulatedCameraFPS)
         .withCameraNoise(0, 0)
-        .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS)
-        .withCameraDistanceScalar(0.942,0.071);
-
-        //.withCameraDistanceScalar(0.940,1.154);
-        //1.272, 1.454
+        .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS);
     // -------------------------------
 
     // ------ Front Right Camera ------
@@ -73,16 +69,14 @@ public class NautilusCameraConfiguration {
             Units.degreesToRadians(0)        // Yaw
             )
         )
-        .withCameraDistanceScalar(1, 1)
         .withCameraType(CameraConfiguration.Type.LIMELIGHT)
-        .withCameraResolution(Resolution._1280x960);
+        .withCameraResolution(Resolution._1280x960)
+        .withNetworkTableName("limelight-frontright");
 
     public final SimulatedCameraConfiguration kFrontRightSimulatedCameraConfiguration = new SimulatedCameraConfiguration(kFrontRightCameraConfiguration)
         .withFramerate(kSimulatedCameraFPS)
         .withCameraNoise(0, 0)
-        .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS)
-        .withCameraDistanceScalar(0.950,0.071);
-        //.withCameraDistanceScalar(0.950,1.154);
+        .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS);
     // ---------------------------------
 
     // ------ Back Left Camera ------
@@ -99,17 +93,15 @@ public class NautilusCameraConfiguration {
                 Units.degreesToRadians(180)     // Yaw
             )
         )
-        .withCameraDistanceScalar(1, 1)
         .withCameraType(CameraConfiguration.Type.LIMELIGHT)
-        .withCameraResolution(Resolution._1280x960);
+        .withCameraResolution(Resolution._1280x960)
+        .withNetworkTableName("limelight-backleft");
 
 
     public final SimulatedCameraConfiguration kBackLeftSimulatedCameraConfiguration = new SimulatedCameraConfiguration(kBackLeftCameraConfiguration)
         .withFramerate(kSimulatedCameraFPS)
         .withCameraNoise(0, 0)
-        .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS)
-        .withCameraDistanceScalar(0.905,0.074);
-        //.withCameraDistanceScalar(0.900,1.090);
+        .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS);
     // -----------------------------
 
     // ------ Back Right Camera  ------
@@ -126,18 +118,16 @@ public class NautilusCameraConfiguration {
                 Units.degreesToRadians(180)     // Yaw
             )
         )
-        .withCameraDistanceScalar(1, 1) 
         .withCameraType(CameraConfiguration.Type.LIMELIGHT)
-        .withCameraResolution(Resolution._1280x960);
+        .withCameraResolution(Resolution._1280x960)
+        .withNetworkTableName("limelight-backright");
+
 
 
     public final SimulatedCameraConfiguration kBackRightSimulatedCameraConfiguration = new SimulatedCameraConfiguration(kBackRightCameraConfiguration)
         .withFramerate(kSimulatedCameraFPS)
         .withCameraNoise(0, 0)
-        .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS)
-        .withCameraDistanceScalar(0.895,0.074);
-
-        //.withCameraDistanceScalar(0.890,1.090);
+        .withCameraLatency(kSimulatedLatencyMS, kSimulatedLatencyStdevMS);
         
     // --------------------------------
 

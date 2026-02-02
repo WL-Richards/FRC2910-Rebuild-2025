@@ -13,8 +13,8 @@ import com.team6443.frc2025.state.RobotState;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.subsystems.AEMSubsystem;
 import com.team6443.lib.subsystems.vision.VisionInputs;
-import com.team6443.lib.subsystems.vision.VisionInputs.AprilTagObservations;
-import com.team6443.lib.subsystems.vision.io.limelight.LimelightIO;
+import com.team6443.lib.subsystems.vision.interfaces.CameraIO;
+import com.team6443.lib.subsystems.vision.io.limelight.Limelight4HardwareIO;
 
 import edu.wpi.first.math.Pair;
 
@@ -22,26 +22,25 @@ import edu.wpi.first.math.Pair;
 public class VisionSubsystem extends AEMSubsystem {
 
   // Limelight object with its corresponding inputs
-  private final List<Pair<LimelightIO, VisionInputs>> limelightsWithInputsList = new ArrayList<>();
+  private final List<Pair<Limelight4HardwareIO, VisionInputs>> limelightsWithInputsList = new ArrayList<>();
 
   /** Creates a new VisionSubsystem. */
-  public VisionSubsystem(LimelightIO... limelights) {
+  public VisionSubsystem(Limelight4HardwareIO... limelights) {
     super("VisionSubsystem");
 
-    for (LimelightIO limelight : limelights){
+    for (Limelight4HardwareIO limelight : limelights){
       limelightsWithInputsList.add(Pair.of(limelight, new VisionInputs()));
     }
   }
 
   @Override
   public void periodic() {
-    List<VisionInputs.AprilTagObservations> aprilTagObservations = new ArrayList<>();
 
     /**
      * For every limelight update its inputs and also determine if it had a valid pose that needs to be recorded
      */
-    for (Pair<LimelightIO, VisionInputs> limelightWithInput : limelightsWithInputsList){
-      LimelightIO limelight = limelightWithInput.getFirst();
+    for (Pair<Limelight4HardwareIO, VisionInputs> limelightWithInput : limelightsWithInputsList){
+      Limelight4HardwareIO limelight = limelightWithInput.getFirst();
       VisionInputs inputs = limelightWithInput.getSecond();
 
       limelight.updateInputs(inputs);
@@ -49,44 +48,17 @@ public class VisionSubsystem extends AEMSubsystem {
       limelight.updateLog(kLogPrefixStandard, kLogPrefixInput);
 
       // If this input has a valid robot pose we want to add it to our observation list
-      if(inputs.hasTag && inputs.robotPoseBasedOffTagLocationLatencyCompensated != null){
-
-        // Build and add the observation to the list
-        aprilTagObservations.add(
-          new VisionInputs.AprilTagObservations(
-            limelight.getConfiguration().toString(),
-            limelight.getConfiguration().CameraLocation,
-            inputs.tagID,
-            inputs.robotPoseBasedOffTagLocationLatencyCompensated
-          )
-        );
-      }
-    }
-
-    // Add the vision observations to the robot state
-    RobotState.get().addVisionObservation(aprilTagObservations.toArray(new VisionInputs.AprilTagObservations[0]));
-
-    for( AprilTagObservations observation : RobotState.get().getAprilTagObservations()){
-      
-      if (observation.cameraLocation == CameraConfiguration.Location.FRONT_LEFT|| observation.cameraLocation == CameraConfiguration.Location.FRONT_RIGHT){
-        if(observation.tagID == 18 ){
-          Logger.recordOutput(kLogPrefixStandard + "/VisionEstimatedRobotPose", RobotState.get().getAprilTagObservations().size() > 0 ? RobotState.get().getAprilTagObservations().get(0).robotPoseFromCamera : null);
-        }
-        break;
+      if(inputs.hasTag){
+        updateEstimationFromVision(inputs, limelight);
       }
     }
   }
 
-  /**
-   * Set the throttle value of the limelights for all cameras
-   * @param throttle The throttle level to set for the cameras
-   */
-  public void setThrottleValue(int throttle){
-    for (Pair<LimelightIO, VisionInputs> camera : limelightsWithInputsList) {
-      var io = camera.getFirst();
-      io.setThrottle(throttle);
-    }
+  private void updateEstimationFromVision(VisionInputs inputs, CameraIO camera){
+
   }
+
+  
 
   @Override
   public void updateLog(String standardPrefix, String inputPrefix) {

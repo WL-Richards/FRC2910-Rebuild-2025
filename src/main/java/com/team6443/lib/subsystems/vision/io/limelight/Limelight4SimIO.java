@@ -4,6 +4,8 @@
 
 package com.team6443.lib.subsystems.vision.io.limelight;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -15,6 +17,8 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.targeting.TargetCorner;
 
+import com.google.flatbuffers.Constants;
+import com.team6443.frc2025.state.SimulatedRobotState;
 import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
 import com.team6443.lib.constants.FieldConstants;
@@ -28,10 +32,9 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-
-
+import edu.wpi.first.networktables.NetworkTable;
 /** 
- * Simulation code for a Limelight
+ * Simulation code for a Limelight 4
  */
 public class Limelight4SimIO extends Limelight4HardwareIO {
 
@@ -42,35 +45,23 @@ public class Limelight4SimIO extends Limelight4HardwareIO {
     private final PhotonCamera camera;
     private final PhotonCameraSim simulatedCamera;
 
-    private double trueCameraDistance = Double.NaN;
-
-    // Tracks the active tag corners statically
-    private final List<AprilTagCornerPosition> kTagCorners = List.of(
-        new AprilTagCornerPosition(), 
-        new AprilTagCornerPosition(), 
-        new AprilTagCornerPosition(), 
-        new AprilTagCornerPosition()
-    );
-
-    // Current state
-    private boolean hasTarget = false;
-    private double xOffset = 0.0;
-    private int tagID = -1;
-
     public Limelight4SimIO(
         SimulatedCameraConfiguration config,
         YearFieldConstantable yearSpecificFieldConstants,
         Supplier<Pose2d> latestFieldPoseSupplier,
-        Supplier<ChassisSpeeds> latestFieldChassisSpeedSupplier,
+        Supplier<ChassisSpeeds> latestRobotChassisVelocitySupplier,
+        Supplier<Rotation2d> latestRobotCameraRotationSupplier,
+        Supplier<Double> latestRobotCameraAngularVelocitySupplier,
         BiConsumer<PhotonCameraSim, Transform3d> registerVisionSimulationConsumer
     ){
-        super(config.kCameraConfiguration, yearSpecificFieldConstants, latestFieldPoseSupplier, latestFieldChassisSpeedSupplier);
+        super(config.kCameraConfiguration, yearSpecificFieldConstants, latestFieldPoseSupplier, latestRobotChassisVelocitySupplier, latestRobotCameraRotationSupplier, latestRobotCameraAngularVelocitySupplier);
         this.kSimulatedCameraConfiguration = config;
 
         // Setup the photon camera and sims
         this.camera = new PhotonCamera(this.kSimulatedCameraConfiguration.toString());
         this.simulatedCamera = new PhotonCameraSim(camera, kSimulatedCameraConfiguration.kSimCameraProperties);
 
+        // Register this simulated camera with the overall camera simulation
         registerVisionSimulationConsumer.accept(
             simulatedCamera, 
             new Transform3d(
@@ -78,6 +69,24 @@ public class Limelight4SimIO extends Limelight4HardwareIO {
                 kSimulatedCameraConfiguration.kCameraConfiguration.CameraLocation.CameraPose.getRotation()
             )
         );
+    }
+
+    public Limelight4SimIO(
+        SimulatedCameraConfiguration config,
+        YearFieldConstantable yearSpecificFieldConstants,
+        Supplier<Pose2d> latestFieldPoseSupplier,
+        Supplier<ChassisSpeeds> latestRobotChassisSpeedSupplier,
+        BiConsumer<PhotonCameraSim, Transform3d> registerVisionSimulationConsumer
+    ){
+        this(
+            config, 
+            yearSpecificFieldConstants, 
+            latestFieldPoseSupplier, 
+            latestRobotChassisSpeedSupplier, 
+            null, 
+            null,
+            registerVisionSimulationConsumer
+        );    
     }
 
     // --- CameraIO Implementations ---
@@ -88,71 +97,82 @@ public class Limelight4SimIO extends Limelight4HardwareIO {
 
     @Override
     public void updateInputs(VisionInputs inputs) {
-        List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-        if (results.size() > 0){
-            PhotonPipelineResult result = results.get(results.size()-1);
-            hasTarget = result.hasTargets();
-           
-            if (hasTarget){
-                PhotonTrackedTarget target = result.getBestTarget();
-    
-                tagID = target.fiducialId;
-                xOffset = target.getYaw();
+        // Handle updating the cameras transform if the camera rotates (like on a turret)
+        if (kLatestRobotCameraRotationSupplier != null){
+            Rotation2d turretRotation = kLatestRobotCameraRotationSupplier.get();
+            if(turretRotation != null){
+                Transform3d robotToTurret = new Transform3d(
+                    Translation3d.kZero,
+                    new Rotation3d(0.0, 0.0, turretRotation.getRadians())
+                );
 
-                // Update april tag corner positions
-                List<TargetCorner> cornerPositions = target.getDetectedCorners();
+                // Assume the pose set in the camera configuration is relative to the turrets rotational origin
+                Transform3d turretToCamera = new Transform3d(
+                    kCameraConfiguration.CameraLocation.CameraPose.getTranslation(),
+                    new Rotation3d(0.0, -kCameraConfiguration.CameraLocation.CameraPose.getRotation().getY(), 0.0)
+                );
 
-                // ensure >= 8 because array like [x0, y0, x1, y1, etc.]
-                if (cornerPositions.size() >= 4) {
-                    // Then only 4 here cause we move by 2 
-                    for (int i = 0; i < 4; i++) {
-                        kTagCorners.get(i).x = cornerPositions.get(i).x;
-                        kTagCorners.get(i).y = cornerPositions.get(i).y;
-                    }
-                }
-                
-                Pose2d robotPose = kLatestRobotPoseSupplier.get();
-                Translation3d currentCameraFieldPosition = new Translation3d(robotPose.getTranslation().getX(), robotPose.getTranslation().getY(), 0).plus(kSimulatedCameraConfiguration.kCameraConfiguration.CameraLocation.CameraPose.getTranslation().rotateBy(new Rotation3d(robotPose.getRotation())));
-                trueCameraDistance = currentCameraFieldPosition.getDistance(FieldConstants.getTagPose3d(tagID, kFieldConstants).getTranslation());
-            }
-            else{
-                trueCameraDistance = Double.NaN;
+                Transform3d robotToCamera = robotToTurret.plus(turretToCamera);
+
+                SimulatedRobotState.get().getVisionSystemSim().adjustCamera(this.simulatedCamera, robotToCamera);
             }
         }
-        
+
+        writeToTable(camera.getAllUnreadResults(), networkTable);
         super.updateInputs(inputs);
     }
 
-    // --- LimelightIO Implementations ---
-    @Override
-    public boolean hasTarget() {
-       return hasTarget;
+    private void writeToTable(List<PhotonPipelineResult> results, NetworkTable table) {
+        if(results.size() > 0){
+            PhotonPipelineResult result = results.get(results.size()-1);
+            var multiTagResult = result.getMultiTagResult();
+        
+            if (multiTagResult.isPresent() && multiTagResult.get().estimatedPose != null) {
+                var multiTag = multiTagResult.get();
+                Transform3d best = multiTag.estimatedPose.best;
+                Pose2d fieldToCamera = new Pose2d(
+                        best.getTranslation().toTranslation2d(),
+                        best.getRotation().toRotation2d());
+        
+                List<Double> pose_data = new ArrayList<>(Arrays.asList(
+                        best.getX(),                                          // 0: X
+                        best.getY(),                                          // 1: Y
+                        best.getZ(),                                          // 2: Z
+                        0.0,                                                  // 3: roll
+                        0.0,                                                  // 4: pitch
+                        fieldToCamera.getRotation().getDegrees(),             // 5: yaw
+                        result.metadata.getLatencyMillis(),                   // 6: latency ms
+                        (double) multiTag.fiducialIDsUsed.size(),             // 7: tag count
+                        0.0,                                                  // 8: tag span
+                        0.0,                                                  // 9: tag dist
+                        result.getBestTarget().getArea()                      // 10: tag area
+                ));
+        
+                // Add RawFiducials
+                for (var target : result.getTargets()) {
+                    pose_data.add((double) target.getFiducialId()); // 0: id
+                    pose_data.add(target.getYaw());                 // 1: txnc
+                    pose_data.add(target.getPitch());               // 2: tync
+                    pose_data.add(0.0);                             // 3: ta
+                    pose_data.add(0.0);                             // 4: distToCamera
+                    pose_data.add(0.0);                             // 5: distToRobot
+                    pose_data.add(0.5);                             // 6: ambiguity
+                }
+        
+                double[] poseArray = pose_data.stream().mapToDouble(Double::doubleValue).toArray();
+                table.getEntry("botpose_wpiblue").setDoubleArray(poseArray);
+                table.getEntry("botpose_orb_wpiblue").setDoubleArray(poseArray);
+            }
+        
+            table.getEntry("tv").setInteger(result.hasTargets() ? 1 : 0);
+            table.getEntry("cl").setDouble(result.metadata.getLatencyMillis());
+        }
     }
 
-    @Override
-    public double getXOffset() {
-        return xOffset;
-    }
-
-    @Override
-    public int getTagID() {
-       return tagID;
-    }
-
-    @Override
-    public List<AprilTagCornerPosition> getTagCornerPositions() {
-       return kTagCorners;
-    }
-
-    @Override
-    public boolean setThrottle(int throttle) {
-       return true;
-    }
 
     @Override
     public void updateLog(String standardPrefix, String inputPrefix) {
-        Logger.recordOutput(standardPrefix + "/" + kSimulatedCameraConfiguration.toString() + "/NumberOfTagCorners", kTagCorners.size());
-        Logger.recordOutput(standardPrefix + "/" + kSimulatedCameraConfiguration.toString() + "/TrueDistanceToTarget", trueCameraDistance);
+        super.updateLog(standardPrefix, inputPrefix);
     }
 
 }

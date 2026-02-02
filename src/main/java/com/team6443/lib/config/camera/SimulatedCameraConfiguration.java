@@ -80,20 +80,6 @@ public  class SimulatedCameraConfiguration  {
         return this;
     }
 
-    /**
-     * Configure the scalar/ratio that needs to be provided to account for distance irregularities in vision
-     * Units don't matter but both actual and reported must use same, I suggest making all measurements in inches
-     * 
-     * @param actual    The actual distance to some landmark (april tag)
-     * @param reported  The distance reported by vision to some landmark (april tag)
-     * @return Reference to this camera configuration object
-     */
-    public SimulatedCameraConfiguration withCameraDistanceScalar(double actual, double reported){
-        if(RobotBase.isReal()) return this;
-        kCameraConfiguration.withCameraDistanceScalar(actual, reported);
-        return this;
-    }
-
      /**
      * Configure the simulated camera to have a set framerate
      * @param latencyMS Latency of the camera in milliseconds

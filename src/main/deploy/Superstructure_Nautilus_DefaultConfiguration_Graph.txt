@@ -1,0 +1,5 @@
+Coral_Stage_L1
+Coral_Stage_L2
+Coral_Stage_L3
+Coral_Stage_L1 Coral_Stage_L2 1
+Coral_Stage_L2 Coral_Stage_L3 1

@@ -116,6 +116,10 @@ public final class SimulatedRobotState implements Loggable {
         return entry.getValue();
     }
 
+    public VisionSystemSim getVisionSystemSim(){
+        return visionSimulation;
+    }
+
     // --- Loggable Implementation ---
     @Override
     public void updateLog(String standardPrefix, String inputPrefix) {
