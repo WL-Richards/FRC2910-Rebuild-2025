@@ -12,11 +12,11 @@ import org.littletonrobotics.junction.Logger;
 import com.team6443.lib.constants.FieldConstants;
 import com.team6443.lib.constants.fields.interfaces.YearFieldConstantable;
 import com.team6443.lib.config.camera.CameraConfiguration;
-import com.team6443.lib.subsystems.vision.util.AprilTagCornerPosition;
 import com.team6443.lib.subsystems.vision.util.MegatagPoseEstimate;
 import com.team6443.lib.subsystems.vision.util.limelight.LimelightHelpers;
-import com.team6443.lib.subsystems.vision.VisionInputs;
+import com.team6443.lib.subsystems.vision.LimelightVisionInputs;
 import com.team6443.lib.subsystems.vision.interfaces.CameraIO;
+import com.team6443.lib.subsystems.vision.interfaces.LimelightIO;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -31,7 +31,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 /** 
  * Code for interfacing with a Limelight 4 
  */
-public class Limelight4HardwareIO implements CameraIO {
+public class Limelight4HardwareIO extends LimelightIO {
 
     // --- Configuration ---
     protected final CameraConfiguration kCameraConfiguration;
@@ -124,7 +124,7 @@ public class Limelight4HardwareIO implements CameraIO {
 
     // --- CameraIO Implementation ---
     @Override
-    public void updateInputs(VisionInputs inputs) {
+    public void updateInputs(LimelightVisionInputs inputs) {
         // Update the limelight MT track information
         inputs.hasTag = LimelightHelpers.getTV(kCameraConfiguration.NetworkTableName);
         if(inputs.hasTag){

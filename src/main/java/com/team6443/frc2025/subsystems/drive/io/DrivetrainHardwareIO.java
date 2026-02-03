@@ -222,4 +222,10 @@ public class DrivetrainHardwareIO extends SwerveDrivetrain<TalonFX, TalonFX, CAN
         
         this.setStateStdDevs(stateStdDevs);
     }
+
+    @Override
+    public void addVisionMeasurement(double timestamp, Pose2d estimatedPose, Matrix<N3, N1> visionMeasurementStdDevs) {
+        // Convert FPGA timestamp to CTRE time format - critical for proper pose estimator correlation
+        super.addVisionMeasurement(estimatedPose, Utils.fpgaToCurrentTime(timestamp), visionMeasurementStdDevs);
+    }
 }

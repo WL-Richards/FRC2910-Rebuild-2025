@@ -25,8 +25,7 @@ import com.team6443.lib.config.camera.CameraConfiguration;
 import com.team6443.lib.config.camera.SimulatedCameraConfiguration;
 import com.team6443.lib.constants.FieldConstants;
 import com.team6443.lib.constants.fields.interfaces.YearFieldConstantable;
-import com.team6443.lib.subsystems.vision.util.AprilTagCornerPosition;
-import com.team6443.lib.subsystems.vision.VisionInputs;
+import com.team6443.lib.subsystems.vision.LimelightVisionInputs;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -111,7 +110,7 @@ public class Limelight4SimIO extends Limelight4HardwareIO {
     }
 
     @Override
-    public void updateInputs(VisionInputs inputs) {
+    public void updateInputs(LimelightVisionInputs inputs) {
         // Handle updating the cameras transform if the camera rotates (like on a turret)
         if (kLatestRobotCameraRotationSupplier != null){
             Rotation2d turretRotation = kLatestRobotCameraRotationSupplier.get();
@@ -180,11 +179,67 @@ public class Limelight4SimIO extends Limelight4HardwareIO {
                 double[] poseArray = pose_data.stream().mapToDouble(Double::doubleValue).toArray();
                 table.getEntry("botpose_wpiblue").setDoubleArray(poseArray);
                 table.getEntry("botpose_orb_wpiblue").setDoubleArray(poseArray);
+
+                // Compute and publish stddevs array [MT1x, MT1y, MT1z, MT1roll, MT1pitch, MT1yaw, MT2x, MT2y, MT2z, MT2roll, MT2pitch, MT2yaw]
+                double[] stddevs = computeStdDevs(result, estimatedPose.get());
+                table.getEntry("stddevs").setDoubleArray(stddevs);
             }
 
             table.getEntry("tv").setInteger(result.hasTargets() ? 1 : 0);
             table.getEntry("cl").setDouble(result.metadata.getLatencyMillis());
         }
+    }
+
+    /**
+     * Computes simulated standard deviations for pose estimates based on tag count and area.
+     * @param result The PhotonPipelineResult containing target information
+     * @param estimatedPose The estimated robot pose
+     * @return 12-element array: [MT1x, MT1y, MT1z, MT1roll, MT1pitch, MT1yaw, MT2x, MT2y, MT2z, MT2roll, MT2pitch, MT2yaw]
+     */
+    private double[] computeStdDevs(PhotonPipelineResult result, EstimatedRobotPose estimatedPose) {
+        int tagCount = estimatedPose.targetsUsed.size();
+
+        // Calculate average tag area
+        double avgArea = 0.0;
+        for (var target : result.getTargets()) {
+            avgArea += target.getArea();
+        }
+        avgArea = tagCount > 0 ? avgArea / tagCount : 0.0;
+
+        // Base standard deviations (meters for position, degrees for rotation)
+        // These scale inversely with tag count and area
+        double baseXYStdDev = 0.5;   // Base XY uncertainty in meters
+        double baseZStdDev = 0.8;    // Base Z uncertainty in meters (typically higher)
+        double baseRotStdDev = 8.0;  // Base rotational uncertainty in degrees
+
+        // Scale factor based on number of tags (more tags = lower uncertainty)
+        double tagCountFactor = 1.0 / Math.sqrt(Math.max(1, tagCount));
+
+        // Scale factor based on tag area (larger area = closer = lower uncertainty)
+        // Area is typically 0-100, with values around 1-10 being common at mid-range
+        double areaFactor = avgArea > 0.1 ? 1.0 / Math.sqrt(avgArea) : 10.0;
+
+        // Compute MT1 stddevs (standard MegaTag)
+        double mt1XStdDev = baseXYStdDev * tagCountFactor * areaFactor;
+        double mt1YStdDev = baseXYStdDev * tagCountFactor * areaFactor;
+        double mt1ZStdDev = baseZStdDev * tagCountFactor * areaFactor;
+        double mt1RollStdDev = baseRotStdDev * tagCountFactor * areaFactor;
+        double mt1PitchStdDev = baseRotStdDev * tagCountFactor * areaFactor;
+        double mt1YawStdDev = baseRotStdDev * tagCountFactor * areaFactor;
+
+        // Compute MT2 stddevs (MegaTag2 uses gyro fusion, so rotation is more constrained)
+        // MT2 typically has lower position uncertainty but relies on gyro for rotation
+        double mt2XStdDev = mt1XStdDev * 0.8;  // Slightly better position
+        double mt2YStdDev = mt1YStdDev * 0.8;
+        double mt2ZStdDev = mt1ZStdDev * 0.8;
+        double mt2RollStdDev = 0.0;   // MT2 doesn't estimate roll (uses gyro)
+        double mt2PitchStdDev = 0.0;  // MT2 doesn't estimate pitch (uses gyro)
+        double mt2YawStdDev = 0.0;    // MT2 doesn't estimate yaw (uses gyro)
+
+        return new double[] {
+            mt1XStdDev, mt1YStdDev, mt1ZStdDev, mt1RollStdDev, mt1PitchStdDev, mt1YawStdDev,
+            mt2XStdDev, mt2YStdDev, mt2ZStdDev, mt2RollStdDev, mt2PitchStdDev, mt2YawStdDev
+        };
     }
 
 

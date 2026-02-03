@@ -60,6 +60,14 @@ public class DrivetrainSubsystem extends AEMSubsystem {
 
     this.configuration = configuration;
     this.drivetrain = drivetrain;
+
+    RobotState.get().registerDriveTrainVisionEstimateConsumer(
+        (estimate) -> drivetrain.addVisionMeasurement(
+            estimate.getTimestampSeconds(),
+            estimate.getVisionRobotPoseMeters(),
+            estimate.getVisionMeasurementStdDevs()
+        )
+    );
   }
 
   @Override
@@ -226,6 +234,7 @@ public class DrivetrainSubsystem extends AEMSubsystem {
    */
   public void configureStandardDevsForEnabled() {
       setStateStdDevs(this.configuration.kEnabledOdometryStandardDevs);
+
   }
 
   // Attempt to get the sim drive train

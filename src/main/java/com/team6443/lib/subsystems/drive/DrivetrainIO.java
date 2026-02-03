@@ -9,8 +9,11 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
@@ -30,6 +33,14 @@ public interface DrivetrainIO {
      * @param state Current Swerve Drive state to be logged
      */
     void logModules(SwerveDriveState state, String prefix);
+
+    /**
+     * Add vision measurement to drive train odometry estimation
+     * @param timestamp The timestamp at which the pose was estimated in FPGA time
+     * @param estimatedPose The estimated robot pose from the vision system
+     * @param visionMeasurementStdDevs Standard deviations for vision measurement [x, y, theta]
+     */
+    void addVisionMeasurement(double timestamp, Pose2d estimatedPose, Matrix<N3, N1> visionMeasurementStdDevs);
 
     /**
      * Resets the drive train odometry to some pose

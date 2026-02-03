@@ -45,10 +45,13 @@ public class DrivetrainSimIO extends DrivetrainHardwareIO {
     // Update the swerve drive state for the simulation
     private Consumer<SwerveDriveState> simSwerveStateConsumer =
         state -> {
+            // Add ground truth pose to SimulatedRobotState without modifying state.Pose
             if(drivetrainSim != null){
-                state.Pose = drivetrainSim.mapleSimSwerveDrivetrain.getSimulatedDriveTrainPose();
+                SimulatedRobotState.get().addOdometryMeasurement(
+                    drivetrainSim.mapleSimSwerveDrivetrain.getSimulatedDriveTrainPose()
+                );
             }
-            SimulatedRobotState.get().addOdometryMeasurement(state.Pose);
+            // Pass unmodified state so RobotState receives sensor-fused estimate (including vision)
             swerveTelemetryConsumer.accept(state);
         };
 

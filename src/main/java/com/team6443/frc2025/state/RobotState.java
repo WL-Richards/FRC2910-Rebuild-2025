@@ -7,20 +7,28 @@ package com.team6443.frc2025.state;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.team6443.frc2025.Robot;
 import com.team6443.lib.constants.RobotStateConstants;
 import com.team6443.lib.core.logging.Loggable;
 import com.team6443.lib.math.ConcurrentTimeInterpolatableBuffer;
 
-import com.team6443.lib.subsystems.vision.VisionInputs;
+import com.team6443.lib.subsystems.vision.LimelightVisionInputs;
+import com.team6443.lib.subsystems.vision.util.VisionFieldPoseEstimate;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * Robot state class that retains all information that is used to determine the robots current state.
@@ -113,6 +121,13 @@ public final class RobotState implements Loggable {
         }
     }
 
+    /**
+     * Tracks the current state of the robot vision systems
+     */
+    class Vision {
+        public AtomicReference<Double> LastUsedMegatagTimestamp = new AtomicReference<Double>(0.0);
+        public final ConcurrentTimeInterpolatableBuffer<Pose2d> TimeInterpolatableMegatagPose = ConcurrentTimeInterpolatableBuffer.createBuffer(RobotStateConstants.Kinematics.kRobotPoseWindowLengthSeconds);
+    }
 
     /*  Singleton setup for robot state */
     private static RobotState robotState = null;
@@ -125,6 +140,10 @@ public final class RobotState implements Loggable {
 
     /* Normal class properties */
     private final RobotState.Odometry odometryState = new RobotState.Odometry();
+
+    private final RobotState.Vision visionState = new RobotState.Vision();
+
+    // --- Odometry Functionality ---
 
     public void addOdometryMeasurement(double timestamp, Pose2d pose){
         odometryState.TimeInterpolatableEstimatedRobotPose.addSample(timestamp, pose);
@@ -142,6 +161,14 @@ public final class RobotState implements Loggable {
         return entry.getValue();
     }
     
+    /**
+     * Get the field robot pose of the robot at some timestamp within the kRobotPoseWindowLengthSeconds
+     * @param timestamp Timestamp to lookup
+     * @return Optional Pose2d representing the robots field position
+     */
+    public Optional<Pose2d> getFieldRobotPose(double timestamp){
+        return odometryState.TimeInterpolatableEstimatedRobotPose.getSample(timestamp);
+    }
     /**
      * Add the current motion measurements for the robot to the time buffer for logging
      * @param timestamp The timestamp for which these measurements were logged
@@ -215,6 +242,50 @@ public final class RobotState implements Loggable {
 
     public ChassisSpeeds getLatestFusedFieldRelativeChassisSpeed() {
         return odometryState.gyroFusedChassisSpeeds.get();
+    }
+
+    public Optional<Double> getMaxDriveYawSpeedInRange(
+            double minTime, double maxTime) {
+        // Gyro yaw rate not set in sim.
+        if (Robot.isReal()) return getMaxAbsValueInRange(odometryState.DriveYawAngularVelocity, minTime, maxTime);
+        return Optional.of(Math.abs(odometryState.actualRobotRelativeChassisSpeeds.get().omegaRadiansPerSecond));
+    }
+
+    private Optional<Double> getMaxAbsValueInRange(
+            ConcurrentTimeInterpolatableBuffer<Double> buffer, double minTime, double maxTime) {
+        var submap = buffer.getInternalBuffer().subMap(minTime, maxTime).values();
+        var max = submap.stream().max(Double::compare);
+        var min = submap.stream().min(Double::compare);
+        if (max.isEmpty() || min.isEmpty()) return Optional.empty();
+        if (Math.abs(max.get()) >= Math.abs(min.get())) return max;
+        else return min;
+    }
+
+    // --- Vision Functionality ---
+
+    private Consumer<VisionFieldPoseEstimate> drivetrainVisionEstimateConsumer = null;
+
+    public void registerDriveTrainVisionEstimateConsumer(Consumer<VisionFieldPoseEstimate> addVisionEstimateConsumer){
+        this.drivetrainVisionEstimateConsumer = addVisionEstimateConsumer;
+    }
+
+    public void addMegatagEstimateMeasurement(VisionFieldPoseEstimate megatagEstimate){
+        visionState.TimeInterpolatableMegatagPose.addSample(megatagEstimate.getTimestampSeconds(), megatagEstimate.getVisionRobotPoseMeters());
+        visionState.LastUsedMegatagTimestamp.set(megatagEstimate.getTimestampSeconds());
+        drivetrainVisionEstimateConsumer.accept(megatagEstimate);
+    }
+
+    public double getLastUsedMegatagTimestamp(){
+        return visionState.LastUsedMegatagTimestamp.get();
+    }
+
+    public Pose2d getLatestMegatagEstimatedPose(){
+        var entry = visionState.TimeInterpolatableMegatagPose.getInternalBuffer().lastEntry();
+        if(entry == null){
+            return null;
+        }
+    
+        return entry.getValue();
     }
 
     // --- Loggable Implementation ---

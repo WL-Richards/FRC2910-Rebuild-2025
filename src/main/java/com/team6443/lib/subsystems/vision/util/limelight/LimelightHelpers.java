@@ -516,6 +516,7 @@ public class LimelightHelpers {
         public double tagSpan;
         public double avgTagDist;
         public double avgTagArea;
+        public double[] stddevs;
 
         public RawFiducial[] rawFiducials;
         public boolean isMegaTag2;
@@ -530,6 +531,7 @@ public class LimelightHelpers {
             this.avgTagDist = 0;
             this.avgTagArea = 0;
             this.rawFiducials = new RawFiducial[] {};
+            this.stddevs = new double[12];
             this.isMegaTag2 = false;
         }
 
@@ -542,6 +544,7 @@ public class LimelightHelpers {
                 double avgTagDist,
                 double avgTagArea,
                 RawFiducial[] rawFiducials,
+                double[] stddevs,
                 boolean isMegaTag2) {
 
             this.pose = pose;
@@ -553,6 +556,7 @@ public class LimelightHelpers {
             this.avgTagArea = avgTagArea;
             this.rawFiducials = rawFiducials;
             this.isMegaTag2 = isMegaTag2;
+            this.stddevs = stddevs;
         }
     }
 
@@ -685,10 +689,13 @@ public class LimelightHelpers {
             String limelightName, String entryName, boolean isMegaTag2) {
         DoubleArrayEntry poseEntry =
                 LimelightHelpers.getLimelightDoubleArrayEntry(limelightName, entryName);
+        
+        
 
-        TimestampedDoubleArray tsValue = poseEntry.getAtomic();
-        double[] poseArray = tsValue.value;
-        long timestamp = tsValue.timestamp;
+        TimestampedDoubleArray poseEntryTsValue = poseEntry.getAtomic();
+        double[] poseArray = poseEntryTsValue.value;
+
+        long timestamp = poseEntryTsValue.timestamp;
 
         if (poseArray.length == 0) {
             // Handle the case where no data is available
@@ -709,6 +716,8 @@ public class LimelightHelpers {
         int valsPerFiducial = 7;
         int expectedTotalVals = 11 + valsPerFiducial * tagCount;
 
+        
+
         if (poseArray.length != expectedTotalVals) {
             // Don't populate fiducials
         } else {
@@ -726,6 +735,10 @@ public class LimelightHelpers {
             }
         }
 
+        DoubleArrayEntry stddevsEntry = LimelightHelpers.getLimelightDoubleArrayEntry(limelightName, "stddevs");
+        TimestampedDoubleArray stddevsEntryTsValue = stddevsEntry.getAtomic();
+        double[] stdDevsArray = stddevsEntryTsValue.value;
+
         return new PoseEstimate(
                 pose,
                 adjustedTimestamp,
@@ -735,6 +748,7 @@ public class LimelightHelpers {
                 tagDist,
                 tagArea,
                 rawFiducials,
+                stdDevsArray,
                 isMegaTag2);
     }
 

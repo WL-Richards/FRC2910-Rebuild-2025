@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import com.team6443.frc2025.config.RobotConfig;
 import com.team6443.frc2025.config.RobotID;
+import com.team6443.frc2025.constants.field.Field2025;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -40,6 +41,9 @@ public class RobotRuntimeConstants {
 
     // What configuration is actually in use
     public static final RobotConfig kRobotConfiguration = RobotConfig.getRobotConstants(kRobotIdentification);
+
+    // Variable to allow one point of updating the field year 
+    public static final Field2025 kCurrentYear = Field2025.getInstance();
 
     /**
      * Are on the red alliance currently

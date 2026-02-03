@@ -12,15 +12,19 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 import com.team6443.lib.subsystems.vision.util.FiducialObservation;
 import com.team6443.lib.subsystems.vision.util.MegatagPoseEstimate;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N6;
 
 /**
  * Snapshot of all vision-related measurements that can be logged or replayed via AdvantageKit.
  * Every field is public so subsystem implementations can populate them before forwarding to the
  * logger.
  */
-public class VisionInputs implements LoggableInputs {
+public class LimelightVisionInputs implements LoggableInputs {
     private static final String MT1_PREFIX = "Megatag1PoseEstimate";
     private static final String MT2_PREFIX = "Megatag2PoseEstimate";
 
@@ -35,12 +39,26 @@ public class VisionInputs implements LoggableInputs {
     public FiducialObservation[] fiducialObservations = new FiducialObservation[0];
 
     /** Megatag pipeline estimate using single-tag solves (if available). */
-    public MegatagPoseEstimate megatag1PoseEstimate =
-            new MegatagPoseEstimate(Pose2d.kZero, 0.0, 0.0, 0.0, 0.0, new int[0]);
+    public MegatagPoseEstimate megatag1PoseEstimate = new MegatagPoseEstimate(
+        Pose2d.kZero, 
+        0.0, 
+        0.0, 
+        0.0, 
+        0.0, 
+        new Matrix<>(Nat.N6(), Nat.N1()),
+        new int[0]
+    );
 
     /** Megatag pipeline estimate using two or more tags (if available). */
-    public MegatagPoseEstimate megatag2PoseEstimate =
-            new MegatagPoseEstimate(Pose2d.kZero, 0.0, 0.0, 0.0, 0.0, new int[0]);
+    public MegatagPoseEstimate megatag2PoseEstimate = new MegatagPoseEstimate(
+        Pose2d.kZero, 
+        0.0, 
+        0.0, 
+        0.0, 
+        0.0,
+        new Matrix<>(Nat.N6(), Nat.N1()),
+        new int[0]
+    );
 
     /** Number of tags contributing to the single-tag solve. */
     public int megatag1TagCount = 0;
@@ -204,18 +222,29 @@ public class VisionInputs implements LoggableInputs {
             double quality = table.get(prefix + "/Quality", sanitizedFallback.quality());
             double[] fiducialIds =
                     table.get(prefix + "/FiducialIds", encodeIds(sanitizedFallback.fiducialIds()));
+
+            Matrix<N6, N1> stddevs = table.get(prefix + "/StdDevs", sanitizedFallback.stdDevs());
             return new MegatagPoseEstimate(
                     fieldToRobot,
                     timestampSeconds,
                     latency,
                     avgTagArea,
                     quality,
+                    stddevs,
                     decodeIds(fiducialIds));
         }
 
         private static MegatagPoseEstimate sanitize(MegatagPoseEstimate estimate) {
             if (estimate == null) {
-                return new MegatagPoseEstimate(Pose2d.kZero, 0.0, 0.0, 0.0, 0.0, new int[0]);
+                return new MegatagPoseEstimate(
+                    Pose2d.kZero, 
+                    0.0, 
+                    0.0, 
+                    0.0, 
+                    0.0, 
+                    new Matrix<>(Nat.N6(), Nat.N1()), 
+                    new int[0]
+                );
             }
             if (estimate.fiducialIds() == null) {
                 return new MegatagPoseEstimate(
@@ -224,6 +253,7 @@ public class VisionInputs implements LoggableInputs {
                         estimate.latency(),
                         estimate.avgTagArea(),
                         estimate.quality(),
+                        estimate.stdDevs(),
                         new int[0]);
             }
             return estimate;

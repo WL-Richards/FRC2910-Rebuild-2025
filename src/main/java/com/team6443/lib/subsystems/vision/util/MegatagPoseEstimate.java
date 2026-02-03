@@ -4,7 +4,11 @@ import java.nio.ByteBuffer;
 
 import com.team6443.lib.subsystems.vision.util.limelight.LimelightHelpers;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N6;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 
@@ -17,6 +21,7 @@ import edu.wpi.first.util.struct.StructSerializable;
  * @param latency Processing latency in seconds
  * @param avgTagArea Average area of detected tags
  * @param quality Quality score of the pose estimate (0-1)
+ * @param stdDevs Standard deviations for x, y, z, roll, pitch, and yaw as Matrix<N6, N1>
  * @param fiducialIds IDs of fiducials used for this estimate
  */
 public record MegatagPoseEstimate(
@@ -25,6 +30,7 @@ public record MegatagPoseEstimate(
     double latency,
     double avgTagArea,
     double quality,
+    Matrix<N6, N1> stdDevs,
     int[] fiducialIds
 )
 implements StructSerializable {
@@ -37,11 +43,15 @@ implements StructSerializable {
      * @param latency Measured processing latency
      * @param avgTagArea Average AprilTag area from the detection set
      * @param quality Overall quality score from the upstream estimator
+     * @param stdDevs Standard deviations for pose estimate (defaults to zeros)
      * @param fiducialIds IDs of the AprilTags contributing to the estimate (defaults to empty array)
      */
     public MegatagPoseEstimate {
         if (fieldToRobot == null) {
             fieldToRobot = Pose2d.kZero;
+        }
+        if (stdDevs == null) {
+            stdDevs = VecBuilder.fill(0, 0, 0, 0, 0, 0);
         }
         if (fiducialIds == null) {
             fiducialIds = new int[0];
@@ -73,6 +83,21 @@ implements StructSerializable {
                 poseEstimate.latency,
                 poseEstimate.avgTagArea,
                 fiducialIds.length > 1 ? 1.0 : 1.0 - poseEstimate.rawFiducials[0].ambiguity,
+                poseEstimate.stddevs.length > 0 ? !poseEstimate.isMegaTag2 ? VecBuilder.fill(
+                    poseEstimate.stddevs[0], 
+                    poseEstimate.stddevs[1], 
+                    poseEstimate.stddevs[2], 
+                    poseEstimate.stddevs[3], 
+                    poseEstimate.stddevs[4], 
+                    poseEstimate.stddevs[5]
+                ) : VecBuilder.fill(
+                    poseEstimate.stddevs[6], 
+                    poseEstimate.stddevs[7], 
+                    poseEstimate.stddevs[8], 
+                    poseEstimate.stddevs[9], 
+                    poseEstimate.stddevs[10], 
+                    poseEstimate.stddevs[11]
+                ) : null,
                 fiducialIds);
     }
 
@@ -126,9 +151,10 @@ implements StructSerializable {
             double latency = bb.getDouble();
             double avgTagArea = bb.getDouble();
             double quality = bb.getDouble();
+            Matrix<N6, N1> stdDevs = null;
             int[] fiducialIds = new int[0];
             return new MegatagPoseEstimate(
-                    fieldToRobot, timestampSeconds, latency, avgTagArea, quality, fiducialIds);
+                    fieldToRobot, timestampSeconds, latency, avgTagArea, quality, stdDevs, fiducialIds);
         }
  
         /**

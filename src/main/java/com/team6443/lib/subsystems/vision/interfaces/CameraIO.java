@@ -7,22 +7,17 @@ package com.team6443.lib.subsystems.vision.interfaces;
 import com.team6443.lib.core.logging.Loggable;
 
 import com.team6443.lib.config.camera.CameraConfiguration;
-import com.team6443.lib.subsystems.vision.VisionInputs;
+
 
 /** 
  * Basic camera object
  */
-public interface CameraIO extends Loggable {
+public abstract class CameraIO implements Loggable {
 
     /**
      * Get the configuration for this camera
      * @return
      */
-    public CameraConfiguration getConfiguration();
+    public abstract CameraConfiguration getConfiguration();
 
-    /**
-     * Update the state of this camera
-     * @param inputs Vision inputs to be updated
-     */
-    public void updateInputs(VisionInputs inputs);
 }
